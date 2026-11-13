@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowUpRight, Check, Cube, DownloadSimple, EnvelopeSimple, LinkSimple, List, X } from '@phosphor-icons/react';
 import { RESUME } from './timeline';
 
@@ -15,6 +14,8 @@ export const NAV_ITEMS = [
   { id: 'finance', label: 'Trading app' },
   { id: 'awards', label: 'Awards' },
   { id: 'skills', label: 'Skills' },
+  { id: 'life', label: 'Activities' },
+  { id: 'goals', label: 'Goals' },
 ] as const;
 
 export function Logo({ size = 28 }: { size?: number }) {
@@ -37,6 +38,13 @@ export function Dock({ go, active }: { go: (id: string) => void; active: string 
   const [open, setOpen] = useState(false);
   const [sheet, setSheet] = useState(false);
   const [copied, setCopied] = useState(false);
+  /** The resume PDF is only offered when the file is really there. */
+  const [hasResume, setHasResume] = useState(false);
+  useEffect(() => {
+    fetch(RESUME, { method: 'HEAD' })
+      .then((r) => setHasResume(r.ok && (r.headers.get('content-type') ?? '').includes('pdf')))
+      .catch(() => setHasResume(false));
+  }, []);
   const closeT = useRef(0);
   const root = useRef<HTMLElement>(null);
 
@@ -113,12 +121,14 @@ export function Dock({ go, active }: { go: (id: string) => void; active: string 
           <a className="dk-icon" href={`${import.meta.env.BASE_URL}?style=creative`} aria-label="Open the 3D house" title="Walk through his 3D house">
             <Cube weight="bold" />
           </a>
-          <Link className="dk-btn is-ghost" to="/contact">
+          <button type="button" className="dk-btn is-ghost" onClick={() => go('contact')}>
             <EnvelopeSimple weight="bold" aria-hidden="true" /> Contact
-          </Link>
-          <a className="dk-btn" href={RESUME} download="Shreyas_Ballari_Resume.pdf">
-            <DownloadSimple weight="bold" aria-hidden="true" /> Resume
-          </a>
+          </button>
+          {hasResume && (
+            <a className="dk-btn" href={RESUME} download="Shreyas_Ballari_Resume.pdf">
+              <DownloadSimple weight="bold" aria-hidden="true" /> Resume
+            </a>
+          )}
         </div>
 
         <button type="button" className="dk-toggle" aria-label={open ? 'Menu' : 'Open the menu'} aria-expanded={open} onClick={() => (open ? setSheet((s) => !s) : setOpen(true))}>

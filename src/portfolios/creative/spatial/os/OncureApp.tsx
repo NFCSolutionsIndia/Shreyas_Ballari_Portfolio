@@ -1,9 +1,8 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import {
   ArrowsOut,
   Brain,
   ChatsCircle,
-  Cube,
   Dna,
   Flag,
   Lightning,
@@ -18,37 +17,27 @@ import {
 import { oncure, profile } from '@/content/portfolio';
 import { speak } from '../story/narrator';
 import { useSpatial } from '../store';
-import type { CellFocus } from './Cell3D';
 import { askAI } from './Dashboard';
-
-const Cell3D = lazy(() => import('./Cell3D').then((m) => ({ default: m.Cell3D })));
 
 /**
  * Oncure: his research video in a cinema window (custom glass controls, and the colours of the
  * film spilling softly around it), with a panel beside it that explains the concept in his own
- * words: overview, the five steps, a 3D model, the problem, the challenges and the road ahead.
+ * words: overview, the five steps, the problem, the challenges and the road ahead.
  * Oncure is a conceptual research proposal, and the page says so.
  */
 
 const st = (i: number, extra?: CSSProperties) => ({ '--i': i, ...extra }) as CSSProperties;
 const fmt = (s: number) => (Number.isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00');
 
-type Tab = 'overview' | 'steps' | 'model' | 'problem' | 'challenges' | 'roadmap';
+type Tab = 'overview' | 'steps' | 'problem' | 'challenges' | 'roadmap';
 const TABS: { id: Tab; k: string; icon: typeof Dna }[] = [
   { id: 'overview', k: 'Overview', icon: Dna },
   { id: 'steps', k: 'How it works', icon: Lightning },
-  { id: 'model', k: '3D model', icon: Cube },
   { id: 'problem', k: 'The problem', icon: Warning },
   { id: 'challenges', k: 'Challenges', icon: Target },
   { id: 'roadmap', k: 'Roadmap', icon: Flag },
 ];
 
-const PARTS: { id: Exclude<CellFocus, null>; k: string; tint: string }[] = [
-  { id: 'tumour', k: 'Cancer cell', tint: '#e2557a' },
-  { id: 'bots', k: 'Nanobots', tint: '#43c6e8' },
-  { id: 'healthy', k: 'Healthy cells', tint: '#5f8cff' },
-  { id: 'ai', k: 'AI scan', tint: '#9b6bff' },
-];
 
 function Cinema() {
   const video = useRef<HTMLVideoElement>(null);
@@ -181,7 +170,6 @@ function List({ items, numbered = false }: { items: { title: string; line: strin
 
 export function OncureApp() {
   const [tab, setTab] = useState<Tab>('overview');
-  const [focus, setFocus] = useState<CellFocus>(null);
   return (
     <div className="os-scene onc">
       <Cinema />
@@ -223,23 +211,6 @@ export function OncureApp() {
                 <ShieldCheck weight="fill" aria-hidden="true" /> A person verifies what the AI finds before any treatment, so no unnecessary cell death takes place.
               </p>
             </>
-          )}
-          {tab === 'model' && (
-            <div className="onc-model">
-              <div className="onc-model-stage">
-                <Suspense fallback={<div className="on-loading">Loading the 3D model…</div>}>
-                  <Cell3D focus={focus} onPick={(id) => setFocus(focus === id ? null : id)} labels={PARTS} />
-                </Suspense>
-              </div>
-              <div className="onc-model-keys">
-                {PARTS.map((p) => (
-                  <button key={p.id} type="button" className={focus === p.id ? 'is-on' : ''} style={{ '--tint': p.tint } as CSSProperties} onClick={() => setFocus(focus === p.id ? null : p.id)}>
-                    <i aria-hidden="true" /> {p.k}
-                  </button>
-                ))}
-              </div>
-              <small className="onc-note">A concept illustration, not a medical image. Drag to turn it.</small>
-            </div>
           )}
           {tab === 'problem' && (
             <>

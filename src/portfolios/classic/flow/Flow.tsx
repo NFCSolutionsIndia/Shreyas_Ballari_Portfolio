@@ -85,6 +85,8 @@ function HeroLayer({ reg }: { reg: Reg }) {
     el.style.clipPath = `inset(${top}px ${x}px ${bottom}px ${x}px round ${e * 24}px)`;
     const inner = el.firstElementChild as HTMLElement | null;
     if (inner) inner.style.transform = `scale(${1 - e * 0.42})`;
+    // At the end it fades into the portrait card waiting in the ring (his face, clear on any screen).
+    el.style.opacity = String(1 - smooth(seg(k, 0.72, 1)));
   });
   return (
     <div ref={wrap} className="fl-herolayer">
@@ -137,9 +139,13 @@ function Ring({ reg }: { reg: Reg }) {
       <div ref={wrap} className="fl-carousel">
         <div ref={ring} className="fl-ring" style={{ '--n': EDU.length + 1 } as CSSProperties}>
           <div className="fl-card is-hero" style={{ '--i': 0 } as CSSProperties} aria-hidden="true">
-            <div className="fl-heromini">
-              <StageHero mini />
-            </div>
+            <img className="fl-heroimg" src={`${BASE}assets/shreyas/portrait-studio.jpg`} alt="" />
+            <span className="fl-herocap">
+              <b>Hey, I’m {profile.firstName}</b>
+              <small>
+                {profile.grade} · {profile.school}
+              </small>
+            </span>
           </div>
           {EDU.map((c, i) => (
             <article key={c.title} className={`fl-card is-${c.tone} is-edu`} style={{ '--i': i + 1 } as CSSProperties}>
@@ -239,6 +245,14 @@ export function Flow() {
         // Back to the hologram hero at the very top.
         if (smoothScroll) smoothScroll.scrollToY(0, { duration: 2 });
         else window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      // Sections after the film (about, awards, activities, goals, contact) are ordinary page sections.
+      const after = document.getElementById(`cx-${id}`);
+      if (after) {
+        const y = after.getBoundingClientRect().top + window.scrollY;
+        if (smoothScroll) smoothScroll.scrollToY(y, { duration: 1.8 });
+        else window.scrollTo({ top: y, behavior: 'smooth' });
         return;
       }
       scrollToT(JUMP[id] ?? 0, 2.2);

@@ -1,6 +1,5 @@
 import { useRef, useState, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowsOut, ArrowClockwise, ArrowCounterClockwise, ChartLineUp, Info, Pause, Play, SpeakerHigh, SpeakerSlash, Sparkle } from '@phosphor-icons/react';
+import { ArrowRight, ArrowsOut, ArrowClockwise, ArrowCounterClockwise, BookOpen, ChalkboardTeacher, ChartLineUp, ChatCircleText, Cpu, Info, Lightning, Pause, Play, SpeakerHigh, SpeakerSlash, Sparkle } from '@phosphor-icons/react';
 import { DetailSheet } from '@/features/details/Details';
 import { achievements, languages, oncure, profile, resumeExtra } from '@/content/portfolio';
 import { show, useFx, type Reg } from './fx';
@@ -21,6 +20,7 @@ import './sequel.css';
  */
 
 const BASE = import.meta.env.BASE_URL;
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 // --- Film -------------------------------------------------------------------------------------
@@ -358,9 +358,16 @@ export function Stack3D({ reg }: { reg: Reg }) {
       <p className="fm-line" key={`l${c.title}`}>
         {c.line}
       </p>
-      <Link to="/contact" className="fm-cta">
+      <a
+        href="#cx-contact"
+        className="fm-cta"
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById('cx-contact')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+      >
         Get in touch <ArrowRight weight="bold" aria-hidden="true" />
-      </Link>
+      </a>
     </div>
   );
 }
@@ -372,7 +379,36 @@ const LANG_NOTE: Record<string, string> = {
   Python: 'A favourite for data and AI',
   Java: 'The language of AP Computer Science A',
 };
-const TECH_CHIPS = [...resumeExtra.skills[1]!.items, ...resumeExtra.skills[0]!.items.slice(2)];
+
+/** A few lines in each language, coloured like a code editor (for show; not a real program). */
+const CODE: Record<string, { file: string; lines: [string, string][][] }> = {
+  JavaScript: {
+    file: 'goal.js',
+    lines: [
+      [['k', 'const '], ['v', 'goal'], ['p', ' = '], ['s', "'AI for good'"], ['p', ';']],
+      [['k', 'function '], ['f', 'learn'], ['p', '(topic) {']],
+      [['p', '  '], ['k', 'return '], ['s', '`${topic} ✓`'], ['p', ';']],
+      [['p', '}']],
+    ],
+  },
+  Python: {
+    file: 'detect.py',
+    lines: [
+      [['k', 'def '], ['f', 'detect'], ['p', '(cells):']],
+      [['p', '    '], ['k', 'return '], ['p', '[c '], ['k', 'for '], ['p', 'c '], ['k', 'in '], ['p', 'cells']],
+      [['p', '            '], ['k', 'if '], ['p', 'c.'], ['v', 'is_tumour'], ['p', ']']],
+    ],
+  },
+  Java: {
+    file: 'Oncure.java',
+    lines: [
+      [['k', 'public class '], ['f', 'Oncure'], ['p', ' {']],
+      [['p', '  '], ['k', 'boolean '], ['v', 'precise'], ['p', ' = '], ['k', 'true'], ['p', ';']],
+      [['p', '}']],
+    ],
+  },
+};
+const GROUP_ICON = [BookOpen, Cpu, ChalkboardTeacher, ChatCircleText, Lightning];
 
 export function TechSkills({ reg }: { reg: Reg }) {
   const root = useRef<HTMLDivElement>(null);
@@ -392,33 +428,65 @@ export function TechSkills({ reg }: { reg: Reg }) {
       const sz = -(i + 1) * 120;
       c.style.transform = `translate3d(${(1 - v) * sx}px, ${(1 - v) * -(i + 1) * 14}px, ${(1 - v) * sz}px) rotateY(${(1 - v) * -42}deg)`;
       c.style.opacity = String(Math.min(1, 0.2 + v));
+      c.style.setProperty('--type', String(clamp01((k - 0.2 - i * 0.08) / 0.3)));
     });
-    el.querySelectorAll<HTMLElement>('.ft-chip').forEach((c, i, all) => {
-      const v = out(seg(k, 0.4 + (i / all.length) * 0.3, 0.5 + (i / all.length) * 0.3));
+    el.querySelectorAll<HTMLElement>('.ft-group').forEach((c, i, all) => {
+      const v = out(seg(k, 0.42 + (i / all.length) * 0.3, 0.55 + (i / all.length) * 0.3));
       c.style.opacity = String(v);
-      c.style.transform = `translateY(${(1 - v) * 20}px)`;
+      c.style.transform = `translateY(${(1 - v) * 24}px)`;
     });
   });
   return (
     <div ref={root} className="ft">
-      <p className="ft-kicker">Technical skills</p>
-      <h2 className="ft-h">Three languages, and the tools around them.</h2>
-      <div className="ft-row">
-        {languages.map((l, i) => (
-          <article key={l} className="ft-lang" style={{ '--i': i } as CSSProperties}>
-            <span className="ft-n">{String(i + 1).padStart(2, '0')}</span>
-            <b>{l}</b>
-            <small>{LANG_NOTE[l] ?? ''}</small>
-          </article>
-        ))}
+      <div className="ft-head">
+        <p className="ft-kicker">Technical skills</p>
+        <h2 className="ft-h">Three languages, and the skills around them.</h2>
       </div>
-      <ul className="ft-chips">
-        {TECH_CHIPS.map((c) => (
-          <li key={c} className="ft-chip">
-            {c}
-          </li>
-        ))}
-      </ul>
+      <div className="ft-row">
+        {languages.map((l, i) => {
+          const code = CODE[l];
+          return (
+            <article key={l} className="ft-lang" style={{ '--i': i } as CSSProperties}>
+              <header className="ft-win">
+                <i />
+                <i />
+                <i />
+                <span>{code?.file ?? l}</span>
+              </header>
+              <pre className="ft-code" aria-hidden="true">
+                {code?.lines.map((line, n) => (
+                  <span key={n} className="ft-line">
+                    <em>{n + 1}</em>
+                    {line.map(([kind, text], j) => (
+                      <span key={j} className={`tk-${kind}`}>
+                        {text}
+                      </span>
+                    ))}
+                  </span>
+                ))}
+              </pre>
+              <footer className="ft-foot">
+                <b>{l}</b>
+                <small>{LANG_NOTE[l] ?? ''}</small>
+              </footer>
+            </article>
+          );
+        })}
+      </div>
+      <div className="ft-groups">
+        {resumeExtra.skills.map((g, i) => {
+          const I = GROUP_ICON[i % GROUP_ICON.length]!;
+          return (
+            <div key={g.group} className="ft-group">
+              <span className="ft-group-ico">
+                <I weight="duotone" aria-hidden="true" />
+              </span>
+              <b>{g.group}</b>
+              <small>{g.items.slice(0, 4).join(' · ')}</small>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

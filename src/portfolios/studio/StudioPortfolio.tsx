@@ -1,10 +1,11 @@
 import { useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+
 import { ArrowUpRight, EnvelopeSimple, Flask, Phone } from '@phosphor-icons/react';
 import '@fontsource-variable/geist';
 import '@fontsource-variable/geist-mono';
 import { SmoothScrollContext } from '@/app/providers/SmoothScroll';
-import { achievements, activities, courses, goals, languages, percentiles, profile, researchInterests, resume, schools, subjects, volunteering } from '@/content/portfolio';
+import { achievements, languages, profile } from '@/content/portfolio';
+import { Activities, Certificates, Courses, Education, Goals, Languages, Scores, Tutoring } from '@/features/visuals/Visuals';
 import { DetailSheet, type DetailId } from '@/features/details/Details';
 import './studio.css';
 
@@ -50,12 +51,6 @@ const WORK: { kind: string; title: string; line: string; img: string; tone: stri
   { kind: 'Writing', title: 'Young Authors', line: 'Young Authors Contest winner in 2023.', img: J('writing'), tone: '#f1c232' },
 ];
 
-const SKILLS = [
-  { title: 'Computer Science', line: 'AP Computer Science A and Principles; writes JavaScript, Python and Java.' },
-  { title: 'Artificial Intelligence', line: 'An AI course, and AI at the heart of Oncure and the trading app.' },
-  { title: 'Business and FinTech', line: 'Entrepreneurship and DECA, and a trading platform in progress.' },
-  { title: 'Biomedical research', line: 'AP Biology, AP Chemistry and Mini-Medical School led to Oncure.' },
-];
 
 
 const ORBIT = [J('oncure'), J('trading'), J('trophy'), J('tutor'), J('academy'), PORTRAIT];
@@ -106,8 +101,8 @@ function Screen({ go, live, onMore }: { go: (id: string) => void; live: boolean;
             <button type="button" className="fo-btn is-dark" tabIndex={tab} onClick={() => go('work')}>
               See the work <ArrowUpRight weight="bold" aria-hidden="true" />
             </button>
-            <button type="button" className="fo-btn" tabIndex={tab} onClick={() => go('about')}>
-              About him
+            <button type="button" className="fo-btn" tabIndex={tab} onClick={(e) => onMore?.('contact', e.currentTarget)}>
+              Say hello
             </button>
           </div>
         </div>
@@ -135,7 +130,6 @@ function Screen({ go, live, onMore }: { go: (id: string) => void; live: boolean;
           <article key={w.title} className="fo-card" style={{ '--tone': w.tone } as CSSProperties}>
             <figure>
               <img src={w.img} alt="" loading="lazy" draggable={false} />
-              <figcaption className="fo-mono">Illustration</figcaption>
             </figure>
             <div className="fo-card-text">
               <b className="fo-display fo-num">{String(i + 1).padStart(2, '0')}</b>
@@ -160,133 +154,49 @@ function Screen({ go, live, onMore }: { go: (id: string) => void; live: boolean;
         ))}
       </section>
 
-      <section className="fo-light" data-sec="about">
+      <section className="fo-sec fo-light" data-sec="about">
         <p className="fo-mono">Education</p>
-        <ol className="fo-tl">
-          {[...schools].reverse().map((sc) => (
-            <li key={sc.name}>
-              <b className="fo-display">{sc.name}</b>
-              <span>{sc.name === profile.school ? `${profile.grade} · ${profile.schoolTown} · all Honors and AP` : sc.level}</span>
-            </li>
-          ))}
-        </ol>
-        <div className="fo-two">
-          <div>
-            <p className="fo-mono">Subjects he loves</p>
-            <ul className="fo-tags">
-              {subjects.map((x) => (
-                <li key={x}>{x}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="fo-mono">Research interests</p>
-            <ul className="fo-lines">
-              {researchInterests.map((r) => (
-                <li key={r.title}>
-                  <b>{r.title}</b> · {r.line}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        <h3 className="fo-display fo-h">Where he learns</h3>
+        <Education />
       </section>
 
-      <section className="fo-dark" data-sec="skills">
-        <p className="fo-mono">What he works on</p>
-        <ol className="fo-skills">
-          {SKILLS.map((sk, i) => (
-            <li key={sk.title}>
-              <span className="fo-mono">{String(i + 1).padStart(2, '0')}</span>
-              <b className="fo-display">{sk.title}</b>
-              <p>{sk.line}</p>
-            </li>
-          ))}
-        </ol>
-        <p className="fo-mono fo-places-h">Courses</p>
-        <ul className="fo-places">
-          {courses.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
-        <p className="fo-mono fo-places-h">Programming languages</p>
-        <ul className="fo-places">
-          {languages.map((l) => (
-            <li key={l}>{l}</li>
-          ))}
-        </ul>
+      <section className="fo-sec fo-dark vz-on-dark" data-sec="skills">
+        <p className="fo-mono">Technical skills</p>
+        <h3 className="fo-display fo-h">Courses &amp; languages</h3>
+        <Languages />
+        <div className="fo-gap" />
+        <Courses />
       </section>
 
-      <section className="fo-light" data-sec="awards">
+      <section className="fo-sec fo-cream" data-sec="awards">
         <p className="fo-mono">Achievements and certificates</p>
-        <ul className="fo-awards">
-          {achievements.map((a) => (
-            <li key={a.id}>
-              <span className="fo-mono">{a.kind}</span>
-              <b className="fo-display">{a.title}</b>
-              <p>{a.detail}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="fo-mono fo-places-h">Percentiles</p>
-        <ul className="fo-tags">
-          {percentiles.map((x) => (
-            <li key={x.test + x.grade}>
-              {x.test} · {x.grade} · {x.value}th
-            </li>
-          ))}
-        </ul>
+        <h3 className="fo-display fo-h">Awards</h3>
+        <Certificates />
+        <div className="fo-gap" />
+        <Scores />
       </section>
 
-      <section className="fo-dark" data-sec="life">
-        <div className="fo-two">
-          <div>
-            <p className="fo-mono">Volunteering</p>
-            <ul className="fo-lines">
-              {volunteering.map((v) => (
-                <li key={v.title}>
-                  <b>{v.title}</b> · {v.role}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="fo-mono">Other activities</p>
-            <ul className="fo-lines">
-              {activities.map((a) => (
-                <li key={a.title}>
-                  <b>{a.title}</b> · {a.role}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <p className="fo-mono fo-places-h">As a peer tutor</p>
-        <ul className="fo-lines">
-          {resume.tutoring.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
-        <p className="fo-mono fo-places-h">Goals</p>
-        <ul className="fo-lines">
-          <li>
-            <b>Education</b> · {goals.education}
-          </li>
-          {goals.career.map((g) => (
-            <li key={g}>
-              <b>Career</b> · {g}
-            </li>
-          ))}
-        </ul>
+      <section className="fo-sec fo-dark vz-on-dark" data-sec="life">
+        <p className="fo-mono">Beyond the classroom</p>
+        <h3 className="fo-display fo-h">Activities &amp; volunteering</h3>
+        <Activities />
+      </section>
+
+      <section className="fo-sec fo-light" data-sec="tutoring">
+        <p className="fo-mono">As a peer tutor</p>
+        <h3 className="fo-display fo-h">How he helps others learn</h3>
+        <Tutoring />
+      </section>
+
+      <section className="fo-sec fo-blue vz-on-dark" data-sec="goals">
+        <p className="fo-mono">Goals</p>
+        <h3 className="fo-display fo-h">Where he is heading</h3>
+        <Goals />
         <div className="fo-cta" data-sec="contact">
           <b className="fo-display">Curious about Oncure? Let’s talk.</b>
-          {live ? (
-            <Link className="fo-btn is-dark" to="/contact">
-              Contact form <ArrowUpRight weight="bold" aria-hidden="true" />
-            </Link>
-          ) : (
-            <span className="fo-btn is-dark">Contact form</span>
-          )}
+          <button type="button" className="fo-btn is-dark" tabIndex={tab} data-voice="contact form" onClick={(e) => onMore?.('contact', e.currentTarget.closest('.fo-cta') as HTMLElement)}>
+            Contact form <ArrowUpRight weight="bold" aria-hidden="true" />
+          </button>
         </div>
       </section>
     </div>
@@ -334,8 +244,7 @@ function LockScreen({ time }: { time: string }) {
   );
 }
 
-function CallScreen() {
-  const navigate = useNavigate();
+function CallScreen({ onTalk }: { onTalk: (from: HTMLElement) => void }) {
   const knob = useRef<HTMLSpanElement>(null);
   const track = useRef<HTMLDivElement>(null);
   /** Slide the green button to the end (or tap it) to open the contact form. */
@@ -354,8 +263,8 @@ function CallScreen() {
     const up = () => {
       k.removeEventListener('pointermove', move);
       k.removeEventListener('pointerup', up);
-      if (dx > max * 0.8 || dx < 4) navigate('/contact');
-      else k.style.transform = '';
+      if (dx > max * 0.8 || dx < 4) onTalk(tr);
+      k.style.transform = '';
     };
     k.addEventListener('pointermove', move);
     k.addEventListener('pointerup', up);
@@ -366,7 +275,7 @@ function CallScreen() {
       <span>Incoming call · about your next idea</span>
       <img className="fo-call-photo" src={PORTRAIT} alt="" draggable={false} />
       <div ref={track} className="fo-slide">
-        <span ref={knob} className="fo-slide-knob" role="button" tabIndex={0} aria-label="Open the contact form" onPointerDown={onDown} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && navigate('/contact')}>
+        <span ref={knob} className="fo-slide-knob" role="button" tabIndex={0} aria-label="Open the contact form" onPointerDown={onDown} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && track.current && onTalk(track.current)}>
           <Phone weight="fill" />
         </span>
         <span>slide to talk</span>
@@ -389,6 +298,8 @@ export function StudioPortfolio() {
   const [size, setSize] = useState({ W: 800, H: 550, phone: false });
   /** Oncure or the trading app, opened inside the phone screen. */
   const [detail, setDetail] = useState<{ id: DetailId; from: DOMRect } | null>(null);
+  /** The contact form opened from the incoming call (on the closed phone's screen). */
+  const [callForm, setCallForm] = useState<DOMRect | null>(null);
 
   const section = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -502,7 +413,10 @@ export function StudioPortfolio() {
                 <div className="fo-glass">{half('l', <Screen go={go} live={false} />)}</div>
               </div>
               <div className="fo-face is-back">
-                <div className="fo-glass">{call ? <CallScreen /> : <LockScreen time={time} />}</div>
+                <div className="fo-glass">
+                  {call ? <CallScreen onTalk={(el) => setCallForm(el.getBoundingClientRect())} /> : <LockScreen time={time} />}
+                  <DetailSheet id={callForm ? 'contact' : null} origin={callForm} onClose={() => setCallForm(null)} contained theme="studio" />
+                </div>
               </div>
             </div>
             {/* Fully open: one live screen you can use. */}

@@ -1,0 +1,624 @@
+/* Visual blocks (certificates, scores, tiles, cards). The page around them sets the look with
+   --vz-* variables; .vz-on-dark switches to light-on-dark. Grids use auto-fill, so they fit a
+   phone screen, the Studio phone and a desktop page alike. */
+
+/* A host page sets --host-* (ink, muted, card, line, accent); these are the defaults. */
+.vz {
+  --vz-ink: var(--host-ink, #121214);
+  --vz-muted: var(--host-muted, rgba(18, 18, 20, 0.64));
+  --vz-card: var(--host-card, #ffffff);
+  --vz-line: var(--host-line, rgba(18, 18, 20, 0.08));
+  --vz-accent: var(--host-accent, #2f5fd6);
+  --vz-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color: var(--vz-ink);
+}
+.vz-on-dark {
+  --host-ink: #ffffff;
+  --host-muted: rgba(255, 255, 255, 0.72);
+  --host-card: rgba(255, 255, 255, 0.07);
+  --host-line: rgba(255, 255, 255, 0.12);
+}
+.vz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* Entrance: each item rises in, a little after the one before. */
+.vz [data-vz] {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  transition:
+    opacity 700ms var(--vz-ease),
+    transform 800ms var(--vz-ease);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+.vz [data-vz].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Shared bits */
+.vz-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--tone, var(--vz-accent)) 16%, transparent);
+  color: var(--tone, var(--vz-accent));
+  font-size: 24px;
+}
+.vz-ico.is-round {
+  border-radius: 999px;
+}
+.vz-ico.is-big {
+  width: 56px;
+  height: 56px;
+  font-size: 30px;
+}
+.vz-tag {
+  font-family: 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tone, var(--vz-accent));
+}
+.vz-label {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--vz-muted);
+}
+.vz-panel {
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--vz-card);
+  border: 1px solid var(--vz-line);
+}
+
+/* --- Certificates ------------------------------------------------------------------------------ */
+.vz-certs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+  gap: 14px;
+}
+.vz-cert {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  background: #fbf7ee;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+}
+.vz-cert[data-vz] {
+  transform: translateY(28px) rotate(-3deg) scale(0.96);
+}
+.vz-cert[data-vz].is-in {
+  transform: rotate(calc((var(--i) - 3) * 0.6deg));
+  transition:
+    opacity 700ms var(--vz-ease),
+    transform 800ms var(--vz-ease),
+    box-shadow 300ms var(--vz-ease);
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+.vz-cert:hover {
+  transform: translateY(-4px) rotate(0deg) !important;
+  box-shadow: 0 26px 48px rgba(0, 0, 0, 0.2);
+  transition-delay: 0ms !important;
+}
+.vz-cert-paper {
+  position: absolute;
+  inset: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 14px;
+  border: 2px solid var(--tone);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 3px #fbf7ee,
+    inset 0 0 0 4px color-mix(in srgb, var(--tone) 50%, transparent);
+  background: radial-gradient(80% 60% at 50% 0%, color-mix(in srgb, var(--tone) 12%, transparent), transparent 70%), #fbf7ee;
+  color: #2a2620;
+  text-align: center;
+}
+.vz-cert-issuer {
+  font-size: 10px;
+  line-height: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tone);
+}
+.vz-cert-kind,
+.vz-cert-to {
+  font-size: 10px;
+  line-height: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(42, 38, 32, 0.55);
+}
+.vz-cert-title {
+  margin: 2px 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+  text-wrap: balance;
+}
+.vz-cert-name {
+  padding-bottom: 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--tone) 60%, transparent);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  line-height: 20px;
+  font-style: normal;
+}
+.vz-cert-meta {
+  font-size: 11px;
+  line-height: 15px;
+  color: rgba(42, 38, 32, 0.7);
+}
+.vz-cert-seal {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tone) 40%, white), var(--tone));
+  color: #fff;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.vz-cert-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Scores ------------------------------------------------------------------------------------ */
+.vz-scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 14px;
+}
+.vz-bars {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  height: 180px;
+  margin-top: 12px;
+}
+.vz-bar {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.vz-bar b {
+  font-size: 16px;
+  line-height: 20px;
+}
+.vz-bar small {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--vz-muted);
+  white-space: nowrap;
+}
+.vz-bar-track {
+  position: relative;
+  width: 100%;
+  max-width: 46px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--vz-accent) 10%, transparent);
+  overflow: hidden;
+}
+.vz-bar-fill {
+  position: absolute;
+  inset: auto 0 0;
+  height: calc(var(--v) * 1%);
+  border-radius: 12px;
+  background: linear-gradient(to top, var(--vz-accent), color-mix(in srgb, var(--vz-accent) 55%, #7dd3fc));
+  transform: scaleY(0);
+  transform-origin: 50% 100%;
+  transition: transform 1200ms var(--vz-ease);
+  transition-delay: calc(200ms + var(--i, 0) * 140ms);
+}
+.vz-barbox.is-in .vz-bar-fill {
+  transform: scaleY(1);
+}
+.vz-ringbox {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 8px;
+  text-align: center;
+}
+.vz-ringbox > svg,
+.vz-ring-text {
+  grid-area: 1 / 1;
+}
+.vz-ring {
+  width: 150px;
+  height: 150px;
+  transform: rotate(-90deg);
+}
+.vz-ring circle {
+  fill: none;
+  stroke-width: 10;
+}
+.vz-ring-bg {
+  stroke: color-mix(in srgb, var(--vz-accent) 12%, transparent);
+}
+.vz-ring-fg {
+  stroke: var(--vz-accent);
+  stroke-linecap: round;
+  stroke-dashoffset: var(--c);
+  transition: stroke-dashoffset 1600ms var(--vz-ease) 300ms;
+}
+.vz-ringbox.is-in .vz-ring-fg {
+  stroke-dashoffset: var(--off);
+}
+.vz-ring-text {
+  display: grid;
+  place-content: center;
+}
+.vz-ring-text b {
+  font-size: 30px;
+  line-height: 32px;
+}
+.vz-ring-text small {
+  font-size: 12px;
+  color: var(--vz-muted);
+}
+
+/* --- Courses and languages --------------------------------------------------------------------- */
+.vz-courses {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 10px;
+}
+.vz-course {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--vz-card);
+  border: 1px solid var(--vz-line);
+  transition: transform 300ms var(--vz-ease);
+}
+.vz-course:hover {
+  transform: translateY(-2px);
+}
+.vz-course b {
+  font-size: 14px;
+  line-height: 19px;
+  font-weight: 600;
+}
+.vz-langs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 10px;
+}
+.vz-lang {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--vz-card);
+  border: 1px solid var(--vz-line);
+}
+.vz-lang-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-width: 52px;
+  height: 52px;
+  padding: 0 8px;
+  border-radius: 14px;
+  background: var(--tone);
+  color: var(--ink);
+  font: 800 18px/1 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--tone) 40%, transparent);
+}
+.vz-lang > span:last-child {
+  display: grid;
+}
+.vz-lang b {
+  font-size: 16px;
+  line-height: 22px;
+}
+.vz-lang small {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--vz-muted);
+}
+
+/* --- Activities -------------------------------------------------------------------------------- */
+.vz-acts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+  gap: 12px;
+}
+.vz-act {
+  position: relative;
+  display: grid;
+  align-content: end;
+  gap: 2px;
+  min-height: 170px;
+  padding: 14px;
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--tone) 70%, white), transparent 60%),
+    linear-gradient(160deg, var(--tone), color-mix(in srgb, var(--tone) 55%, #000));
+  color: #fff;
+  overflow: hidden;
+  box-shadow: 0 16px 32px color-mix(in srgb, var(--tone) 28%, transparent);
+}
+.vz-act-art {
+  position: absolute;
+  top: 10px;
+  right: 6px;
+  font-size: 84px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25));
+  animation: vz-float 5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.7s);
+}
+@keyframes vz-float {
+  to {
+    transform: translateY(-8px) rotate(-6deg);
+  }
+}
+.vz-act .vz-tag {
+  color: rgba(255, 255, 255, 0.8);
+}
+.vz-act b {
+  font-size: 18px;
+  line-height: 22px;
+}
+.vz-act small {
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* --- Tutoring ---------------------------------------------------------------------------------- */
+.vz-tutor {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+}
+.vz-tip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--vz-card);
+  border: 1px solid var(--vz-line);
+}
+.vz-tip p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* --- Goals ------------------------------------------------------------------------------------- */
+.vz-goals {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 14px;
+}
+.vz-goals-line {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  top: 46px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--vz-accent), color-mix(in srgb, var(--vz-accent) 30%, transparent));
+  transform-origin: 0 50%;
+}
+.vz-goals .vz-goals-line[data-vz] {
+  transform: scaleX(0);
+  transition: transform 1600ms var(--vz-ease), opacity 400ms;
+}
+.vz-goals .vz-goals-line[data-vz].is-in {
+  transform: scaleX(1);
+}
+.vz-goal {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--vz-card);
+  border: 1px solid var(--vz-line);
+}
+.vz-goal b {
+  font-size: 16px;
+  line-height: 21px;
+}
+.vz-goal small {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--vz-muted);
+}
+
+/* --- Education ---------------------------------------------------------------------------------- */
+.vz-edu {
+  display: grid;
+  gap: 14px;
+}
+.vz-schools {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 12px;
+}
+.vz-school {
+  position: relative;
+  display: grid;
+  align-content: end;
+  gap: 4px;
+  min-height: 150px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--vz-card);
+  border: 1px solid var(--vz-line);
+  overflow: hidden;
+}
+.vz-school.is-now {
+  color: #fff;
+  background: #3b1fa8;
+}
+.vz-school.is-now img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+.vz-school.is-now::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(20, 8, 70, 0.85), transparent 70%);
+}
+.vz-school > * {
+  position: relative;
+  z-index: 1;
+}
+.vz-school.is-now .vz-tag {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: #3b1fa8;
+}
+.vz-school b {
+  font-size: 18px;
+  line-height: 22px;
+}
+.vz-school small {
+  font-size: 12px;
+  line-height: 16px;
+  opacity: 0.8;
+}
+.vz-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.vz-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--vz-card);
+  border: 1px solid var(--vz-line);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+.vz-pill svg {
+  font-size: 18px;
+  color: var(--vz-accent);
+}
+.vz-pill.is-accent {
+  background: var(--vz-accent);
+  border-color: transparent;
+  color: #fff;
+}
+.vz-pill.is-accent svg {
+  color: #fff;
+}
+
+@container (max-width: 560px) {
+  .vz-schools {
+    grid-template-columns: 1fr;
+  }
+  .vz-goals-line {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .vz-schools {
+    grid-template-columns: 1fr;
+  }
+  .vz-goals-line {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vz [data-vz],
+  .vz-bar-fill,
+  .vz-ring-fg {
+    transition: none !important;
+  }
+  .vz-act-art {
+    animation: none;
+  }
+}
+.vz-school:not(.is-now) {
+  min-height: 0;
+  align-content: start;
+}
+@media (max-width: 560px) {
+  .vz-school.is-now {
+    min-height: 170px;
+  }
+}
+@media (max-width: 560px) {
+  .vz-acts {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .vz-act {
+    min-height: 150px;
+    padding: 12px;
+  }
+  .vz-act-art {
+    font-size: 60px;
+  }
+  .vz-act b {
+    font-size: 16px;
+    line-height: 20px;
+  }
+}
+@container (max-width: 560px) {
+  .vz-acts {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .vz-act-art {
+    font-size: 60px;
+  }
+}
+/* The goal cards wrap onto several rows, so a single connecting line would cross them. */
+.vz-goals-line {
+  display: none;
+}

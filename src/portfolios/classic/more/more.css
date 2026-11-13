@@ -1,0 +1,121 @@
+/* Classic: the sections after the scroll film. Each has its own background; the content blocks
+   come from features/visuals and take their colours from --host-* set here. */
+
+.cx-wrap {
+  position: relative;
+  z-index: 3;
+  font-family: 'Geist Variable', 'Geist', system-ui, sans-serif;
+}
+.cx {
+  --host-accent: #7b4dff;
+  position: relative;
+  padding: clamp(72px, 10vw, 140px) 5vw;
+  overflow: hidden;
+  color: #121214;
+}
+.cx-in {
+  position: relative;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.cx-head {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  margin-bottom: clamp(28px, 4vw, 48px);
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cx.is-in .cx-head {
+  opacity: 1;
+  transform: none;
+}
+.cx-kicker {
+  justify-self: start;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--host-accent) 14%, transparent);
+  color: var(--host-accent);
+  font: 600 12px/16px 'Geist Mono Variable', 'Geist Mono', monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cx-h {
+  margin: 0;
+  font-size: clamp(40px, 6vw, 88px);
+  line-height: 0.98;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.cx-lede {
+  margin: 0;
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.5;
+  opacity: 0.72;
+  text-wrap: pretty;
+}
+.cx-gap {
+  height: 18px;
+}
+.cx.is-dark {
+  color: #fff;
+}
+
+/* Backgrounds */
+.cx.is-lavender {
+  background:
+    radial-gradient(50% 60% at 90% 0%, rgba(123, 77, 255, 0.22), transparent 70%),
+    radial-gradient(40% 50% at 0% 100%, rgba(47, 95, 214, 0.14), transparent 70%),
+    #f4f1ff;
+}
+.cx.is-cream {
+  --host-accent: #b7791f;
+  background:
+    radial-gradient(45% 50% at 100% 10%, rgba(201, 162, 39, 0.22), transparent 70%),
+    radial-gradient(40% 40% at 0% 90%, rgba(232, 67, 47, 0.1), transparent 70%),
+    #faf5ea;
+}
+.cx.is-night {
+  --host-accent: #a78bfa;
+  background:
+    radial-gradient(45% 55% at 85% 0%, rgba(123, 77, 255, 0.4), transparent 70%),
+    radial-gradient(40% 50% at 0% 100%, rgba(14, 165, 233, 0.25), transparent 70%),
+    #0a0a14;
+}
+.cx.is-mint {
+  --host-accent: #0f9488;
+  background:
+    radial-gradient(45% 55% at 100% 0%, rgba(15, 148, 136, 0.18), transparent 70%),
+    #eefaf6;
+}
+.cx.is-ocean {
+  --host-accent: #7dd3fc;
+  background:
+    radial-gradient(55% 60% at 0% 0%, rgba(125, 211, 252, 0.3), transparent 70%),
+    radial-gradient(55% 60% at 100% 100%, rgba(167, 139, 250, 0.35), transparent 70%),
+    #14286f;
+}
+.cx.is-paper {
+  background: #f7f6f2;
+}
+.cx-contact {
+  border-radius: 32px;
+  border: 1px solid rgba(18, 18, 20, 0.08);
+  box-shadow: 0 40px 80px rgba(18, 18, 20, 0.08);
+  background: #ffffff;
+}
+.cx-contact .dt-body {
+  padding: clamp(24px, 4vw, 56px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx-head {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

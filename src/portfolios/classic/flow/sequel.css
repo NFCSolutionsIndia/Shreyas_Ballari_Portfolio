@@ -1037,3 +1037,277 @@
   font: 600 13px/18px 'Geist Variable', 'Geist', system-ui, sans-serif;
   white-space: nowrap;
 }
+
+/* Tall screens (phones, portrait tablets): the film shows whole, like a video player, with the
+   controls just under it, instead of being cropped to fill the screen. */
+@media (max-aspect-ratio: 1 / 1) {
+  .fv {
+    background: radial-gradient(80% 50% at 50% 50%, #1b1b22, #050506);
+  }
+  .fv video {
+    inset: auto 0;
+    top: 50%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    translate: 0 -50%;
+    border-radius: 0;
+  }
+  .fv-bar {
+    top: calc(50% + 28.125vw + 14px);
+    bottom: auto !important;
+  }
+}
+
+/* =============================================================================================
+   Technical skills, redesigned: code-editor cards for each language and skill groups with icons,
+   on a dark stage with a soft glow and a faint grid.
+   ============================================================================================= */
+.ft {
+  justify-content: center;
+  gap: clamp(14px, 2.4vh, 28px);
+  padding: 84px 5vw 96px;
+  background:
+    radial-gradient(45% 50% at 85% 10%, rgba(123, 77, 255, 0.35), transparent 70%),
+    radial-gradient(40% 45% at 10% 90%, rgba(47, 95, 214, 0.3), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 48px 48px,
+    #07070c;
+  color: #fff;
+}
+.ft > .ft-head {
+  position: static;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: none;
+}
+.ft .ft-kicker {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(167, 139, 250, 0.16);
+  color: #c4b5fd;
+}
+.ft .ft-h {
+  color: #fff;
+  background: linear-gradient(90deg, #ffffff, #b9b5c9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ft .ft-row {
+  margin-top: 0;
+  gap: 16px;
+}
+.ft .ft-lang {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #11111a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(123, 77, 255, 0.08);
+}
+.ft .ft-lang:nth-child(1) {
+  --c: #f7df1e;
+}
+.ft .ft-lang:nth-child(2) {
+  --c: #4b8bbe;
+}
+.ft .ft-lang:nth-child(3) {
+  --c: #f89820;
+}
+.ft-win {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.ft-win i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #ff5f57;
+}
+.ft-win i:nth-child(2) {
+  background: #febc2e;
+}
+.ft-win i:nth-child(3) {
+  background: #28c840;
+}
+.ft-win span {
+  margin-left: 8px;
+  font: 500 12px/16px 'Geist Mono Variable', 'Geist Mono', monospace;
+  color: rgba(255, 255, 255, 0.6);
+}
+.ft-code {
+  display: grid;
+  margin: 0;
+  padding: 14px 14px 10px;
+  font: 400 clamp(11px, 0.95vw, 13.5px) / 1.7 'Geist Mono Variable', 'Geist Mono', monospace;
+  color: #e5e7eb;
+  white-space: pre;
+  overflow: hidden;
+  /* Lines appear as if typed, as the card arrives. */
+  clip-path: inset(0 calc((1 - var(--type, 1)) * 100%) 0 0);
+}
+.ft-line em {
+  display: inline-block;
+  width: 2ch;
+  margin-right: 1.5ch;
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.25);
+}
+.tk-k {
+  color: #c792ea;
+}
+.tk-f {
+  color: #82aaff;
+}
+.tk-v {
+  color: #f78c6c;
+}
+.tk-s {
+  color: #c3e88d;
+}
+.tk-p {
+  color: #e5e7eb;
+}
+.ft-foot {
+  display: grid;
+  gap: 2px;
+  margin-top: auto;
+  padding: 12px 14px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%);
+}
+.ft .ft-foot b {
+  font-size: clamp(22px, 2.2vw, 32px);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--c);
+}
+.ft .ft-foot small {
+  font-size: 13px;
+  line-height: 18px;
+  opacity: 0.75;
+}
+.ft-groups {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  width: min(1040px, 100%);
+}
+.ft-group {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  opacity: 0;
+}
+.ft-group-ico {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(167, 139, 250, 0.16);
+  color: #c4b5fd;
+  font-size: 20px;
+}
+.ft-group b {
+  font-size: 14px;
+  line-height: 18px;
+}
+.ft-group small {
+  font-size: 12px;
+  line-height: 17px;
+  color: rgba(255, 255, 255, 0.65);
+}
+@media (max-width: 1100px) {
+  .ft-groups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ft-group:nth-child(n + 4) {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .ft {
+    padding: 72px 16px 84px;
+    gap: 12px;
+  }
+  .ft .ft-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .ft-code {
+    display: none;
+  }
+  .ft-win {
+    padding: 8px 12px;
+  }
+  .ft-foot {
+    padding: 10px 12px;
+  }
+  .ft-groups {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .ft-group {
+    padding: 10px;
+  }
+  .ft-group small {
+    display: none;
+  }
+  .ft-group:nth-child(n + 5) {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .fv-bar {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    translate: none !important;
+    transform: none !important;
+    gap: 6px;
+  }
+  .fv-bar > button:nth-of-type(2),
+  .fv-bar > button:nth-of-type(3) {
+    display: none;
+  }
+  .fv-bar button.fv-more {
+    padding: 0 12px;
+  }
+}
+@media (max-width: 760px) {
+  .ft {
+    justify-content: flex-start;
+    padding-top: 76px;
+  }
+  .ft .ft-h {
+    font-size: 28px;
+    line-height: 32px;
+  }
+  .ft .ft-foot b {
+    font-size: 22px;
+  }
+  .ft-group:nth-child(n + 3) {
+    display: none;
+  }
+}

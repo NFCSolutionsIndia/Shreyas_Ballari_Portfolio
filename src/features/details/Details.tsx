@@ -1,26 +1,109 @@
-import { useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from '@phosphor-icons/react';
+import {
+  BatteryCharging,
+  Brain,
+  Calculator,
+  ChartBar,
+  ChartLineUp,
+  CheckCircle,
+  Clock,
+  Cpu,
+  CurrencyDollar,
+  Flask,
+  Globe,
+  GraduationCap,
+  Heart,
+  Heartbeat,
+  HourglassMedium,
+  Lightning,
+  ListChecks,
+  MagnifyingGlass,
+  Pulse,
+  Robot,
+  ShieldCheck,
+  Syringe,
+  Target,
+  TrendUp,
+  Users,
+  Virus,
+  Warning,
+  WifiHigh,
+  X,
+  type Icon,
+} from '@phosphor-icons/react';
 import { SmoothScrollContext } from '@/app/providers/SmoothScroll';
 import { oncure, stockApp } from '@/content/portfolio';
+import { Reveal } from '@/features/visuals/Visuals';
+import { ContactPanel } from './Contact';
 import './style';
 
 /**
- * Full details for Oncure and the AI trading app, shared by every tab and by the pages
- * /research/oncure and /projects/stock-trading-app.
+ * Full details for Oncure, the AI trading app and the contact form, shown as pictures: big
+ * numbers, step diagrams, icon tiles and a roadmap track (each part rises in when seen).
  *
- * <DetailSheet> opens them like an app on a phone: the sheet grows out of the button or card
- * that was tapped (clip-path from that rectangle to the whole area) and shrinks back into it
- * when closed. `contained` keeps it inside its parent (the Studio phone screen); otherwise it
- * covers the page.
+ * <DetailSheet> opens them like an app on a phone: it grows out of the button or card that was
+ * tapped and shrinks back into it. `contained` keeps it inside its parent (the Studio phone
+ * screen); otherwise it covers the page.
  */
 
-export type DetailId = 'oncure' | 'finance';
+export type DetailId = 'oncure' | 'finance' | 'contact';
 export type DetailTheme = 'studio' | 'classic' | 'page';
 
 const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+const at = (i: number) => ({ '--i': i }) as CSSProperties;
+
+function Tiles({ items, icons }: { items: { title: string; line: string }[]; icons: Icon[] }) {
+  return (
+    <Reveal className="dt-tiles">
+      {items.map((x, i) => {
+        const I = icons[i % icons.length]!;
+        return (
+          <div key={x.title} className="dt-tile" data-vz style={at(i)}>
+            <span className="dt-ico">
+              <I weight="duotone" />
+            </span>
+            <b>{x.title}</b>
+            <p>{x.line}</p>
+          </div>
+        );
+      })}
+    </Reveal>
+  );
+}
+
+function Flow({ steps, icons }: { steps: { title: string; line: string }[]; icons: Icon[] }) {
+  return (
+    <Reveal className="dt-flow">
+      <span className="dt-flow-line" data-vz aria-hidden="true" />
+      {steps.map((s, i) => {
+        const I = icons[i % icons.length]!;
+        return (
+          <div key={s.title} className="dt-node" data-vz style={at(i)}>
+            <span className="dt-node-ico">
+              <I weight="duotone" />
+              <i>{i + 1}</i>
+            </span>
+            <b>{s.title}</b>
+            <p>{s.line}</p>
+          </div>
+        );
+      })}
+    </Reveal>
+  );
+}
 
 // --- Oncure ------------------------------------------------------------------------------------
+
+/** The headline figure for each problem (all from the sources named in the text). */
+const PROBLEM_STAT: Record<string, { big: string; icon: Icon }> = {
+  'High mortality': { big: '20M', icon: Heartbeat },
+  'Expensive treatment': { big: '$100k+', icon: CurrencyDollar },
+  'Long treatment': { big: '6–8 mo', icon: HourglassMedium },
+  'Severe side effects': { big: '', icon: Warning },
+  'Emotional toll': { big: '15–25%', icon: Heart },
+  'Limited access': { big: '', icon: Globe },
+};
 
 export function OncureDetails({ withVideo = true }: { withVideo?: boolean }) {
   return (
@@ -41,58 +124,75 @@ export function OncureDetails({ withVideo = true }: { withVideo?: boolean }) {
 
       <section className="dt-sec">
         <p className="dt-big">{oncure.pitch}</p>
-        <p>{oncure.summary}</p>
       </section>
 
-      <Section title="The problem">
-        <Grid items={oncure.problems} />
-      </Section>
+      <section className="dt-sec">
+        <h3 className="dt-h">The problem</h3>
+        <Reveal className="dt-stats">
+          {oncure.problems.map((p, i) => {
+            const st = PROBLEM_STAT[p.title] ?? { big: '', icon: Warning };
+            const I = st.icon;
+            return (
+              <div key={p.title} className="dt-stat" data-vz style={at(i)}>
+                <span className="dt-ico">
+                  <I weight="duotone" />
+                </span>
+                {st.big ? <b className="dt-stat-big">{st.big}</b> : null}
+                <b>{p.title}</b>
+                <p>{p.line}</p>
+              </div>
+            );
+          })}
+        </Reveal>
+      </section>
 
-      <Section title="How it would work">
-        <ol className="dt-steps">
-          {oncure.steps.map((s, i) => (
-            <li key={s.title}>
-              <span className="dt-n">{String(i + 1).padStart(2, '0')}</span>
-              <b>{s.title}</b>
-              <p>{s.line}</p>
-            </li>
-          ))}
-        </ol>
-      </Section>
+      <section className="dt-sec">
+        <h3 className="dt-h">How it would work</h3>
+        <Flow steps={oncure.steps} icons={[Syringe, MagnifyingGlass, Brain, Target, Virus]} />
+      </section>
 
-      <Section title="What it is designed to do">
-        <Grid items={oncure.features} />
-      </Section>
+      <section className="dt-sec">
+        <h3 className="dt-h">What it is designed to do</h3>
+        <Tiles items={oncure.features} icons={[Brain, Robot, Pulse, Target, Virus, ShieldCheck, Clock, CurrencyDollar, Heart]} />
+      </section>
 
-      <Section title="Challenges to solve">
-        <Grid items={oncure.challenges} />
-      </Section>
+      <section className="dt-sec">
+        <h3 className="dt-h">Challenges to solve</h3>
+        <Tiles items={oncure.challenges} icons={[Cpu, BatteryCharging, MagnifyingGlass, Brain, WifiHigh, Target, ShieldCheck, Flask, Users]} />
+      </section>
 
-      <Section title="Why it could be possible">
-        <ul className="dt-list">
-          {oncure.evidence.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section title="Roadmap">
-        <ol className="dt-road">
-          {oncure.roadmap.map((r, i) => (
-            <li key={r.title}>
-              <span className="dt-n">{i + 1}</span>
-              <span>
-                <b>{r.title}</b>
-                <p>{r.line}</p>
+      <section className="dt-sec">
+        <h3 className="dt-h">Why it could be possible</h3>
+        <Reveal className="dt-evidence">
+          {oncure.evidence.map((e, i) => (
+            <div key={e} className="dt-ev" data-vz style={at(i)}>
+              <span className="dt-ico">
+                <Robot weight="duotone" />
               </span>
-            </li>
+              <p>{e}</p>
+            </div>
           ))}
-        </ol>
-      </Section>
+        </Reveal>
+      </section>
 
-      <Section title="What it stands for">
-        <Grid items={oncure.values} />
-      </Section>
+      <section className="dt-sec">
+        <h3 className="dt-h">Roadmap</h3>
+        <Reveal className="dt-road">
+          <span className="dt-road-line" data-vz aria-hidden="true" />
+          {oncure.roadmap.map((r, i) => (
+            <div key={r.title} className="dt-stop" data-vz style={at(i)}>
+              <span className="dt-stop-dot">{i + 1}</span>
+              <b>{r.title}</b>
+              <p>{r.line}</p>
+            </div>
+          ))}
+        </Reveal>
+      </section>
+
+      <section className="dt-sec">
+        <h3 className="dt-h">What it stands for</h3>
+        <Tiles items={oncure.values} icons={[Target, Lightning, CurrencyDollar, Heart]} />
+      </section>
 
       <section className="dt-end">
         <p className="dt-big">{oncure.vision}</p>
@@ -124,54 +224,64 @@ export function FinanceDetails() {
         <p className="dt-note">A concept in progress. Everything shown here is hypothetical sample data, not financial advice.</p>
       </header>
 
-      <figure className="dt-dash" aria-label="Sample dashboard with made-up data">
-        <div className="dt-dash-chart">
-          <span className="dt-mono">Sample portfolio</span>
-          <b>$12,480.36</b>
-          <span className="dt-up">▲ 2.4% today</span>
-          <svg viewBox="0 0 300 96" preserveAspectRatio="none" aria-hidden="true">
-            <polyline points={pts} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
-          </svg>
-          <p className="dt-advice">
-            <b>AI suggestion (sample):</b> buy 3 shares of NOVA this week; estimated sell window in 5 to 7 weeks.
-          </p>
-        </div>
-        <ul className="dt-dash-rows">
-          {ROWS.map((r) => (
-            <li key={r.t}>
-              <b>{r.t}</b>
-              <span>{r.stage}</span>
-              <em className={r.up ? 'is-up' : 'is-down'}>{r.v}</em>
-            </li>
-          ))}
-        </ul>
-        <figcaption className="dt-mono">Concept design · sample data · not financial advice</figcaption>
-      </figure>
+      <Reveal className="dt-dash-wrap">
+        <figure className="dt-dash" data-vz aria-label="Sample dashboard with made-up data">
+          <div className="dt-dash-chart">
+            <span className="dt-mono">Sample portfolio</span>
+            <b>$12,480.36</b>
+            <span className="dt-up">▲ 2.4% today</span>
+            <svg viewBox="0 0 300 96" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points={pts} pathLength={1} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
+            </svg>
+            <p className="dt-advice">
+              <b>AI suggestion (sample):</b> buy 3 shares of NOVA this week; estimated sell window in 5 to 7 weeks.
+            </p>
+          </div>
+          <ul className="dt-dash-rows">
+            {ROWS.map((r) => (
+              <li key={r.t}>
+                <b>{r.t}</b>
+                <span>{r.stage}</span>
+                <em className={r.up ? 'is-up' : 'is-down'}>{r.v}</em>
+              </li>
+            ))}
+          </ul>
+          <figcaption className="dt-mono">Concept design · sample data · not financial advice</figcaption>
+        </figure>
+      </Reveal>
 
       <section className="dt-sec">
         <p className="dt-big">{stockApp.summary}</p>
       </section>
 
-      <Section title="How the AI helps">
-        <ol className="dt-steps">
-          {[
-            { title: 'Reads real-world data', line: 'An AI model looks at real market data and real-world factors, and works it through with algorithms.' },
+      <section className="dt-sec">
+        <h3 className="dt-h">How the AI helps</h3>
+        <Flow
+          steps={[
+            { title: 'Reads real-world data', line: 'Real market data and real-world factors, worked through with algorithms.' },
             { title: 'Suggests how much and when', line: 'How much of a stock to buy, when to buy it, and an estimated time to sell.' },
-            { title: 'Shows it beside the chart', line: 'The advice appears next to the stock graph you are looking at, with no candlesticks or equations needed.' },
-            { title: 'Keeps track for you', line: 'A dashboard of what you hold, the buy or sell stage of each, pending orders, and top performers you may like.' },
-          ].map((s, i) => (
-            <li key={s.title}>
-              <span className="dt-n">{String(i + 1).padStart(2, '0')}</span>
-              <b>{s.title}</b>
-              <p>{s.line}</p>
-            </li>
-          ))}
-        </ol>
-      </Section>
+            { title: 'Shows it beside the chart', line: 'No candlesticks or equations needed.' },
+            { title: 'Keeps track for you', line: 'Holdings, buy or sell stages, pending orders and top performers.' },
+          ]}
+          icons={[Globe, Brain, ChartLineUp, ListChecks]}
+        />
+      </section>
 
-      <Section title="What it will have">
-        <Grid items={stockApp.features} />
-      </Section>
+      <section className="dt-sec">
+        <h3 className="dt-h">What it will have</h3>
+        <Tiles items={stockApp.features} icons={[Brain, Globe, ChartBar, Clock, TrendUp, Calculator, CheckCircle]} />
+      </section>
+
+      <section className="dt-sec">
+        <h3 className="dt-h">Who it is for</h3>
+        <Tiles
+          items={[
+            { title: 'Beginners', line: 'Guidance without jargon: plain advice next to the chart.' },
+            { title: 'Experienced traders', line: 'A faster way to decide, with the numbers worked out.' },
+          ]}
+          icons={[GraduationCap, Lightning]}
+        />
+      </section>
 
       <section className="dt-end">
         <p className="dt-big">{stockApp.forWhom}</p>
@@ -181,31 +291,9 @@ export function FinanceDetails() {
   );
 }
 
-// --- Small building blocks ---------------------------------------------------------------------
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="dt-sec">
-      <h3 className="dt-h">{title}</h3>
-      {children}
-    </section>
-  );
-}
-
-function Grid({ items }: { items: { title: string; line: string }[] }) {
-  return (
-    <ul className="dt-grid">
-      {items.map((x) => (
-        <li key={x.title}>
-          <b>{x.title}</b>
-          <p>{x.line}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 // --- The sheet that opens like an app -----------------------------------------------------------
+
+const TITLE: Record<DetailId, string> = { oncure: 'Oncure', finance: 'AI trading app', contact: 'Contact' };
 
 export function DetailSheet({ id, origin, onClose, contained = false, theme }: { id: DetailId | null; origin: DOMRect | null; onClose: () => void; contained?: boolean; theme: DetailTheme }) {
   const smooth = useContext(SmoothScrollContext);
@@ -215,8 +303,7 @@ export function DetailSheet({ id, origin, onClose, contained = false, theme }: {
   const closing = useRef(false);
 
   useEffect(() => {
-    if (id) setShown(id);
-    else setShown(null);
+    setShown(id);
   }, [id]);
 
   /** The tapped rectangle, as a clip-path inset of the sheet. */
@@ -253,23 +340,7 @@ export function DetailSheet({ id, origin, onClose, contained = false, theme }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shown]);
 
-  // While open: the page behind stays still.
-  useEffect(() => {
-    if (!shown) return;
-    smooth?.setLocked(true);
-    const prev = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = 'hidden';
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && close();
-    window.addEventListener('keydown', key);
-    return () => {
-      smooth?.setLocked(false);
-      document.documentElement.style.overflow = prev;
-      window.removeEventListener('keydown', key);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shown]);
-
-  // Close: shrink back into the card.
+  // Close: shrink back into the card (on time even if the device is busy).
   const close = () => {
     const el = sheet.current;
     if (!el || closing.current) return;
@@ -285,20 +356,35 @@ export function DetailSheet({ id, origin, onClose, contained = false, theme }: {
     if (reduced()) return done();
     const a = el.animate([{ clipPath: 'inset(0px 0px 0px 0px round 0px)', opacity: 1 }, { clipPath: insetFrom(), opacity: 0 }], { duration: 420, easing: EASE, fill: 'forwards' });
     a.onfinish = done;
-    // On a busy or slow device the animation may start late: close on time anyway.
     window.setTimeout(done, 520);
   };
 
+  // While open: the page behind stays still, and Escape closes.
+  useEffect(() => {
+    if (!shown) return;
+    smooth?.setLocked(true);
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && close();
+    window.addEventListener('keydown', key);
+    return () => {
+      smooth?.setLocked(false);
+      document.documentElement.style.overflow = prev;
+      window.removeEventListener('keydown', key);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shown]);
+
   if (!shown) return null;
   const node = (
-    <div ref={sheet} className={`dt dt--${theme} ${contained ? 'is-contained' : 'is-page'}`} role="dialog" aria-modal="true" aria-label={shown === 'oncure' ? 'Oncure, full details' : 'AI trading app, full details'} data-lenis-prevent>
+    <div ref={sheet} className={`dt dt--${theme} ${contained ? 'is-contained' : 'is-page'}`} role="dialog" aria-modal="true" aria-label={`${TITLE[shown]}, full details`} data-lenis-prevent>
       <div className="dt-bar">
-        <span className="dt-kicker">{shown === 'oncure' ? 'Oncure' : 'AI trading app'}</span>
+        <span className="dt-kicker">{TITLE[shown]}</span>
         <button ref={closeBtn} type="button" className="dt-close" aria-label="Close" data-voice="close" onClick={close}>
           <X weight="bold" />
         </button>
       </div>
-      <div className="dt-inner">{shown === 'oncure' ? <OncureDetails /> : <FinanceDetails />}</div>
+      <div className="dt-inner">{shown === 'oncure' ? <OncureDetails /> : shown === 'finance' ? <FinanceDetails /> : <ContactPanel />}</div>
     </div>
   );
   return contained ? node : createPortal(node, document.body);

@@ -1955,7 +1955,7 @@
     min-height: 220px;
   }
   .os-board .w-chat {
-    min-height: 0;
+    min-height: 196px;
   }
   /* Short lists show in full instead of scrolling inside the card. */
   .os-board .w-acts {
@@ -2046,5 +2046,11 @@
     max-height: calc(100svh - 230px) !important;
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+}
+/* Phones: the Oncure film shows whole (16:9) and the poster title steps aside for the play button. */
+@media (max-width: 760px) {
+  .onc-poster {
+    display: none;
   }
 }
