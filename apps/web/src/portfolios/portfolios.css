@@ -7,7 +7,3 @@ html[data-portfolio='studio'],
 html[data-portfolio='studio'] body {
   background: #f3f3f1;
 }
-html[data-portfolio='desk'],
-html[data-portfolio='desk'] body {
-  background: #d8d3cc;
-}

@@ -1,5 +1,5 @@
 import { achievements, activities, courses, goals, languages, oncure, profile, researchInterests, resume, stockApp, subjects, volunteering } from '@/content/portfolio';
-import { PHOTOS } from '@/portfolios/room/photos';
+import { PHOTOS } from '@/content/photos';
 import type { StationName } from '../house/stations';
 
 /**

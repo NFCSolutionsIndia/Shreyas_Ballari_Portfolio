@@ -6,8 +6,7 @@ import { profile } from '@/content/portfolio';
 import { useScrollTo } from '@/hooks/useSmoothScroll';
 import { ClassicPortfolio } from '@/portfolios/classic/ClassicPortfolio';
 import { CreativePortfolio } from '@/portfolios/creative/CreativePortfolio';
-import { AgentsPortfolio } from '@/portfolios/agents/AgentsPortfolio';
-import { WorldPortfolio } from '@/portfolios/world/WorldPortfolio';
+import { StudioPortfolio } from '@/portfolios/studio/StudioPortfolio';
 import { PortfolioSwitcher } from '@/portfolios/switcher/PortfolioSwitcher';
 import { usePortfolioChoice } from '@/portfolios/switcher/usePortfolioChoice';
 import '@/portfolios/portfolios.css';
@@ -37,13 +36,12 @@ export function Component() {
           knowsAbout: ['Artificial intelligence', 'Biomedical research', 'Nanotechnology', 'Finance'],
         }}
       />
-      {/* Temporary: four styles side by side until the family picks one (see README). */}
+      {/* Temporary: three styles side by side until the family picks one (see README). */}
       <PortfolioSwitcher value={choice} onChange={choose} />
       <div role="tabpanel" aria-label="Portfolio">
         {choice === 'classic' && <ClassicPortfolio />}
         {choice === 'creative' && <CreativePortfolio />}
-        {choice === 'studio' && <AgentsPortfolio />}
-        {choice === 'travel' && <WorldPortfolio />}
+        {choice === 'studio' && <StudioPortfolio />}
       </div>
     </>
   );

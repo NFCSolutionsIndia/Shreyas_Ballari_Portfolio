@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowClockwise, Footprints, CaretLeft, CaretRight, CornersIn, CornersOut, Globe, HandWaving, MapTrifold, Microphone, MicrophoneSlash, SlidersHorizontal, SpeakerHigh, SpeakerSlash, SquaresFour, VirtualReality, X } from '@phosphor-icons/react';
-import { useVoice } from '@/portfolios/world/useVoice';
+import { useVoice } from '@/features/voice/useVoice';
 import { CHAPTERS } from '../story/chapters';
 import { playUi, spatial, useSpatial } from '../store';
 import { ActivitiesApp, ControlCenter, FinanceApp, GamesApp, HomeView } from '../os/Apps';

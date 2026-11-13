@@ -2,7 +2,7 @@
  * Local time for the spatial home's light. Sunrise and sunset are worked out from the town's
  * coordinates with the standard NOAA solar formulas (no network calls), and the clock reads the
  * America/New_York time zone, so the room turns golden at sunset and dark at night for whoever
- * visits, wherever they are. The UI labels it "Georgia time": the town name stays in My World only.
+ * visits, wherever they are. The UI labels it "Georgia time": the home town is never shown.
  */
 
 export type Env = 'day' | 'sunset' | 'night';

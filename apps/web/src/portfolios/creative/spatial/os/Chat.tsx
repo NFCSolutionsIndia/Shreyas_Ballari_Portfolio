@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { ArrowSquareOut, ArrowUp, ChatsCircle, Copy, Folder, Microphone, Plus, SpeakerHigh, Sparkle } from '@phosphor-icons/react';
 import { profile } from '@/content/portfolio';
-import { useVoice } from '@/portfolios/world/useVoice';
+import { useVoice } from '@/features/voice/useVoice';
 import { speak } from '../story/narrator';
 import { spatial, useSpatial } from '../store';
 import { ask, SUGGESTIONS, type Answer } from './assistant';

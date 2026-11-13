@@ -2,7 +2,7 @@ import { useState, type ComponentType, type CSSProperties } from 'react';
 import { CaretLeft, ChartLineUp, Dna, GameController, Guitar, Play, Trophy } from '@phosphor-icons/react';
 import { CellDefender } from '../../fun';
 import { playUi } from '../../store';
-import { PHOTOS } from '@/portfolios/room/photos';
+import { PHOTOS } from '@/content/photos';
 import { storyById } from '../media';
 import { AwardMatch } from './AwardMatch';
 import { MarketSense } from './MarketSense';

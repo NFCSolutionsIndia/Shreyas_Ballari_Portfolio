@@ -11,6 +11,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "assets": "pnpm --filter @portfolio/web assets",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

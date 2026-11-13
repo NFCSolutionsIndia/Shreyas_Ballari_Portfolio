@@ -8,7 +8,6 @@ export const PORTFOLIOS = [
   { id: 'classic', label: 'Classic' },
   { id: 'creative', label: 'Creative' },
   { id: 'studio', label: 'Studio' },
-  { id: 'travel', label: 'My World' },
 ] as const;
 
 export type PortfolioId = (typeof PORTFOLIOS)[number]['id'];

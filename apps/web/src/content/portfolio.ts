@@ -1,5 +1,5 @@
 /**
- * Single source of truth for every tab (Classic, Creative, Studio, My World).
+ * Single source of truth for every tab (Classic, Creative, Studio).
  *
  * Rules (agreed with the family — see README "Privacy rules"):
  * - Only confirmed facts go in as plain values. Facts come from the architecture doc of 2026-11-03
@@ -9,8 +9,7 @@
  *   "To be supplied" label so nobody mistakes it for real content.
  * - Prose marked `draft(...)` is wording we wrote around confirmed facts; Shreyas should approve or
  *   rewrite it before launch.
- * - Never add an email, home address, birth date or schedule here. The phone number is shown only
- *   in the My World tab (family-approved there).
+ * - Never add an email, phone number, home address, home town, birth date or schedule here.
  */
 
 export interface Copy {
@@ -354,7 +353,7 @@ export const oncure = {
     'A proposed cancer treatment system that combines artificial intelligence, nanorobotics and targeted antibody therapy to detect and destroy cancer cells while reducing treatment time, cost and side effects. Microscopic robots in the bloodstream would find cancer cells, report to an AI system, and deliver synthetic antibodies that trigger programmed cell death (apoptosis).',
   vision: 'An affordable, rapid, minimally invasive cancer treatment accessible worldwide.',
   disclaimer: 'Oncure is a conceptual research proposal, not an existing or clinically validated cancer treatment.',
-  video: `${import.meta.env.BASE_URL}assets/house/Oncure_Shreyas_Ballari_share.mp4`,
+  video: `${import.meta.env.BASE_URL}assets/videos/oncure.mp4`,
   features: [
     { title: 'AI-powered detection', line: 'AI analyses what the nanobots collect to find possible cancer cells.' },
     { title: 'Nanobot technology', line: 'Microscopic robots would travel through the bloodstream to locate cancer.' },

@@ -34,7 +34,7 @@ export function PortfolioSwitcher({ value, onChange }: PortfolioSwitcherProps) {
         role="tablist"
         aria-label="Portfolio style"
         onKeyDown={onKeyDown}
-        className="pointer-events-auto relative grid grid-cols-4 rounded-xl bg-black/70 p-1 font-sans text-white shadow-md backdrop-blur-md"
+        className="pointer-events-auto relative grid grid-cols-3 rounded-xl bg-black/70 p-1 font-sans text-white shadow-md backdrop-blur-md"
       >
         {/* Sliding highlight behind the active tab, moved only with transform (B7). */}
         <span

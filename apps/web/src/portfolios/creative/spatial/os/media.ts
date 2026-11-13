@@ -1,5 +1,5 @@
 import { achievements, activities, profile, volunteering } from '@/content/portfolio';
-import { PHOTOS } from '@/portfolios/room/photos';
+import { PHOTOS } from '@/content/photos';
 
 /**
  * Cards for the spatial home: stories on the dashboard (draggable onto the pinboard), the awards
