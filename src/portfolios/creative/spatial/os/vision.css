@@ -1882,6 +1882,20 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
+/* Profile card: his face stays clear on every screen. The scores live in the Profile window, so
+   the card keeps only a compact name panel along the bottom. */
+.os-board .w-profile .w-portrait {
+  object-fit: cover;
+  object-position: 50% 12% !important;
+}
+.os-board .w-profile .w-stats {
+  display: none;
+}
+.os-board .w-profile .w-portrait-text {
+  margin: auto 8px 8px;
+  padding: 10px 12px 12px;
+}
+
 /* Light windows (the AI chat): a dark back button, so it never disappears into the glass. */
 .os-win:not(.is-dark) .os-win-chrome .os-round {
   background: rgba(20, 22, 30, 0.08);
