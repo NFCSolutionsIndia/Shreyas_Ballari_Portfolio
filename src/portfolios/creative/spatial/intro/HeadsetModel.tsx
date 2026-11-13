@@ -12,7 +12,7 @@ import { Headset } from './Headset';
  */
 
 export const HEADSET_URL = `${import.meta.env.BASE_URL}models/apple_vision_pro.glb`;
-export const HEADSET_CREDIT = { title: 'Apple Vision Pro', author: 'pravinvamp', license: 'CC BY 4.0', url: 'https://sketchfab.com/3d-models/apple-vision-pro-08217e6a596848d0ababd15a1b328de7' };
+export { HEADSET_CREDIT } from '@/content/credits';
 
 /** Rotation that turns the model to face the camera (radians, applied before centring). */
 const FACE: [number, number, number] = [0, -Math.PI / 2, 0];

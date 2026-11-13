@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ACESFilmicToneMapping, Group, PMREMGenerator, SRGBColorSpace, SpotLight } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { HEADSET_CREDIT, HeadsetModel } from './HeadsetModel';
+import { HeadsetModel } from './HeadsetModel';
 
 /**
  * The opening: a headset floats in a dark studio, turns slowly to show its form, then (once the
@@ -149,9 +149,6 @@ export function IntroScene({ ready, progress, onDone }: { ready: boolean; progre
           Preparing Shreyas’s home · {Math.round(progress)}%
         </p>
       )}
-      <a className="sp-intro-credit" href={HEADSET_CREDIT.url} target="_blank" rel="noreferrer">
-        “{HEADSET_CREDIT.title}” model by {HEADSET_CREDIT.author} · {HEADSET_CREDIT.license}
-      </a>
       <button type="button" className="sp-intro-skip" onClick={finish}>
         Skip intro
       </button>
