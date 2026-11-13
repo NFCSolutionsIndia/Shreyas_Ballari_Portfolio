@@ -1,0 +1,860 @@
+/* House tour, the AI chat bubble, the loader, and lighter glass for speed. */
+
+/* --- Lighter glass: a smaller blur radius is much cheaper over a moving 3D scene ------------- */
+.sp .os-w,
+.sp .os-pane,
+.sp .os-win-glass {
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+.sp .sp-capsule,
+.sp .sp-rail,
+.sp .sp-modes {
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+}
+
+/* --- Loader -------------------------------------------------------------------------------- */
+.sp-loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 10;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 24px;
+  border-radius: 28px;
+  background: rgba(20, 22, 30, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  animation: os-rise 600ms var(--ease) both;
+}
+.sp-loader b {
+  font-size: 20px;
+  font-weight: 600;
+}
+.sp-loader small {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.sp-loader-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+.sp-loader-bar i {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transform-origin: left;
+  transition: transform 400ms var(--ease);
+}
+
+/* --- The apps layer, and the "swallow" into the tour button ---------------------------------- */
+.sp-ui > .sp-apps {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* The tour button's centre: everything is drawn into it, and comes back out of it. */
+  transform-origin: 56px calc(100% - 52px);
+}
+.sp-apps > :where(*) {
+  pointer-events: auto;
+}
+.sp-ui.is-swallowing .sp-apps,
+.sp-ui.is-touring .sp-apps {
+  animation: sp-genie-in 760ms cubic-bezier(0.55, 0, 0.7, 0.25) forwards;
+}
+.sp-ui.is-swallowing .sp-apps *,
+.sp-ui.is-touring .sp-apps * {
+  pointer-events: none !important;
+}
+.sp-ui.is-releasing .sp-apps {
+  animation: sp-genie-out 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes sp-genie-in {
+  0% {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+  40% {
+    transform: scale(0.72, 0.9) skewX(-4deg);
+    opacity: 1;
+    filter: blur(0);
+  }
+  75% {
+    transform: scale(0.18, 0.32) skewX(-14deg);
+    opacity: 0.85;
+    filter: blur(2px);
+  }
+  100% {
+    transform: scale(0.01, 0.02) skewX(-20deg);
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+@keyframes sp-genie-out {
+  0% {
+    transform: scale(0.01, 0.02) skewX(-20deg);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  35% {
+    transform: scale(0.3, 0.45) skewX(-10deg);
+    opacity: 0.9;
+    filter: blur(2px);
+  }
+  70% {
+    transform: scale(1.015, 1.01) skewX(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+/* The tour appears once the apps are inside the button. */
+.sp-ui.is-touring .tour {
+  animation: os-fade 600ms var(--ease) 350ms backwards;
+}
+
+/* --- Tour button (bottom left) ------------------------------------------------------------ */
+.sp-tourbtn {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 18px 8px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(20, 22, 30, 0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 400ms var(--ease),
+    background-color 300ms var(--ease);
+  animation: sp-tourbtn-in 800ms var(--ease) 300ms backwards;
+}
+@keyframes sp-tourbtn-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+}
+.sp-tourbtn:hover {
+  transform: translateY(-3px) scale(1.03);
+  background: rgba(30, 32, 44, 0.7);
+}
+.sp-tourbtn:active {
+  transform: scale(0.97);
+}
+.sp-tourbtn-ico {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd166, #f28c28);
+  color: #2a1600;
+  font-size: 22px;
+  animation: sp-swap 500ms var(--ease) backwards;
+}
+.sp-tourbtn.is-tour .sp-tourbtn-ico {
+  background: linear-gradient(135deg, #8fb4ff, #7b5cff);
+  color: #fff;
+}
+/* A soft ring invites a first tap. */
+.sp-tourbtn:not(.is-tour) .sp-tourbtn-ico::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 209, 102, 0.7);
+  animation: cb-ring 2.4s ease-out infinite;
+}
+.sp-tourbtn-text {
+  animation: sp-swap 500ms var(--ease) backwards;
+}
+.sp-tourbtn-text b {
+  display: block;
+  font-size: 15px;
+  line-height: 20px;
+}
+.sp-tourbtn-text small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+}
+@keyframes sp-swap {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.85);
+  }
+}
+/* The button "gulps" as the apps arrive inside it. */
+.sp-tourbtn.is-gulp {
+  animation: sp-gulp 760ms var(--ease);
+}
+@keyframes sp-gulp {
+  60% {
+    transform: scale(1);
+  }
+  80% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 10px rgba(255, 209, 102, 0.25);
+  }
+}
+
+/* --- AI voice question --------------------------------------------------------------------- */
+.sp-voiceask {
+  position: absolute;
+  left: 50%;
+  bottom: 92px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(640px, calc(100vw - 32px));
+  padding: 14px 14px 14px 18px;
+  border-radius: 24px;
+  background: rgba(248, 249, 253, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #15161a;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  transform: translateX(-50%);
+  animation: sp-ask-in 700ms var(--ease) 900ms backwards;
+}
+@keyframes sp-ask-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+}
+.sp-voiceask > span:nth-child(2) {
+  flex: 1;
+}
+.sp-voiceask b {
+  display: block;
+  font-size: 15px;
+  line-height: 20px;
+}
+.sp-voiceask small {
+  font-size: 12px;
+  line-height: 16px;
+  color: #5b5f6a;
+}
+.sp-voiceask-actions {
+  display: flex;
+  gap: 8px;
+}
+.sp-voiceask-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.07);
+  color: #15161a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 200ms var(--ease);
+}
+.sp-voiceask-btn:hover {
+  transform: translateY(-1px);
+}
+.sp-voiceask-btn.is-primary {
+  background: #15161a;
+  color: #fff;
+}
+
+.tour {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tour > *:not(.tour-points) {
+  pointer-events: auto;
+}
+.tour-top {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tour-badge {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+}
+.tour-skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 300ms var(--ease);
+}
+.tour-skip:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+.tour-card {
+  position: absolute;
+  left: 32px;
+  bottom: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(440px, calc(100vw - 64px));
+  max-height: calc(100vh - 220px);
+  padding: 24px;
+  border-radius: 30px;
+  background: rgba(20, 22, 30, 0.5);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 30px 70px rgba(0, 0, 0, 0.35);
+  color: #fff;
+  animation: tour-in 800ms var(--ease) backwards;
+}
+@keyframes tour-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+.tour-n {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.tour-card h2 {
+  margin: 0;
+  font-size: 36px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.tour-body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  margin-right: -10px;
+  padding-right: 10px;
+}
+.tour-body p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 23px;
+  color: rgba(255, 255, 255, 0.86);
+  text-wrap: pretty;
+}
+.tour-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tour-items li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 13px;
+  animation: os-rise 500ms var(--ease) backwards;
+  animation-delay: calc(var(--i) * 50ms + 250ms);
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tour-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 300ms var(--ease);
+}
+.tour-go:hover {
+  transform: translateX(3px);
+}
+.tour-go.is-primary {
+  background: #fff;
+  color: #111;
+}
+.tour-rooms {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  transform: translateY(-50%);
+}
+.tour-rooms ol {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 8px;
+  border-radius: 24px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--edge);
+  list-style: none;
+}
+.tour-rooms li button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 300ms var(--ease),
+    background-color 300ms var(--ease);
+}
+.tour-rooms li button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.tour-rooms li button i {
+  order: 2;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  transition:
+    transform 400ms var(--ease),
+    background-color 300ms var(--ease);
+}
+.tour-rooms li button.is-past {
+  color: rgba(255, 255, 255, 0.8);
+}
+.tour-rooms li button.is-past i {
+  background: rgba(255, 255, 255, 0.75);
+}
+.tour-rooms li button.is-on {
+  color: #fff;
+}
+.tour-rooms li button.is-on i {
+  background: #fff;
+  transform: scale(1.6);
+  box-shadow: 0 0 10px #fff;
+}
+.tour-arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+.tour-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.tour-progress {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 84px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  pointer-events: none;
+}
+.tour-progress i {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transform-origin: left;
+  transition: transform 300ms linear;
+}
+.tour-hint {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(20, 22, 30, 0.5);
+  backdrop-filter: blur(16px);
+  color: #fff;
+  font-size: 14px;
+  transform: translateX(-50%);
+  animation: os-rise 800ms var(--ease) 600ms backwards;
+}
+.tour-mouse {
+  position: relative;
+  width: 18px;
+  height: 28px;
+  border: 2px solid #fff;
+  border-radius: 10px;
+}
+.tour-mouse::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 3px;
+  height: 6px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: #fff;
+  animation: tour-wheel 1.6s ease-in-out infinite;
+}
+@keyframes tour-wheel {
+  60% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+/* --- AI chat bubble ----------------------------------------------------------------------- */
+.cb {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+.cb-fab {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 16px 36px rgba(91, 60, 255, 0.45);
+  transition: transform 300ms var(--ease);
+}
+.cb-fab:hover {
+  transform: scale(1.08);
+}
+.cb-fab:active {
+  transform: scale(0.96);
+}
+.cb-fab svg {
+  position: relative;
+}
+.cb-orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, #7b5cff, #5b7cfa, #3bb2d6, #e0466e, #7b5cff);
+  animation: cb-spin 6s linear infinite;
+}
+.cb-orb::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45), rgba(40, 30, 90, 0.55) 70%);
+}
+.cb-orb.is-small {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 30px;
+}
+@keyframes cb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.cb:not(.is-open) .cb-fab::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 2px solid rgba(123, 92, 255, 0.6);
+  animation: cb-ring 2.6s ease-out infinite;
+}
+@keyframes cb-ring {
+  from {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+.cb-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(370px, calc(100vw - 32px));
+  height: min(480px, calc(100vh - 200px));
+  border-radius: 28px;
+  overflow: hidden;
+  background: rgba(248, 249, 253, 0.86);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+  color: #15161a;
+  transform-origin: bottom right;
+  animation: cb-open 450ms var(--ease) both;
+}
+@keyframes cb-open {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.9);
+  }
+}
+.cb-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 10px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.cb-head > span:nth-child(2) {
+  flex: 1;
+}
+.cb-head b {
+  display: block;
+  font-size: 15px;
+}
+.cb-head small {
+  font-size: 11px;
+  color: #6b6f7a;
+}
+.cb-head .os-round {
+  background: rgba(0, 0, 0, 0.06);
+  color: #15161a;
+}
+.cb-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px;
+  scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+}
+.cb-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 8px 0;
+  animation: os-rise 400ms var(--ease) both;
+}
+.cb-msg p {
+  max-width: 88%;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 18px 18px 18px 6px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(20, 22, 40, 0.06);
+  font-size: 14px;
+  line-height: 20px;
+}
+.cb-msg.is-me {
+  align-items: flex-end;
+}
+.cb-msg.is-me p {
+  border-radius: 18px 18px 6px 18px;
+  background: #15161a;
+  color: #fff;
+}
+.cb-msg .os-chip,
+.cb-sugg .os-chip {
+  background: #fff;
+  color: #15161a;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  white-space: normal;
+  text-align: left;
+}
+.cb-sugg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cb-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px;
+  padding: 5px 5px 5px 14px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(20, 22, 40, 0.08);
+}
+.cb-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #15161a;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.cb-input button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7b5cff, #5b7cfa);
+  color: #fff;
+  cursor: pointer;
+}
+/* Keep the bubble clear of the tab bar and the 360 bar. */
+.sp-ui.is-360 .cb {
+  bottom: 24px;
+}
+
+@media (max-width: 760px) {
+  .tour-card {
+    left: 12px;
+    right: 12px;
+    bottom: 120px;
+    width: auto;
+    max-height: 46vh;
+    padding: 18px;
+  }
+  .tour-card h2 {
+    font-size: 28px;
+    line-height: 32px;
+  }
+  .tour-rooms {
+    top: 84px;
+    right: 12px;
+    transform: none;
+  }
+  .tour-rooms ol span {
+    display: none;
+  }
+  .tour-progress {
+    left: 12px;
+    right: 12px;
+    bottom: 108px;
+  }
+  .cb {
+    right: 12px;
+    bottom: 120px;
+  }
+  .sp-tourbtn {
+    left: 12px;
+    bottom: 120px;
+    padding-right: 8px;
+  }
+  .sp-tourbtn-text {
+    display: none;
+  }
+  .sp-voiceask {
+    flex-wrap: wrap;
+    bottom: 184px;
+  }
+  .cb-fab {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* --- Hand cursor: above everything, with a ring that fills while you hold still ----------- */
+.sp .sp-hand-cursor {
+  z-index: 2000;
+}
+.sp-hand-dwell {
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  background: conic-gradient(#7df9ff calc(var(--dwell, 0) * 360deg), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 17px, #000 18px);
+  mask: radial-gradient(circle, transparent 17px, #000 18px);
+  opacity: calc(var(--dwell, 0) * 4);
+}
+.sp-hand-hover {
+  outline: 3px solid #7df9ff !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 24px rgba(125, 249, 255, 0.45) !important;
+}
+.sp-modal-tip {
+  font-size: 13px;
+  color: var(--ink-soft);
+}

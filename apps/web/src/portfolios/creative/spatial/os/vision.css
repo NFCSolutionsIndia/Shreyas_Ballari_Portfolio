@@ -1,0 +1,1836 @@
+/* "Through the headset": smaller windows with the house all around them, a soft visor edge,
+   the tour button beside the AI button, and Oncure's cinema. Loaded last, so it wins. */
+
+/* --- Windows float in the room, with the house visible all round -------------------------- */
+.sp-ui .os-stage {
+  inset: 100px 13% 112px 13%;
+}
+.sp-ui .os-stage.is-home {
+  inset: 92px 9% 104px 9%;
+}
+.sp-ui .os-stage.is-oncure,
+.sp-ui .os-stage.is-finance {
+  inset: 96px 10% 108px 10%;
+}
+.os-board {
+  gap: 12px;
+}
+.os-w {
+  padding: 14px;
+  border-radius: 24px;
+}
+
+/* --- The visor: darker, softly rounded edges, like looking out through a headset ---------- */
+.sp-visor {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 120% at 50% 50%, transparent 58%, rgba(4, 6, 12, 0.32) 78%, rgba(2, 3, 8, 0.72) 100%);
+  transition: opacity 800ms var(--ease);
+}
+.sp-visor::after {
+  /* A faint reflection on the lens. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.035) 42%, transparent 55%);
+}
+.sp.is-intro .sp-visor {
+  opacity: 0;
+}
+
+/* --- Tour button: bottom right, just left of the AI button -------------------------------- */
+.sp-tourbtn {
+  left: auto;
+  right: 98px;
+  bottom: 24px;
+}
+.sp-ui > .sp-apps {
+  /* Everything is drawn into the tour button, and comes back out of it. */
+  transform-origin: calc(100% - 205px) calc(100% - 54px);
+}
+@media (max-width: 1200px) {
+  .sp-tourbtn {
+    padding-right: 8px;
+  }
+  .sp-tourbtn-text {
+    display: none;
+  }
+  .sp-ui > .sp-apps {
+    transform-origin: calc(100% - 125px) calc(100% - 54px);
+  }
+}
+
+/* --- Tour card picture ------------------------------------------------------------------- */
+.tour-img {
+  flex: none;
+  height: 132px;
+  margin: -8px -8px 0;
+  border-radius: 22px;
+  overflow: hidden;
+}
+.tour-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: os-zoom 1200ms var(--ease) both;
+}
+@media (max-height: 760px) {
+  .tour-img {
+    height: 92px;
+  }
+}
+
+/* --- Oncure: cinema + explainer ------------------------------------------------------------ */
+.onc {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+.onc-cinema {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: os-pane-in 900ms var(--ease) backwards;
+}
+.onc-glow {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 4%;
+  height: 70%;
+  width: 92%;
+  z-index: 0;
+  border-radius: 40px;
+  filter: blur(48px) saturate(1.6);
+  opacity: 0.85;
+  transform: scale(1.08);
+  pointer-events: none;
+}
+.onc-screen {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #05070d;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 40px 90px rgba(0, 0, 0, 0.45);
+}
+.onc-screen video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  cursor: pointer;
+}
+.onc-poster {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 28px 28px 84px;
+  background: linear-gradient(180deg, rgba(5, 7, 13, 0.1), rgba(5, 7, 13, 0.85));
+  color: #fff;
+  pointer-events: none;
+}
+.onc-poster h2 {
+  margin: 0;
+  font-size: 48px;
+  line-height: 48px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.onc-poster p {
+  margin: 0;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.onc-poster small {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+}
+.onc-badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(224, 70, 110, 0.85);
+  font-size: 12px;
+  font-weight: 700;
+}
+.onc-big {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: #fff;
+  font-size: 34px;
+  cursor: pointer;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 300ms var(--ease),
+    opacity 400ms var(--ease);
+}
+.onc-big:hover {
+  transform: scale(1.08);
+}
+.onc-screen:not(.is-started) .onc-big {
+  animation: onc-breathe 2.4s ease-in-out infinite;
+}
+@keyframes onc-breathe {
+  50% {
+    box-shadow:
+      0 0 0 14px rgba(255, 255, 255, 0.1),
+      0 16px 40px rgba(0, 0, 0, 0.35);
+  }
+}
+.onc-screen.is-playing .onc-big {
+  opacity: 0;
+}
+.onc-screen.is-playing:hover .onc-big {
+  opacity: 1;
+}
+.onc-bar {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(10, 12, 20, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 400ms var(--ease);
+}
+.onc-screen.is-playing .onc-bar {
+  opacity: 0;
+}
+.onc-screen.is-playing:hover .onc-bar,
+.onc-screen:focus-within .onc-bar {
+  opacity: 1;
+}
+.onc-ctl {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+.onc-ctl:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.onc-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  cursor: pointer;
+}
+.onc-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #e0466e, #ff8fb0);
+  transform-origin: left;
+}
+.onc-under {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 22px;
+  background: var(--w-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--w-edge);
+}
+.onc-under > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.onc-under b {
+  display: block;
+  font-size: 15px;
+  line-height: 20px;
+}
+.onc-under small {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.onc-actions {
+  display: flex;
+  gap: 8px;
+}
+.onc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  padding: 16px;
+}
+.onc-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.2);
+}
+.onc-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 300ms var(--ease),
+    color 300ms var(--ease);
+}
+.onc-tabs button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+.onc-tabs button.is-on {
+  background: #fff;
+  color: #111;
+}
+.onc-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  margin-right: -8px;
+  padding-right: 8px;
+  animation: os-rise 500ms var(--ease) backwards;
+}
+.onc-pitch {
+  margin: 0 0 10px;
+  font-size: 17px;
+  line-height: 25px;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+.onc-text {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+.onc-label {
+  margin: 14px 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.onc-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.onc-values span {
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(224, 70, 110, 0.16);
+  border: 1px solid rgba(255, 143, 176, 0.25);
+  animation: os-rise 500ms var(--ease) backwards;
+  animation-delay: calc(var(--i) * 60ms);
+}
+.onc-values b {
+  display: block;
+  font-size: 13px;
+}
+.onc-values small {
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--ink-soft);
+}
+.onc-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.onc-list li {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: os-rise 500ms var(--ease) backwards;
+  animation-delay: calc(var(--i) * 50ms);
+}
+.onc-list b {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+}
+.onc-list small {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--ink-soft);
+}
+.onc-list.is-numbered li {
+  position: relative;
+}
+.onc-n {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e0466e, #9b6bff);
+  font-size: 12px;
+  font-weight: 700;
+}
+.onc-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--ink-soft);
+}
+.onc-note svg {
+  flex: none;
+  margin-top: 2px;
+  color: #6be3a4;
+}
+.onc-evidence {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.onc-evidence li {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--ink-soft);
+}
+.onc-evidence svg {
+  flex: none;
+  margin-top: 1px;
+  color: #8fb4ff;
+}
+.onc-model {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+.onc-model-stage {
+  position: relative;
+  flex: 1;
+  min-height: 240px;
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 143, 176, 0.18), rgba(0, 0, 0, 0.2) 70%);
+}
+.onc-model-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.onc-model-keys button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.onc-model-keys button i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--tint);
+}
+.onc-model-keys button.is-on {
+  border-color: var(--tint);
+  background: color-mix(in srgb, var(--tint) 25%, transparent);
+}
+
+@media (max-width: 1100px) {
+  .sp-ui .os-stage,
+  .sp-ui .os-stage.is-home,
+  .sp-ui .os-stage.is-oncure,
+  .sp-ui .os-stage.is-finance {
+    inset: 96px 4% 108px 96px;
+  }
+  .onc {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+  .onc-cinema {
+    min-height: 360px;
+  }
+}
+@media (max-width: 760px) {
+  .sp-ui .os-stage,
+  .sp-ui .os-stage.is-home,
+  .sp-ui .os-stage.is-oncure,
+  .sp-ui .os-stage.is-finance {
+    inset: 132px 8px 128px;
+  }
+  .sp-visor {
+    display: none;
+  }
+  .sp-tourbtn {
+    right: 76px;
+    bottom: 120px;
+  }
+  .onc-poster h2 {
+    font-size: 34px;
+    line-height: 38px;
+  }
+}
+
+.onc svg {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+.onc-tabs svg {
+  font-size: 15px;
+}
+
+/* --- Tour, laid out for the room: rooms on the left, the story on the right -------------------- */
+.tour-rooms {
+  left: 24px;
+  right: auto;
+  align-items: flex-start;
+}
+.tour-rooms li button {
+  justify-content: flex-start;
+}
+.tour-rooms li button i {
+  order: 0;
+}
+.tour-card {
+  left: auto;
+  right: 32px;
+  bottom: 100px;
+  width: min(410px, calc(100vw - 64px));
+  max-height: calc(100vh - 200px);
+  gap: 10px;
+  padding: 16px 18px 16px;
+  border-radius: 30px;
+  background: linear-gradient(160deg, rgba(18, 20, 30, 0.58), rgba(18, 20, 30, 0.32));
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
+}
+.tour-card h2 {
+  font-size: 30px;
+  line-height: 34px;
+  background: linear-gradient(90deg, #fff, #d9dcff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tour-n {
+  color: rgba(255, 255, 255, 0.78);
+}
+.tour-body p {
+  font-size: 14px;
+  line-height: 21px;
+  color: rgba(255, 255, 255, 0.92);
+}
+.tour-img {
+  position: relative;
+  height: auto;
+  aspect-ratio: 16 / 8;
+  margin: 0;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+.tour-img figcaption {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: none;
+}
+.tour-items li {
+  background: rgba(255, 255, 255, 0.16);
+  text-shadow: none;
+}
+.tour-explore {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(125, 249, 255, 0.12);
+  border: 1px solid rgba(125, 249, 255, 0.3);
+  font-size: 12px;
+  color: #c9fbff;
+  text-shadow: none;
+}
+.tour-explore svg {
+  flex: none;
+  font-size: 16px;
+  animation: tour-tap 1.6s ease-in-out infinite;
+}
+@keyframes tour-tap {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.tour-card.is-detail {
+  border-color: color-mix(in srgb, var(--tint) 70%, #fff);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--tint) 40%, transparent),
+    0 30px 70px rgba(0, 0, 0, 0.35);
+}
+.tour-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tour-back:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+.tour-list {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tour-list li {
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid var(--tint);
+  font-size: 13px;
+  line-height: 18px;
+  text-shadow: none;
+  animation: os-rise 450ms var(--ease) backwards;
+  animation-delay: calc(var(--i) * 40ms);
+}
+
+/* Glowing points on things in the room */
+.tour-points {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tour-point {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms var(--ease);
+  will-change: transform;
+}
+.tour-point i {
+  position: relative;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--tint);
+  border: 3px solid #fff;
+  box-shadow: 0 0 16px var(--tint);
+}
+.tour-point i::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  border: 2px solid var(--tint);
+  animation: cb-ring 2.2s ease-out infinite;
+  animation-delay: calc(var(--i) * 300ms);
+}
+.tour-point span {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(14, 16, 24, 0.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    background-color 300ms var(--ease),
+    transform 300ms var(--ease);
+}
+.tour-point:hover span,
+.tour-point.is-on span {
+  background: #fff;
+  color: #111;
+  transform: translateX(2px);
+}
+.tour-point.is-on i {
+  transform: scale(1.2);
+}
+
+@media (max-width: 760px) {
+  .tour-rooms {
+    left: 12px;
+    top: 84px;
+    transform: none;
+  }
+  .tour-card {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    bottom: 184px;
+    max-height: 44vh;
+  }
+  .tour-point span {
+    display: none;
+  }
+}
+
+/* --- Dashboard: the Activities card lists everything -------------------------------------- */
+.w-bg.is-faint {
+  opacity: 0.35;
+}
+.w-over.is-acts {
+  justify-content: flex-start;
+  background: linear-gradient(180deg, rgba(10, 12, 20, 0.55), rgba(10, 12, 20, 0.75));
+}
+.w-acts {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+}
+.w-acts li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 18px;
+  animation: os-rise 500ms var(--ease) backwards;
+  animation-delay: calc(var(--i) * 60ms + 300ms);
+}
+.w-acts li svg {
+  flex: none;
+  color: #ffcf8a;
+}
+.w-acts b {
+  display: block;
+  font-size: 13px;
+  line-height: 16px;
+}
+.w-acts small {
+  display: block;
+  font-size: 11px;
+  line-height: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+@container (max-height: 260px) {
+  .w-acts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .w-acts small {
+    display: none;
+  }
+  .w-acts li {
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 14px;
+  }
+  .w-acts b {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .w-over.is-acts {
+    gap: 6px;
+  }
+  .w-over.is-acts .w-head small {
+    display: none;
+  }
+  /* The whole card opens Activities; in this size the list gets the room. */
+  .w-over.is-acts > .os-chip {
+    display: none;
+  }
+}
+
+/* --- Walk mode -------------------------------------------------------------------------------- */
+.sp-ui.is-walking .sp-apps {
+  animation: sp-genie-in 600ms cubic-bezier(0.55, 0, 0.7, 0.25) forwards;
+}
+.sp-ui.is-walking .sp-apps * {
+  pointer-events: none !important;
+}
+
+.wk {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: os-fade 500ms var(--ease) 200ms backwards;
+}
+/* Only the walk controls take clicks; the layer of points covers the screen and must not, or it
+   blocks the toolbar, the AI and the apps button. Each point re-enables itself. */
+.wk > *:not(.tour-points) {
+  pointer-events: auto;
+}
+.wk .tour-point {
+  pointer-events: auto;
+}
+.wk-top {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 420px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.wk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+}
+.wk-keys {
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(14, 16, 24, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+}
+.wk-keys kbd {
+  display: inline-block;
+  min-width: 20px;
+  margin: 0 2px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+}
+.wk-card {
+  top: 90px;
+  bottom: auto;
+}
+.wk-pad {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 52px);
+  gap: 8px;
+}
+.wk-pad-btn {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  background: rgba(14, 16, 24, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.wk-pad-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.95);
+}
+
+/* --- Oncure video in full view ---------------------------------------------------------------- */
+.vo {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(4, 6, 12, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: os-fade 400ms var(--ease) both;
+}
+.vo-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(1100px, 100%);
+  max-height: 100%;
+  padding: 14px;
+  border-radius: 30px;
+  background: rgba(18, 20, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  animation: cb-open 500ms var(--ease) both;
+}
+.vo-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+  color: #fff;
+}
+.vo-head > span {
+  flex: 1;
+  min-width: 0;
+}
+.vo-head b {
+  display: block;
+  font-size: 18px;
+}
+.vo-head small {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.vo-box video {
+  width: 100%;
+  max-height: calc(100vh - 160px);
+  border-radius: 20px;
+  background: #000;
+}
+
+/* --- Finance: the concept app screens ---------------------------------------------------------- */
+.fi-screens {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fi-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.fi-tabs button {
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.fi-tabs button.is-on {
+  background: #2fd18b;
+  color: #05261a;
+}
+.fi-tabs .sc-tag {
+  margin-left: auto;
+}
+.fi-shot {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #0d1117;
+  overflow: hidden;
+  animation: os-zoom 600ms var(--ease) both;
+}
+.fi-shot img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.fi-caption {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 760px) {
+  .wk-top {
+    right: 12px;
+    left: 12px;
+    top: 12px;
+  }
+  .wk-keys {
+    display: none;
+  }
+  .wk-pad {
+    left: 12px;
+    bottom: 120px;
+  }
+  .wk-card {
+    top: auto;
+    bottom: 300px;
+  }
+  .fi-shot {
+    flex: none;
+    height: 220px;
+  }
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 1100px) {
+  /* Keyboard users have the keys; the pad stays out of the way but is still there. */
+  .wk-pad {
+    opacity: 0.6;
+  }
+  .wk-pad:hover {
+    opacity: 1;
+  }
+}
+
+/* =============================================================================================
+   Responsive fixes (tablet and phone), from a full pass at 390, 820 and 1024 px wide.
+   ============================================================================================= */
+
+/* Awards card: the title always sits above the fanned pictures. */
+.w-awards .w-head,
+.w-awards .w-note {
+  position: relative;
+  z-index: 2;
+}
+@container (max-height: 210px) {
+  .w-fan img {
+    width: 26%;
+    max-width: 70px;
+  }
+  .w-bars {
+    max-height: 60px;
+  }
+  .w-split-text p {
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Tablets: the capsule moves left so it never meets the toolbar; the board can scroll. */
+@media (min-width: 761px) and (max-width: 1200px) {
+  .sp-capsule {
+    left: 20px;
+    transform: none;
+  }
+  .sp-capsule-room {
+    min-width: 0;
+    max-width: 200px;
+  }
+  .sp-capsule-room small {
+    display: none;
+  }
+  .sp-modes .sp-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .os-board {
+    grid-template-rows: repeat(4, minmax(190px, 1fr));
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .sp-ui .os-stage,
+  .sp-ui .os-stage.is-home,
+  .sp-ui .os-stage.is-oncure,
+  .sp-ui .os-stage.is-finance {
+    inset: 92px 3% 100px 92px;
+  }
+}
+
+/* Phones */
+@media (max-width: 760px) {
+  /* Toolbar: one row above the tabs, swipe sideways for more. */
+  .sp-modes {
+    top: auto !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 66px !important;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    border-radius: 22px;
+  }
+  .sp-modes::-webkit-scrollbar {
+    display: none;
+  }
+  .sp-modes .sp-icon-btn {
+    flex: none;
+    width: 38px;
+    height: 38px;
+  }
+  /* AI and tour buttons above the toolbar. */
+  .cb {
+    right: 12px;
+    bottom: 124px;
+  }
+  .cb-fab {
+    width: 50px;
+    height: 50px;
+  }
+  .sp-tourbtn {
+    right: 72px;
+    bottom: 124px;
+    padding: 4px;
+  }
+  .sp-tourbtn-ico {
+    width: 42px;
+    height: 42px;
+  }
+  .cb-panel {
+    width: calc(100vw - 24px);
+    height: min(440px, calc(100vh - 260px));
+  }
+  /* Apps leave room for the buttons at the bottom. */
+  .sp-ui .os-stage,
+  .sp-ui .os-stage.is-home,
+  .sp-ui .os-stage.is-oncure,
+  .sp-ui .os-stage.is-finance {
+    inset: 128px 8px 184px;
+  }
+  /* Tour */
+  .tour-top {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .tour-badge {
+    display: none;
+  }
+  .tour-skip {
+    padding: 7px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .tour-rooms {
+    top: 58px;
+    left: 12px;
+    right: 12px;
+    flex-direction: row;
+    align-items: center;
+  }
+  .tour-rooms ol {
+    display: flex;
+    gap: 0;
+    padding: 6px;
+  }
+  .tour-rooms li button {
+    padding: 6px;
+  }
+  .tour-rooms li button span {
+    display: none;
+  }
+  .tour-arrow {
+    width: 34px;
+    height: 34px;
+  }
+  .tour-card {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    bottom: 184px;
+    max-height: calc(100vh - 300px);
+    padding: 14px;
+  }
+  .tour-img {
+    aspect-ratio: 16 / 7;
+  }
+  .tour-card h2 {
+    font-size: 24px;
+    line-height: 28px;
+  }
+  .tour-hint,
+  .tour-progress {
+    display: none;
+  }
+  /* Oncure: the film keeps its shape. */
+  .onc-cinema {
+    min-height: 0 !important;
+  }
+  .onc-screen {
+    flex: none;
+    aspect-ratio: 16 / 9;
+  }
+  .onc-poster {
+    padding: 14px 14px 64px;
+  }
+  .onc-poster h2 {
+    font-size: 26px;
+    line-height: 30px;
+  }
+  .onc-poster p,
+  .onc-poster small {
+    display: none;
+  }
+  .onc-big {
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+    font-size: 24px;
+  }
+  .onc-under {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .onc-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .onc-panel {
+    min-height: 420px;
+  }
+  /* Games */
+  .gm-tile-n,
+  .gm-tile-how,
+  .gm-tile-best {
+    display: none;
+  }
+  .gm-tile-body {
+    padding: 12px;
+  }
+  .gm-tile-body b {
+    font-size: 17px;
+    line-height: 20px;
+  }
+  .gm-tile-ico {
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
+  }
+  .gm-tile-play {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .gm-hub-head h2 {
+    font-size: 24px;
+  }
+  /* Walk pad above the toolbar. */
+  .wk-pad {
+    bottom: 124px;
+  }
+  /* Voice question fits. */
+  .sp-voiceask {
+    bottom: 188px;
+    flex-wrap: wrap;
+  }
+}
+
+/* =============================================================================================
+   Dashboard legibility and the trading app card.
+   ============================================================================================= */
+
+/* Denser glass, so text reads clearly over a bright room. */
+.sp {
+  --w-bg: rgba(24, 26, 34, 0.66);
+}
+.sp.env-sunset {
+  --w-bg: rgba(44, 30, 26, 0.64);
+}
+.sp.env-night {
+  --w-bg: rgba(10, 13, 22, 0.72);
+}
+.os-w {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.os-w .os-chip.is-solid {
+  text-shadow: none;
+}
+
+/* Profile: a frosted panel under the name, so the photo never washes out the text. */
+.w-portrait-text {
+  margin: auto 10px 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(12, 14, 22, 0.62);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.w-portrait-text > small {
+  color: rgba(255, 255, 255, 0.9);
+}
+.w-stats span {
+  background: rgba(255, 255, 255, 0.12);
+}
+.w-stats small {
+  color: rgba(255, 255, 255, 0.82);
+}
+@container (max-height: 260px) {
+  .w-portrait-text {
+    padding-top: 12px;
+  }
+}
+
+/* Heads that sit on pictures (Games, Activities) get their own frosted pill. */
+.w-over .w-head {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  background: rgba(12, 14, 22, 0.66);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.w-over {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.05) 40%, rgba(0, 0, 0, 0.55));
+}
+
+/* Oncure: the text never runs past the card. */
+.w-split-text p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Awards: the pictures stay inside their own area, below the title. */
+.w-fan img {
+  top: 50%;
+  width: auto;
+  height: 92%;
+  max-width: none;
+  max-height: 150px;
+}
+.w-awards .w-note {
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Lists inside cards scroll with the wheel, a finger or a pinch. */
+.w-acts,
+.w-pins {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+.w-acts::-webkit-scrollbar-button,
+.w-pins::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* --- Trading app card: a little window into the TradeMind concept --------------------------- */
+.w-finance {
+  background: linear-gradient(160deg, rgba(14, 22, 30, 0.82), rgba(10, 14, 22, 0.74));
+}
+.w-finance .w-ico {
+  background: #2fd18b;
+  color: #06140d;
+}
+.w-fin {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.w-fin-chart {
+  position: relative;
+  min-height: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.w-fin-val {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  padding: 8px 10px 0;
+}
+.w-fin-val small {
+  font-size: 10px;
+  line-height: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.w-fin-val b {
+  font-size: 18px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.w-fin-val em {
+  font-style: normal;
+  font-size: 11px;
+  line-height: 14px;
+  color: #2fd18b;
+}
+.w-fin-chart svg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 62%;
+}
+.w-fin-line {
+  fill: none;
+  stroke: #2fd18b;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: w-fin-draw 1600ms var(--ease) 300ms forwards;
+}
+@keyframes w-fin-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.w-fin-dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin: -4px 0 0 -8px;
+  border-radius: 999px;
+  background: #2fd18b;
+  box-shadow: 0 0 0 0 rgba(47, 209, 139, 0.6);
+  animation: w-fin-ping 2s ease-out 1.6s infinite;
+}
+@keyframes w-fin-ping {
+  70% {
+    box-shadow: 0 0 0 10px rgba(47, 209, 139, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(47, 209, 139, 0);
+  }
+}
+.w-fin-ai {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(10, 14, 22, 0.78);
+  border: 1px solid rgba(47, 209, 139, 0.4);
+  font-size: 10px;
+  line-height: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w-fin-ai svg {
+  flex: none;
+  color: #ffd60a;
+}
+.w-fin-rows {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.w-fin-rows li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 6px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  animation: os-rise 500ms var(--ease) backwards;
+  animation-delay: calc(var(--i) * 80ms + 400ms);
+}
+.w-fin-rows b {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+}
+.w-fin-rows small {
+  grid-column: 1;
+  font-size: 10px;
+  line-height: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w-fin-rows em {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.w-fin-rows em.is-up {
+  color: #2fd18b;
+}
+.w-fin-rows em.is-down {
+  color: #ff6b6b;
+}
+.w-finance .w-note {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Small card: the chart takes the space and the list steps aside. */
+@container (max-width: 300px) {
+  .w-fin {
+    grid-template-columns: 1fr;
+  }
+  .w-fin-rows {
+    display: none;
+  }
+}
+@container (max-height: 200px) {
+  .w-fin-rows li:nth-child(3) {
+    display: none;
+  }
+  .w-fin-rows small {
+    display: none;
+  }
+  .w-fin-val b {
+    font-size: 15px;
+    line-height: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w-fin-line {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .w-fin-dot {
+    animation: none;
+  }
+}
+@container (max-width: 480px) {
+  .w-split-text p {
+    display: none;
+  }
+}
+/* Compact name panel: the face stays visible. */
+.w-portrait {
+  object-position: 50% 8%;
+}
+.w-portrait-text {
+  gap: 6px;
+  padding: 10px 12px 12px;
+}
+.w-portrait-text > b {
+  font-size: 20px;
+  line-height: 24px;
+}
+.w-stats span {
+  padding: 4px;
+}
+.w-stats b {
+  font-size: 15px;
+  line-height: 18px;
+}
+@container (max-height: 200px) {
+  .w-fin-ai {
+    display: none;
+  }
+}
+
+
+/* =============================================================================================
+   Device pass (phones, tablets, small laptops): one clear set of controls per screen size,
+   content never under a floating button, and touch targets of at least 40 px.
+   ============================================================================================= */
+.sp-cc-label {
+  display: none;
+}
+
+/* Tablets and small laptops: an app's back and close buttons sit inside its window, so they
+   never collide with the capsule at the top. */
+@media (max-width: 1200px) {
+  .os-win-chrome {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    z-index: 5;
+  }
+  /* ...and the content starts below them. */
+  .os-win-glass:has(> .os-win-chrome) .os-scene,
+  .os-win-glass:has(> .os-win-chrome) .os-app,
+  .os-win-glass:has(> .os-win-chrome) .aw {
+    padding-top: 56px;
+  }
+  .aw-deck {
+    margin-top: 8px;
+  }
+  /* Scenes (Oncure, Finance, Activities...) have their own back button: same treatment. */
+  .os-back {
+    top: 8px;
+    left: 8px;
+  }
+  .os-free:has(> .os-back) > .os-scene {
+    top: 52px;
+  }
+}
+
+/* Tablets: the left rail keeps its own lane, the cards never slide under it. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .sp-ui .os-stage,
+  .sp-ui .os-stage.is-home,
+  .sp-ui .os-stage.is-oncure,
+  .sp-ui .os-stage.is-finance {
+    inset: 92px 3% 100px 104px;
+  }
+  .os-board .os-w {
+    --ry: 0deg !important;
+  }
+}
+
+/* Any touch screen: comfortable targets. */
+@media (pointer: coarse) {
+  .os-chip,
+  .tour-skip,
+  .sp-voiceask-btn {
+    min-height: 40px;
+  }
+  .onc-ctl,
+  .tour-arrow {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .tour-rooms li button {
+    min-width: 32px;
+    min-height: 32px;
+  }
+}
+
+/* Phones: one bottom row (tour, Controls, AI) above the site tabs. */
+@media (max-width: 760px) {
+  .sp-capsule-room {
+    min-width: 0;
+  }
+  .sp-capsule-room b {
+    max-width: 46vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sp-modes {
+    top: auto !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: 72px !important;
+    transform: translateX(-50%);
+    overflow: visible !important;
+    padding: 4px !important;
+    border-radius: 999px !important;
+  }
+  .sp-modes > :not([data-cc-toggle]) {
+    display: none !important;
+  }
+  .sp-modes [data-cc-toggle] {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    width: auto !important;
+    height: 44px !important;
+    padding: 0 16px;
+    border-radius: 999px;
+  }
+  .sp-cc-label {
+    display: inline;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+  }
+  .cb {
+    right: 12px;
+    bottom: 72px;
+  }
+  .cb-fab {
+    width: 52px;
+    height: 52px;
+  }
+  .sp-tourbtn {
+    left: 12px;
+    right: auto;
+    bottom: 72px;
+  }
+  .sp-ui .os-stage,
+  .sp-ui .os-stage.is-home,
+  .sp-ui .os-stage.is-oncure,
+  .sp-ui .os-stage.is-finance {
+    inset: 120px 8px 136px;
+  }
+  /* The Control Center opens as a sheet from the bottom. */
+  .os-cc {
+    position: fixed;
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: 132px;
+    width: auto;
+    max-height: calc(100dvh - 210px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform-origin: 50% 100%;
+  }
+  .tour-card {
+    bottom: 136px;
+    max-height: calc(100dvh - 270px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .tour-img {
+    aspect-ratio: 16 / 6;
+  }
+  .wk-pad {
+    bottom: 136px;
+  }
+  .sp-voiceask {
+    bottom: 136px;
+  }
+  /* The award card fits the space between the bar and the pills. */
+  .aw-card {
+    --w: min(300px, 27dvh, 62vw);
+  }
+}
+
+/* Short laptop screens (for example 1280 x 720 or 1366 x 768): a little less chrome. */
+@media (min-width: 1101px) and (max-height: 780px) {
+  .sp-ui .os-stage.is-home {
+    inset: 84px 8% 96px 8%;
+  }
+}
+
+/* Short phones: the award card shrinks and the title strip under it steps aside (the card
+   already shows the same title). */
+@media (max-width: 760px) and (max-height: 720px) {
+  .aw-card {
+    --w: min(240px, 22dvh, 56vw);
+  }
+  .aw-pill {
+    display: none;
+  }
+  .aw-card {
+    --w: min(270px, 26dvh, 64vw);
+  }
+  .aw-card-text p,
+  .aw-card-text small,
+  .aw-expand {
+    display: none;
+  }
+  .aw-card-text b {
+    font-size: 16px;
+    line-height: 20px;
+  }
+}

@@ -1,0 +1,142 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowUpRight, Check, Cube, DownloadSimple, EnvelopeSimple, LinkSimple, List, X } from '@phosphor-icons/react';
+import { RESUME } from './timeline';
+
+/**
+ * The top bar: a small dark pill at the top centre (his mark and a menu icon). Point at it (or
+ * tap, or tab into it) and it stretches to the full width at the same height, showing every
+ * chapter, Download resume, Contact and quick actions.
+ */
+
+export const NAV_ITEMS = [
+  { id: 'work', label: 'Work' },
+  { id: 'oncure', label: 'Oncure' },
+  { id: 'finance', label: 'Trading app' },
+  { id: 'awards', label: 'Awards' },
+  { id: 'skills', label: 'Skills' },
+] as const;
+
+export function Logo({ size = 28 }: { size?: number }) {
+  return (
+    <svg className="dk-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+      <defs>
+        <linearGradient id="dk-g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#b48cff" />
+          <stop offset="0.55" stopColor="#6a3dff" />
+          <stop offset="1" stopColor="#2a1290" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="9" fill="url(#dk-g)" />
+      <path d="M16 5.5 Q17.6 14.4 26.5 16 Q17.6 17.6 16 26.5 Q14.4 17.6 5.5 16 Q14.4 14.4 16 5.5Z" fill="#fff" />
+    </svg>
+  );
+}
+
+export function Dock({ go, active }: { go: (id: string) => void; active: string }) {
+  const [open, setOpen] = useState(false);
+  const [sheet, setSheet] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const closeT = useRef(0);
+  const root = useRef<HTMLElement>(null);
+
+  const show = () => {
+    window.clearTimeout(closeT.current);
+    setOpen(true);
+  };
+  const hide = () => {
+    window.clearTimeout(closeT.current);
+    closeT.current = window.setTimeout(() => {
+      setOpen(false);
+      setSheet(false);
+    }, 260);
+  };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (setOpen(false), setSheet(false));
+    const onDown = (e: PointerEvent) => {
+      if (root.current && !root.current.contains(e.target as Node)) (setOpen(false), setSheet(false));
+    };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('pointerdown', onDown);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pointerdown', onDown);
+      window.clearTimeout(closeT.current);
+    };
+  }, []);
+
+  const jump = (id: string) => {
+    go(id);
+    setSheet(false);
+    setOpen(false);
+  };
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard blocked */
+    }
+  };
+
+  return (
+    <nav
+      ref={root}
+      className={`dk ${open ? 'is-open' : ''} ${sheet ? 'has-sheet' : ''}`}
+      aria-label="Site"
+      onPointerEnter={(e) => e.pointerType === 'mouse' && show()}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && hide()}
+      onFocus={show}
+      onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node) && hide()}
+    >
+      <div className="dk-bar">
+        <button type="button" className="dk-logo" onClick={() => jump('home')} aria-label="Shreyas Ballari, back to the top">
+          <Logo />
+          <span className="dk-name">Shreyas Ballari</span>
+        </button>
+
+        <ul className="dk-links">
+          {NAV_ITEMS.map((n, i) => (
+            <li key={n.id} style={{ ['--i' as string]: i }}>
+              <button type="button" className={active === n.id ? 'is-on' : ''} aria-current={active === n.id ? 'true' : undefined} onClick={() => jump(n.id)}>
+                {n.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <div className="dk-actions">
+          <button type="button" className="dk-icon" onClick={() => void copy()} aria-label="Copy the link to this page" title="Copy link">
+            {copied ? <Check weight="bold" /> : <LinkSimple weight="bold" />}
+          </button>
+          <a className="dk-icon" href="/?style=creative" aria-label="Open the 3D house" title="Walk through his 3D house">
+            <Cube weight="bold" />
+          </a>
+          <Link className="dk-btn is-ghost" to="/contact">
+            <EnvelopeSimple weight="bold" aria-hidden="true" /> Contact
+          </Link>
+          <a className="dk-btn" href={RESUME} download="Shreyas_Ballari_Resume.pdf">
+            <DownloadSimple weight="bold" aria-hidden="true" /> Resume
+          </a>
+        </div>
+
+        <button type="button" className="dk-toggle" aria-label={open ? 'Menu' : 'Open the menu'} aria-expanded={open} onClick={() => (open ? setSheet((s) => !s) : setOpen(true))}>
+          {sheet ? <X weight="bold" /> : <List weight="bold" />}
+        </button>
+      </div>
+
+      {/* Small screens: the links drop down under the bar. */}
+      <div className="dk-sheet" hidden={!sheet}>
+        {NAV_ITEMS.map((n) => (
+          <button key={n.id} type="button" onClick={() => jump(n.id)}>
+            {n.label} <ArrowUpRight weight="bold" aria-hidden="true" />
+          </button>
+        ))}
+        <button type="button" onClick={() => jump('contact')}>
+          Contact <ArrowUpRight weight="bold" aria-hidden="true" />
+        </button>
+      </div>
+    </nav>
+  );
+}

@@ -1,0 +1,255 @@
+/* Hero: a CRT hologram (dot portrait, curved grid, scan lines, glitch band, boot screen). */
+
+.hh {
+  position: relative;
+  z-index: 3;
+  /* Taller than the screen: the extra scroll is spent bending the screen away while pinned. */
+  height: 175svh;
+  padding: 0;
+  overflow: clip;
+  /* White behind the tube: as you scroll, the screen bends away and this shows round it. */
+  background: #ffffff;
+  color: #efeaff;
+  isolation: isolate;
+}
+.hh-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: 50% 0%;
+  will-change: transform;
+  background: #060820;
+  box-shadow: 0 30px 80px rgba(10, 20, 40, 0.35);
+}
+.hh-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  /* A touch of colour fringing, like an old tube. */
+  filter: drop-shadow(1px 0 0 rgba(255, 70, 110, 0.35)) drop-shadow(-1px 0 0 rgba(110, 130, 255, 0.4)) contrast(1.08);
+  animation: hh-flicker 6s steps(1) infinite;
+}
+@keyframes hh-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  41% {
+    opacity: 0.92;
+  }
+  42% {
+    opacity: 1;
+  }
+  77% {
+    opacity: 0.95;
+  }
+  78% {
+    opacity: 1;
+  }
+}
+.hh-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+}
+.hh-scan::after {
+  /* A soft bright line rolling down the tube. */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18vh;
+  top: -20vh;
+  background: linear-gradient(180deg, transparent, rgba(170, 140, 255, 0.07), transparent);
+  animation: hh-roll 7s linear infinite;
+}
+@keyframes hh-roll {
+  to {
+    transform: translateY(140vh);
+  }
+}
+.hh-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 95% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 85%, rgba(0, 0, 0, 0.9) 100%);
+}
+
+/* The pinned frame that holds the screen. */
+.hh-pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+}
+
+/* Text: mono, glowing, with a faint colour split. */
+.hh-copy {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  margin: 0;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  text-shadow:
+    -1px 0 rgba(255, 70, 110, 0.55),
+    1px 0 rgba(120, 140, 255, 0.55),
+    0 0 14px rgba(170, 140, 255, 0.5);
+  pointer-events: none;
+  animation: hh-in 900ms cubic-bezier(0.22, 1, 0.36, 1) 1.9s backwards;
+}
+@keyframes hh-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+}
+.hh-copy.is-left {
+  left: clamp(16px, 3vw, 48px);
+  transform: translateY(-50%);
+}
+.hh-name {
+  margin: 0;
+  font-size: clamp(24px, 2.6vw, 40px);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.hh-meta {
+  display: flex;
+  gap: 48px;
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  color: rgba(236, 230, 255, 0.62);
+}
+.hh-tag {
+  right: clamp(16px, 3vw, 48px);
+  max-width: 300px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-wrap: pretty;
+}
+.hh-hint {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 20px;
+  margin: 0;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(236, 230, 255, 0.62);
+  animation: hh-blink 1.6s steps(1) infinite;
+}
+@keyframes hh-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Boot screen. */
+.hh-boot {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  background: #000;
+  font-family: var(--mono);
+  color: #d8e8ff;
+  transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hh-boot.is-done {
+  opacity: 0;
+}
+.hh-boot b {
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow:
+    -1px 0 rgba(255, 70, 110, 0.6),
+    1px 0 rgba(70, 200, 255, 0.6),
+    0 0 18px rgba(160, 210, 255, 0.6);
+}
+.hh-bar {
+  display: block;
+  width: 168px;
+  height: 14px;
+  padding: 2px;
+  border: 1px solid rgba(216, 232, 255, 0.8);
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(160, 210, 255, 0.4);
+}
+.hh-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #d8e8ff;
+  transform-origin: 0 50%;
+}
+
+/* Phones: the name sits at the top, the line at the bottom, the bust in between. */
+@media (max-width: 760px) {
+  .hh-copy.is-left {
+    top: 96px;
+    transform: none;
+  }
+  .hh-tag {
+    top: auto;
+    bottom: 104px;
+    left: 16px;
+    right: 16px;
+    max-width: none;
+    transform: none;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(4, 6, 10, 0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-canvas,
+  .hh-scan::after,
+  .hh-hint {
+    animation: none;
+  }
+  .hh-copy {
+    animation: none;
+  }
+}
+
+/* The shared section padding (from classic.css, loaded later) must not inset the screen. */
+.pf-sec.hh {
+  padding: 0;
+  min-height: 0;
+}
+
+/* The scroll story follows the hero now; its top bar must stay above the hero. */
+.pf-sec.hh {
+  z-index: 1;
+}
+
+/* The arc intro (ArcIntro) now opens the page; the hero's own boot screen steps aside. */
+.hh-boot {
+  display: none;
+}
+.hh-copy {
+  animation-delay: 0.4s;
+}

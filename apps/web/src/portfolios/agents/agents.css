@@ -1,0 +1,760 @@
+/* Studio: a page that builds itself (after avivashishta.com/lab/agents-at-work). */
+
+.agents {
+  --paper: #f3f3f1;
+  --ink: #141414;
+  --muted: #6b6b66;
+  --line: #dcdcd7;
+  --blue: #3a5bff;
+  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --mono: 'Geist Mono Variable', ui-monospace, monospace;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  padding: 0 40px 0;
+}
+.agents .serif {
+  font-family: var(--serif);
+  font-weight: 400;
+}
+.agents .mono {
+  font-family: var(--mono);
+}
+
+/* --- Blocks and their four states ------------------------------------------------------------ */
+
+.agents [data-block] {
+  position: relative;
+}
+.agents .fill {
+  display: block;
+}
+/* Hide unbuilt blocks only when the script will build them; without JS or with reduced motion
+   the page is simply complete. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .agents [data-block]:not([data-state='done']) > .fill {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .agents [data-block][data-state='done']:not([data-noland]) > .fill {
+    animation: agents-land 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+@keyframes agents-land {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+    filter: blur(6px);
+  }
+}
+/* Rough: a blue outline with corner handles and a grey skeleton, no extra markup. */
+.agents [data-block][data-state='rough']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.agents [data-block][data-state='rough']::before {
+  outline: 1.5px solid var(--blue);
+  outline-offset: -1px;
+  background:
+    linear-gradient(#e3e3df, #e3e3df) 6% 14% / 58% 16% no-repeat,
+    linear-gradient(#e3e3df, #e3e3df) 6% 46% / 82% 16% no-repeat,
+    linear-gradient(#e3e3df, #e3e3df) 6% 78% / 40% 16% no-repeat,
+    rgb(58 91 255 / 0.05);
+}
+.agents [data-block][data-state='rough']::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(#fff, #fff) 1px 1px / 6px 6px no-repeat,
+    linear-gradient(#fff, #fff) calc(100% - 1px) 1px / 6px 6px no-repeat,
+    linear-gradient(#fff, #fff) 1px calc(100% - 1px) / 6px 6px no-repeat,
+    linear-gradient(#fff, #fff) calc(100% - 1px) calc(100% - 1px) / 6px 6px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 0 0 / 8px 8px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 100% 0 / 8px 8px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 0 100% / 8px 8px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 100% 100% / 8px 8px no-repeat;
+}
+/* Done: a short blue glow on the border. */
+.agents [data-block][data-flash]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  animation: agents-flash 760ms ease-out both;
+}
+@keyframes agents-flash {
+  from {
+    box-shadow:
+      0 0 0 1.5px rgb(58 91 255 / 0.9),
+      0 0 28px rgb(58 91 255 / 0.45);
+  }
+  to {
+    box-shadow:
+      0 0 0 1.5px rgb(58 91 255 / 0),
+      0 0 28px rgb(58 91 255 / 0);
+  }
+}
+
+/* Typing: the full text stays in place, transparent; the typed text sits on top. */
+.agents [data-typing] > .fill {
+  color: transparent;
+}
+.agent-typing {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  color: var(--ink);
+  pointer-events: none;
+}
+.agent-caret {
+  display: inline-block;
+  width: 0.06em;
+  min-width: 2px;
+  height: 0.82em;
+  margin-left: 0.04em;
+  vertical-align: -0.06em;
+  animation: agents-blink 900ms steps(1) infinite;
+}
+@keyframes agents-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Pixel fill */
+.agent-pixels,
+.agent-pixels-fading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 420ms ease-out;
+}
+.agent-pixels > span,
+.agent-pixels-fading > span {
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+.agents [data-on] > span {
+  opacity: 1;
+}
+.agents [data-off] {
+  opacity: 0;
+}
+
+/* --- Cursors, marquees, tooltips -------------------------------------------------------------- */
+
+.agent-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+.agent-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.18));
+}
+.agent-cursor svg {
+  display: block;
+}
+.agent-tag {
+  position: absolute;
+  top: 18px;
+  left: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font: 600 11px/1.3 var(--sans);
+  white-space: nowrap;
+}
+.agent-marquee {
+  position: absolute;
+  border: 1.5px dashed var(--blue);
+  background: rgb(58 91 255 / 0.05);
+}
+.agent-size {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--blue);
+  color: #fff;
+  font: 500 11px/1.3 var(--sans);
+  white-space: nowrap;
+}
+.agent-code {
+  position: absolute;
+  transform: translateY(-100%);
+  max-width: 340px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #141414;
+  color: #e7ecff;
+  font: 400 11px/1.35 var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.18);
+}
+
+/* --- Layout ------------------------------------------------------------------------------------- */
+
+/* Hero stage: the portrait full bleed on its own blue backdrop, his name set large across it
+   (after hana.framer.media). The header floats over it in white. */
+.agents-stage {
+  position: relative;
+  margin: 0 -40px;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  background: #4b6480;
+  isolation: isolate;
+}
+/* Film grain over the photo. */
+.agents-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.agents .agents-photo {
+  position: absolute;
+  inset: 0;
+}
+.agents-photo .fill {
+  height: 100%;
+}
+.agents-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+}
+.agents .agents-name {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 72px;
+  width: fit-content;
+  max-width: none;
+  margin: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: 700 9.3vw / 0.8 var(--sans);
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.agents-name .agent-typing {
+  color: #fff;
+}
+.agents .agents-stage-note {
+  position: absolute;
+  z-index: 4;
+  left: 40px;
+  bottom: calc(72px + 9.3vw * 0.8 + 18px);
+  width: fit-content;
+}
+.agents-stage-note .fill {
+  font: 500 12px/1.4 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.82);
+}
+.agents .agents-header {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  left: 40px;
+  right: 40px;
+  color: #fff;
+}
+.agents-header .agents-crumb.is-soft,
+.agents-header .agents-count .fill {
+  color: rgb(255 255 255 / 0.72);
+}
+
+
+.agents-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 0 0;
+}
+.agents-brand .fill {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 30px;
+  letter-spacing: -0.02em;
+}
+.agents-crumb {
+  font-family: var(--serif);
+  font-size: 30px;
+}
+.agents-crumb.is-soft {
+  font-size: 22px;
+  color: var(--muted);
+}
+.agents-count .fill,
+.agents-eyebrow .fill {
+  font: 500 12px/1.4 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.agents-hero {
+  padding-top: 64px;
+}
+.agents-eyebrow {
+  width: fit-content;
+}
+.agents-h1 {
+  margin-top: 18px;
+  width: fit-content;
+  max-width: 100%;
+  font: 400 clamp(64px, 10vw, 156px) / 0.9 var(--serif);
+  letter-spacing: -0.035em;
+}
+.agents-h1.is-end {
+  margin-top: 0;
+  font-size: clamp(56px, 8.6vw, 132px);
+}
+.agents-lead {
+  margin-top: 26px;
+  max-width: 680px;
+}
+.agents-lead .fill {
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+.agents-sky {
+  margin: 44px -24px 0;
+  height: min(560px, 62vw);
+  border-radius: 28px;
+  overflow: hidden;
+}
+.agents-sky .fill {
+  height: 100%;
+}
+.agents-sky-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+.agents-cards {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 18px;
+  margin-top: calc(-1 * min(500px, 56vw));
+  padding: 0 16px;
+}
+.agents-card {
+  flex: 0 1 200px;
+  aspect-ratio: 9 / 15;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 50px rgb(20 20 40 / 0.28);
+}
+.agents-card.is-centre {
+  flex-basis: 230px;
+  transform: translateY(-26px);
+}
+.agents-card .fill,
+.agents-school .fill {
+  position: relative;
+  height: 100%;
+}
+.agents-card img,
+.agents-school img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.agents-card-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.05) 45%, rgb(0 0 0 / 0.5));
+}
+.agents-card-title {
+  position: absolute;
+  top: 26px;
+  left: 14px;
+  right: 14px;
+  color: #fff;
+  text-align: center;
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.05;
+}
+.agents-card-note {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgb(255 255 255 / 0.85);
+  font: 500 11px/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.agents-small {
+  margin-top: 18px;
+  width: fit-content;
+}
+.agents-small .fill {
+  font-size: 12px;
+  color: var(--muted);
+}
+.agents-small.mono .fill {
+  font-family: var(--mono);
+}
+
+.agents-section {
+  padding-top: 120px;
+}
+.agents-h2 {
+  margin-top: 16px;
+  width: fit-content;
+  max-width: 100%;
+  font: 400 clamp(48px, 7vw, 104px) / 0.95 var(--serif);
+  letter-spacing: -0.03em;
+}
+.agents-grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 44px;
+}
+.agents-work {
+  border-radius: 18px;
+}
+.agents-work .fill {
+  height: 100%;
+}
+.agents-work-link {
+  display: flex;
+  flex-direction: column;
+  min-height: 230px;
+  height: 100%;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.agents-work-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgb(0 0 0 / 0.08);
+}
+.agents-bar {
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+}
+.agents-work-title {
+  margin-top: 26px;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.agents-work-text {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.agents-work-more {
+  margin-top: auto;
+  padding-top: 18px;
+  font: 500 12px/1.3 var(--mono);
+  color: var(--ink);
+}
+
+.agents-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 44px;
+}
+.agents-stat .fill {
+  padding-top: 18px;
+  border-top: 1px solid var(--ink);
+}
+.agents-stat-value {
+  display: block;
+  font-size: clamp(56px, 6.4vw, 100px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.agents-stat-suffix {
+  font-size: 0.42em;
+  color: var(--muted);
+}
+.agents-stat-label {
+  display: block;
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.agents-grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 44px;
+}
+.agents-school {
+  aspect-ratio: 4 / 5;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.agents-school-step {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  color: rgb(255 255 255 / 0.85);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.agents-school-name {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 22px;
+  color: #fff;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.agents-end {
+  padding: 160px 0 120px;
+}
+.agents-actions {
+  margin-top: 28px;
+  width: fit-content;
+}
+.agents-actions .fill {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 22px;
+}
+.agents-button {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font: 600 14px/1 var(--sans);
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.agents-button:hover {
+  transform: translateY(-1px);
+}
+.agents-button:active {
+  transform: translateY(1px);
+}
+.agents-button:disabled {
+  opacity: 0.4;
+}
+.agents-link {
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.agents-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+  margin: 0 -40px;
+  padding: 36px 40px 140px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+.agents-footer a:hover {
+  color: var(--ink);
+}
+
+/* --- Agent log ---------------------------------------------------------------------------------- */
+
+.agents-log {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 60;
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.96);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.12);
+  font-size: 11px;
+}
+.agents-log-head {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.agents-log-lines {
+  display: grid;
+  gap: 6px;
+  min-height: 96px;
+  margin: 10px 0 12px;
+}
+.agents-log-lines li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.agents-log-time {
+  color: var(--muted);
+}
+.agents-log-tag {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font: 600 10px/1.4 var(--sans);
+}
+.agents-log-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agents-log-button {
+  width: 100%;
+  min-height: 36px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font: 600 12px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* --- Phones ------------------------------------------------------------------------------------- */
+
+@media (max-width: 860px) {
+  .agents-stage {
+    margin: 0 -16px;
+  }
+  .agents .agents-name {
+    left: 16px;
+    right: 16px;
+    bottom: 84px;
+    width: auto;
+    transform: none;
+    white-space: normal;
+    font-size: 19vw;
+    line-height: 0.84;
+  }
+  .agents .agents-stage-note {
+    left: 16px;
+    bottom: calc(84px + 19vw * 0.84 * 2 + 14px);
+  }
+  .agents .agents-header {
+    left: 16px;
+    right: 16px;
+  }
+  .agents-photo-img {
+    object-position: 50% 30%;
+  }
+  .agents {
+    padding: 0 16px;
+  }
+  .agents-header {
+    padding-top: 20px;
+  }
+  .agents-count {
+    display: none;
+  }
+  .agents-sky {
+    margin: 32px -8px 0;
+    height: 420px;
+  }
+  .agents-cards {
+    justify-content: flex-start;
+    overflow-x: auto;
+    margin-top: -380px;
+    padding: 0 8px 12px;
+    scroll-snap-type: x mandatory;
+  }
+  .agents-card {
+    flex: 0 0 170px;
+    scroll-snap-align: center;
+  }
+  .agents-card.is-centre {
+    flex-basis: 170px;
+    transform: none;
+  }
+  .agents-grid4,
+  .agents-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .agents-grid3 {
+    grid-template-columns: 1fr;
+  }
+  .agents-section {
+    padding-top: 88px;
+  }
+  .agents-footer {
+    margin: 0 -16px;
+  }
+  .agents-log-lines {
+    min-height: 48px;
+  }
+  .agents-log-lines li:nth-child(-n + 2):not(:nth-last-child(-n + 2)) {
+    display: none;
+  }
+}
+@media (max-width: 520px) {
+  .agents-grid4,
+  .agents-stats {
+    grid-template-columns: 1fr;
+  }
+}

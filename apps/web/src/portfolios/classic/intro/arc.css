@@ -1,0 +1,73 @@
+/* The opening charge screen: full window, the arc in the middle, the number above it. */
+.arc {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  background: #000;
+  color: #fff;
+  font-family: 'Geist Variable', 'Geist', system-ui, sans-serif;
+}
+.arc-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.arc-num {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-size: clamp(72px, 13vmin, 150px);
+  line-height: 1;
+  font-weight: 200;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.arc-num sup {
+  margin-left: 4px;
+  font-size: 0.24em;
+  vertical-align: 2.6em;
+  font-weight: 300;
+  opacity: 0.8;
+}
+.arc-ticks {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  display: flex;
+  gap: clamp(6px, 1.2vmin, 12px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.arc-ticks i {
+  display: block;
+  width: 2px;
+  height: 10px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.arc-skip {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+.arc-skip:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.arc-skip:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}

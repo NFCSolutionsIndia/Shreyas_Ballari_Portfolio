@@ -1,0 +1,112 @@
+import { achievements, activities, courses, goals, languages, oncure, profile, researchInterests, resume, stockApp, subjects, volunteering } from '@/content/portfolio';
+import { PHOTOS } from '@/portfolios/room/photos';
+import type { StationName } from '../house/stations';
+
+/**
+ * The house tour: scroll (or swipe, or use the arrow keys) and the camera walks from room to
+ * room; in each room you can drag to look around and tap glowing points on things, and a card
+ * explains one part of Shreyas's story. Every fact comes from content/portfolio.ts (his details,
+ * his Oncure proposal and his résumé).
+ */
+
+export interface TourStop {
+  station: StationName;
+  room: string;
+  title: string;
+  text: string;
+  items?: string[];
+  /** A picture that belongs to this topic, and which part of it to keep in view. */
+  image?: string;
+  focus?: string;
+  /** The app that goes deeper on this room's topic. */
+  app?: string;
+}
+
+const A = (p: string) => `${import.meta.env.BASE_URL}assets/${p}`;
+const and = (xs: readonly string[]) => xs.join(', ').replace(/, ([^,]*)$/, ' and $1');
+
+export const TOUR: TourStop[] = [
+  {
+    station: 'entry',
+    room: 'Welcome',
+    title: `${profile.firstName}’s home`,
+    text: `${profile.name} is a ${profile.grade.toLowerCase()} at ${profile.school} (${profile.schoolShort}) in ${profile.schoolTown}. This house tells his story, one room at a time. Scroll to walk in, drag to look around, and tap the glowing points.`,
+    image: A('shreyas/portrait-studio.jpg'),
+    focus: '50% 18%',
+  },
+  {
+    station: 'living',
+    room: 'The living room',
+    title: 'Who he is',
+    text: `${resume.summary} He is most drawn to ${and(subjects)}, and his research interests are ${researchInterests.map((r) => r.title.toLowerCase()).join(' and ')}.`,
+    items: [...subjects],
+    image: A('shreyas/portrait-studio.jpg'),
+    focus: '50% 18%',
+  },
+  {
+    station: 'bedroom',
+    room: 'His room',
+    title: 'Skills and code',
+    text: `He writes code in ${and(languages)}. His résumé lists strong communication, advanced mathematics and literature, leadership, and fast, efficient work.`,
+    items: [...languages, ...resume.skills.slice(0, 8)],
+    image: PHOTOS.code.src,
+  },
+  {
+    station: 'study',
+    room: 'The study',
+    title: 'School and courses',
+    text: `At ${profile.school} he has always taken advanced courses: all honours and AP, with mathematics through AP Pre-calculus. The board on the wall shows them all.`,
+    items: courses,
+    image: A('journey/academy.placeholder.jpg'),
+  },
+  {
+    station: 'lab',
+    room: 'Research & Development',
+    title: 'Oncure and the trading app',
+    text: `Two projects live here. Oncure: ${oncure.summary.charAt(0).toLowerCase()}${oncure.summary.slice(1)} His video plays on the wall screen. And his AI trading app: ${stockApp.summary.charAt(0).toLowerCase()}${stockApp.summary.slice(1)} Its screens are on the monitors.`,
+    items: ['Oncure: 5 steps', 'Watch the video', 'Trading app screens', 'AI advice', 'Calculators'],
+    image: A('journey/oncure.placeholder.jpg'),
+    app: 'oncure',
+  },
+  {
+    station: 'gallery',
+    room: 'The gallery',
+    title: 'Awards and honours',
+    text: 'Certificates, honours and top percentile scores, from Project Arrow in second grade to the College Board National Recognition Program. On the PSAT 8/9 he scored 1280 out of 1440 in 8th grade, top 1% nationwide.',
+    items: achievements.map((a) => `${a.title} · ${a.value}`),
+    image: A('house/stills/gallery.jpg'),
+    app: 'awards',
+  },
+  {
+    station: 'kitchen',
+    room: 'The community room',
+    title: 'Tutoring and volunteering',
+    text: 'The whiteboard shows how he tutors 7th and 8th graders in mathematics and science, step by step; the wall beside it shows where he volunteers.',
+    items: volunteering.map((v) => `${v.title} · ${v.role}`),
+    image: A('journey/tutor.placeholder.jpg'),
+  },
+  {
+    station: 'music',
+    room: 'Music & activities',
+    title: 'Beyond class',
+    text: 'His guitars, and a wall of everything else he does: sport, martial arts, science competition and business.',
+    items: activities.map((a) => `${a.title} · ${a.role}`),
+    image: A('house/stills/music.jpg'),
+    app: 'activities',
+  },
+  {
+    station: 'garden',
+    room: 'The garden',
+    title: 'Looking ahead',
+    text: `The sign in the garden holds his goals: ${goals.education.replace(/^A /, 'a ').replace(/\.$/, '')}, then a career in AI, research and finance.`,
+    items: goals.career.map((g) => g.replace(/\.$/, '')),
+    image: A('house/stills/garden.jpg'),
+  },
+  {
+    station: 'sofa',
+    room: 'Thank you',
+    title: 'Thank you for visiting',
+    text: `And for your valuable time. You can explore any of ${profile.firstName}’s apps from his dashboard, ask the AI about him, or take the tour again.`,
+    app: 'home',
+  },
+];

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#000000" />
+    <noscript>
+      <!-- Without JavaScript there is no 3D desk: show the text version instead of the gate. -->
+      <style>
+        .desk-gate,
+        .desk-chrome,
+        .portfolio-switcher {
+          display: none !important;
+        }
+        .reveal,
+        .tagline-word,
+        .ink-pop,
+        .ink-rise {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .ink-loader {
+          display: none !important;
+        }
+        .ink-underline path {
+          stroke-dashoffset: 0 !important;
+        }
+        .desk-text {
+          position: static !important;
+          width: auto !important;
+          height: auto !important;
+          clip: auto !important;
+          clip-path: none !important;
+          overflow: visible !important;
+          white-space: normal !important;
+          margin: 0 !important;
+          padding: 48px 24px !important;
+        }
+      </style>
+    </noscript>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
