@@ -35,7 +35,7 @@ const ICONS: Record<string, { icon: Icon; motion: string; label: string }> = {
 };
 
 /** His photo, set into the heading like a word. */
-const PHOTO = '/assets/shreyas/portrait-studio.jpg';
+const PHOTO = `${import.meta.env.BASE_URL}assets/shreyas/portrait-studio.jpg`;
 
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));

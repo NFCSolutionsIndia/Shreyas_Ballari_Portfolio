@@ -14,7 +14,7 @@ import './agents.css';
 const SKY: Photo = { src: 'https://cdn.stocksnap.io/img-thumbs/960w/5XXUTFRCDF.jpg', alt: '' };
 
 /** Hero portrait (supplied by the family). */
-const PORTRAIT = '/assets/shreyas/portrait-studio.jpg';
+const PORTRAIT = `${import.meta.env.BASE_URL}assets/shreyas/portrait-studio.jpg`;
 
 const RED = '#e5484d';
 const BLUE = '#3a5bff';

@@ -11,10 +11,10 @@ interface SeoProps {
   noindex?: boolean;
 }
 
-export function Seo({ title, description, image = '/og/default.png', noindex = false }: SeoProps) {
+export function Seo({ title, description, image = `${import.meta.env.BASE_URL}og/default.png`, noindex = false }: SeoProps) {
   const { pathname } = useLocation();
   const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
-  const url = new URL(pathname, env.VITE_SITE_URL).toString();
+  const url = new URL(pathname.replace(/^\//, ''), env.VITE_SITE_URL).toString();
   const imageUrl = new URL(image, env.VITE_SITE_URL).toString();
 
   return (

@@ -110,7 +110,7 @@ export function Dock({ go, active }: { go: (id: string) => void; active: string 
           <button type="button" className="dk-icon" onClick={() => void copy()} aria-label="Copy the link to this page" title="Copy link">
             {copied ? <Check weight="bold" /> : <LinkSimple weight="bold" />}
           </button>
-          <a className="dk-icon" href="/?style=creative" aria-label="Open the 3D house" title="Walk through his 3D house">
+          <a className="dk-icon" href={`${import.meta.env.BASE_URL}?style=creative`} aria-label="Open the 3D house" title="Walk through his 3D house">
             <Cube weight="bold" />
           </a>
           <Link className="dk-btn is-ghost" to="/contact">

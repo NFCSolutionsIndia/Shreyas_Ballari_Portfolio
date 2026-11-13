@@ -534,10 +534,10 @@ export function ClassicPortfolio() {
               Design.
             </h2>
             <div className="pf-lab-links">
-              <a href="/?style=travel" onPointerEnter={ripple}>
+              <a href={`${import.meta.env.BASE_URL}?style=travel`} onPointerEnter={ripple}>
                 My World · 3D journey
               </a>
-              <a href="/?style=studio" onPointerEnter={ripple}>
+              <a href={`${import.meta.env.BASE_URL}?style=studio`} onPointerEnter={ripple}>
                 Studio
               </a>
             </div>
