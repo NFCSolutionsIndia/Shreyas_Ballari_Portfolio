@@ -1,23 +1,61 @@
 {
-  "name": "shreyas-portfolio",
+  "name": "shreyas-ballari-portfolio",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "assets": "pnpm --filter @portfolio/web assets",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "dev": "vite",
+    "build": "vite-react-ssg build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "assets": "node scripts/list-assets.mjs",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource-variable/schibsted-grotesk": "^5.2.5",
+    "@fontsource/bebas-neue": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource/permanent-marker": "^5.2.5",
+    "@fontsource/space-mono": "^5.2.5",
+    "@mediapipe/tasks-vision": "^1.2.2",
+    "@phosphor-icons/react": "^2.1.7",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "clsx": "^2.1.1",
+    "gsap": "^3.15.1",
+    "lenis": "^1.3.4",
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^6.30.1",
+    "tailwind-merge": "^3.3.0",
+    "three": "^0.187.0",
+    "vite-react-ssg": "^0.8.6",
+    "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.8",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "jsdom": "^26.1.0",
     "prettier": "^3.5.3",
-    "turbo": "^2.5.4",
-    "typescript": "~5.8.3"
+    "tailwindcss": "^4.1.8",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.0"
   }
 }

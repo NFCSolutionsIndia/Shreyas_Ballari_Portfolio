@@ -11,4 +11,4 @@
 Run `pnpm assets` to see every file and where it is used. To replace a picture, save the new one
 with the same name. Never add anything showing his email, phone, address or birth date.
 
-Guide: [docs/guide/06-images-and-videos.md](../../../../docs/guide/06-images-and-videos.md)
+Guide: [docs/2-change-content.md](../../docs/2-change-content.md)
