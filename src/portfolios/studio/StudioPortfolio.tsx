@@ -1,298 +1,441 @@
-import { useContext, useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import '@fontsource/instrument-serif/400.css';
+import { useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowUpRight, EnvelopeSimple, Flask, Phone } from '@phosphor-icons/react';
 import '@fontsource-variable/geist';
 import '@fontsource-variable/geist-mono';
 import { SmoothScrollContext } from '@/app/providers/SmoothScroll';
-import { profile, schools, stats } from '@/content/portfolio';
-import { cn } from '@/lib/cn';
-import { PHOTOS, type Photo } from '@/content/photos';
-import { AGENTS, AgentBuilder, type LogLine } from './engine';
+import { achievements, activities, languages, profile, schools, volunteering } from '@/content/portfolio';
 import './studio.css';
 
-/** Sky behind the hero cards: StockSnap, CC0 (stocksnap.io/photo/5XXUTFRCDF). */
-const SKY: Photo = { src: 'https://cdn.stocksnap.io/img-thumbs/960w/5XXUTFRCDF.jpg', alt: '' };
+/**
+ * Studio tab: a folding phone.
+ *
+ * Closed, it shows a lock screen in front of his name. Scrolling unfolds it into a wide screen,
+ * and the site scrolls inside that screen: hero, numbers, selected work, skills, where he learns,
+ * and a contact card. At the end it folds shut again on an "incoming call" screen.
+ * The dots under the phone change its colour; Basic / Glow / Orbit change the background.
+ *
+ * How the fold works: the device is two halves. The left half turns on the hinge (rotateY);
+ * its back is the cover screen, so when it lies on top of the right half you see a closed phone.
+ * Everything is driven by one number, the scroll progress `p` from 0 to 1 (see `frame` below).
+ */
 
-/** Hero portrait (supplied by the family). */
-const PORTRAIT = `${import.meta.env.BASE_URL}assets/shreyas/portrait-studio.jpg`;
+const BASE = import.meta.env.BASE_URL;
+const asset = (p: string) => `${BASE}assets/${p}`;
+const J = (n: string) => asset(`journey/${n}.placeholder.jpg`);
+const PORTRAIT = asset('shreyas/portrait-studio.jpg');
 
-const RED = '#e5484d';
-const BLUE = '#3a5bff';
-const YELLOW = '#f5c518';
-const INK = '#141414';
+const RIMS = [
+  { id: 'Silver', c: '#e7e4dd' },
+  { id: 'Graphite', c: '#3b3c40' },
+  { id: 'Rose', c: '#e6a497' },
+  { id: 'Sage', c: '#b5c2a6' },
+];
+const MODES = ['Basic', 'Glow', 'Orbit'] as const;
+type Mode = (typeof MODES)[number];
 
-/** One buildable block: real HTML with a single `.fill` child that holds all its visuals. */
-function Block({ as: Tag = 'div', className, fill, agent, log, code, paint, type, children }: {
-  as?: ElementType;
-  className?: string;
-  fill?: string;
-  agent?: string;
-  log: string;
-  code: string;
-  paint?: string;
-  type?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <Tag
-      data-block=""
-      data-agent={agent}
-      data-log={log}
-      data-code={code}
-      data-paint={paint}
-      data-type={type ? '' : undefined}
-      className={className}
-    >
-      <span className={cn('fill', fill)}>{children}</span>
-    </Tag>
-  );
-}
-
-const HERO_CARDS: { photo: Photo; title: string; note: string }[] = [
-  { photo: PHOTOS.cancerCell, title: 'Oncure', note: 'Research concept' },
-  { photo: PHOTOS.stockExchange, title: 'AI stock trading app', note: 'In progress' },
-  { photo: { ...PHOTOS.handsBook, src: profile.portrait }, title: profile.name, note: `${profile.grade} · ${profile.schoolShort}` },
-  { photo: PHOTOS.classroom, title: 'Peer tutoring', note: 'One to one and in groups' },
-  { photo: PHOTOS.chalkboardRoom, title: profile.school, note: 'Junior, now' },
+const NUMBERS = [
+  { v: '99th', l: 'PSAT percentile' },
+  { v: '99th', l: 'MAP percentile' },
+  { v: String(achievements.length), l: 'Awards and honors' },
+  { v: String(languages.length), l: 'Coding languages' },
 ];
 
 const WORK = [
-  { agent: 'Oncure', color: INK, title: 'Oncure', text: 'A research concept: AI-guided nanobots that deliver cancer therapy to tumour cells and spare healthy tissue.', href: '/research/oncure' },
-  { agent: 'Markets', color: RED, title: 'AI stock trading app', text: 'A beginner-friendly trading site where an AI model suggests how much to buy, when to buy and when to sell, beside the chart.', href: '/projects/stock-trading-app' },
-  { agent: 'Tutor', color: BLUE, title: 'Peer tutoring', text: 'Tutored 7th and 8th grade students in Math and Science, with visual aids and step-by-step explanations.', href: '/tutoring' },
-  { agent: 'Author', color: YELLOW, title: 'Writing', text: 'Young Authors Contest winner, 2023, in Indian Prairie School District 204.', href: '/achievements' },
+  { kind: 'Research concept', title: 'Oncure', line: 'AI-guided nanobots that could carry cancer therapy straight to tumour cells. A conceptual research proposal, not an existing treatment.', img: J('oncure'), tone: '#2f5fd6', to: '/research/oncure' },
+  { kind: 'FinTech · in progress', title: 'AI trading app', line: 'Suggests how much to buy, when to buy and when to sell. Hypothetical sample data, not financial advice.', img: J('trading'), tone: '#e39a2d', to: '/projects/stock-trading-app' },
+  { kind: 'Recognition', title: 'Awards', line: 'College Board National Recognition Program, and the Principal’s Honors List in 2025 and 2026.', img: J('trophy'), tone: '#e8ae9f' },
+  { kind: 'Teaching', title: 'Peer tutoring', line: 'Math and Science for 7th and 8th graders, at lunch and after school.', img: J('tutor'), tone: '#4f9a6f' },
+  { kind: 'Writing', title: 'Young Authors', line: 'Young Authors Contest winner in 2023.', img: J('writing'), tone: '#f1c232' },
 ];
 
-const NUMBERS = stats.map((s) => ({
-  value: s.value,
-  suffix: s.suffix,
-  label: s.label,
-  from: Math.round(Number(s.value) * 0.5),
-  log: `counted the ${s.label}`,
-}));
+const SKILLS = [
+  { title: 'Computer Science', line: 'AP Computer Science A and Principles; writes JavaScript, Python and Java.' },
+  { title: 'Artificial Intelligence', line: 'An AI course, and AI at the heart of Oncure and the trading app.' },
+  { title: 'Business and FinTech', line: 'Entrepreneurship and DECA, and a trading platform in progress.' },
+  { title: 'Biomedical research', line: 'AP Biology, AP Chemistry and Mini-Medical School led to Oncure.' },
+];
 
-const SCHOOL_PHOTOS = [PHOTOS.classroom, PHOTOS.classroomRows, PHOTOS.computerRoom];
+const PLACES = [...schools.map((s) => s.name), 'Mini-Medical School', ...volunteering.slice(0, 2).map((v) => v.title), ...activities.map((a) => a.title)];
+
+const ORBIT = [J('oncure'), J('trading'), J('trophy'), J('tutor'), J('academy'), PORTRAIT];
+
+const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const seg = (p: number, a: number, b: number) => clamp((p - a) / (b - a));
+const ease = (x: number) => x * x * (3 - 2 * x);
+
+/** Scroll progress (0 to 1) where things happen. */
+const T = { unfold: [0.03, 0.15], scroll: [0.17, 0.86], fold: [0.88, 0.97], call: 0.92 } as const;
+
+function useClock() {
+  const [now, setNow] = useState('');
+  useEffect(() => {
+    const tick = () => setNow(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+    tick();
+    const t = window.setInterval(tick, 15000);
+    return () => window.clearInterval(t);
+  }, []);
+  return now;
+}
+
+/** Sofia Sans Extra Condensed (open font) for the big lettering, from Google Fonts. */
+function useDisplayFont() {
+  useEffect(() => {
+    const id = 'fo-font';
+    if (document.getElementById(id)) return;
+    const l = document.createElement('link');
+    l.id = id;
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:wght@700;800;900&display=swap';
+    document.head.appendChild(l);
+  }, []);
+}
+
+// --- The site inside the unfolded screen -------------------------------------------------------
+
+function Screen({ go, live }: { go: (id: string) => void; live: boolean }) {
+  const tab = live ? undefined : -1;
+  return (
+    <div className="fo-site">
+      <section className="fo-hero" data-sec="home">
+        <div className="fo-hero-text">
+          <p className="fo-mono">Student researcher &amp; peer tutor · {profile.school}</p>
+          <h3 className="fo-display">{profile.name}</h3>
+          <p className="fo-lede">Exploring how AI could make cancer treatment more precise, and building an AI trading app for beginners.</p>
+          <div className="fo-row">
+            <button type="button" className="fo-btn is-dark" tabIndex={tab} onClick={() => go('work')}>
+              See the work <ArrowUpRight weight="bold" aria-hidden="true" />
+            </button>
+            {live ? (
+              <Link className="fo-btn" to="/contact">
+                Say hello
+              </Link>
+            ) : (
+              <span className="fo-btn">Say hello</span>
+            )}
+          </div>
+        </div>
+        <img className="fo-hero-img" src={PORTRAIT} alt={live ? `${profile.name}, in a dark suit and blue tie` : ''} draggable={false} />
+      </section>
+
+      <section className="fo-band" data-sec="about">
+        <p className="fo-mono">In numbers</p>
+        <div className="fo-nums">
+          {NUMBERS.map((n) => (
+            <div key={n.l}>
+              <b className="fo-display">{n.v}</b>
+              <span className="fo-mono">{n.l}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="fo-work" data-sec="work">
+        <header className="fo-work-head">
+          <h3 className="fo-display">Selected work</h3>
+          <span className="fo-chip">{WORK.length} projects</span>
+        </header>
+        {WORK.map((w, i) => (
+          <article key={w.title} className="fo-card" style={{ '--tone': w.tone } as CSSProperties}>
+            <figure>
+              <img src={w.img} alt="" loading="lazy" draggable={false} />
+              <figcaption className="fo-mono">Illustration</figcaption>
+            </figure>
+            <div className="fo-card-text">
+              <b className="fo-display fo-num">{String(i + 1).padStart(2, '0')}</b>
+              <div>
+                <p className="fo-mono">{w.kind}</p>
+                <h4 className="fo-display">{w.title}</h4>
+                <p>{w.line}</p>
+                {w.to && live ? (
+                  <Link className="fo-mono fo-more" to={w.to}>
+                    Read more →
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="fo-dark" data-sec="skills">
+        <p className="fo-mono">What he works on</p>
+        <ol className="fo-skills">
+          {SKILLS.map((s, i) => (
+            <li key={s.title}>
+              <span className="fo-mono">{String(i + 1).padStart(2, '0')}</span>
+              <b className="fo-display">{s.title}</b>
+              <p>{s.line}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="fo-mono fo-places-h">Where he learns and gives back</p>
+        <ul className="fo-places">
+          {PLACES.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+        <div className="fo-cta" data-sec="contact">
+          <b className="fo-display">Curious about Oncure? Let’s talk.</b>
+          {live ? (
+            <Link className="fo-btn is-dark" to="/contact">
+              Contact form <ArrowUpRight weight="bold" aria-hidden="true" />
+            </Link>
+          ) : (
+            <span className="fo-btn is-dark">Contact form</span>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// --- The cover screens (closed phone) ----------------------------------------------------------
+
+function LockScreen({ time }: { time: string }) {
+  return (
+    <div className="fo-lock">
+      <img className="fo-lock-bg" src={PORTRAIT} alt="" draggable={false} />
+      <div className="fo-lock-top">
+        <b className="fo-display fo-time">{time}</b>
+        <span>
+          {profile.grade} · {profile.school}
+        </span>
+      </div>
+      <div className="fo-notes">
+        <div className="fo-note">
+          <img src={J('oncure')} alt="" />
+          <span>
+            <b>Oncure proposal</b>
+            <small className="fo-mono">Research concept · now</small>
+          </span>
+        </div>
+        <div className="fo-note">
+          <img src={J('trading')} alt="" />
+          <span>
+            <b>AI trading app</b>
+            <small className="fo-mono">In progress</small>
+          </span>
+        </div>
+      </div>
+      <div className="fo-lock-foot">
+        <span className="fo-round" aria-hidden="true">
+          <Flask weight="bold" />
+        </span>
+        <span className="fo-pill">Scroll to unfold</span>
+        <span className="fo-round" aria-hidden="true">
+          <EnvelopeSimple weight="bold" />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function CallScreen() {
+  const navigate = useNavigate();
+  const knob = useRef<HTMLSpanElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  /** Slide the green button to the end (or tap it) to open the contact form. */
+  const onDown = (e: React.PointerEvent<HTMLSpanElement>) => {
+    const k = knob.current;
+    const tr = track.current;
+    if (!k || !tr) return;
+    const x0 = e.clientX;
+    const max = tr.clientWidth - k.offsetWidth - 8;
+    let dx = 0;
+    k.setPointerCapture(e.pointerId);
+    const move = (ev: PointerEvent) => {
+      dx = clamp(ev.clientX - x0, 0, max);
+      k.style.transform = `translateX(${dx}px)`;
+    };
+    const up = () => {
+      k.removeEventListener('pointermove', move);
+      k.removeEventListener('pointerup', up);
+      if (dx > max * 0.8 || dx < 4) navigate('/contact');
+      else k.style.transform = '';
+    };
+    k.addEventListener('pointermove', move);
+    k.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="fo-call">
+      <b className="fo-display">{profile.name}</b>
+      <span>Incoming call · about your next idea</span>
+      <img className="fo-call-photo" src={PORTRAIT} alt="" draggable={false} />
+      <div ref={track} className="fo-slide">
+        <span ref={knob} className="fo-slide-knob" role="button" tabIndex={0} aria-label="Open the contact form" onPointerDown={onDown} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && navigate('/contact')}>
+          <Phone weight="fill" />
+        </span>
+        <span>slide to talk</span>
+      </div>
+      <small className="fo-mono">Reply through the contact form</small>
+    </div>
+  );
+}
+
+// --- The page ----------------------------------------------------------------------------------
 
 export function StudioPortfolio() {
-  const root = useRef<HTMLDivElement>(null);
-  const builder = useRef<AgentBuilder | null>(null);
+  useDisplayFont();
+  const time = useClock();
   const smooth = useContext(SmoothScrollContext);
-  const [lines, setLines] = useState<LogLine[]>([]);
-  const [progress, setProgress] = useState({ built: 0, total: 0 });
-  const [doneIn, setDoneIn] = useState<number | null>(null);
-  const [live, setLive] = useState(false);
+  const [mode, setMode] = useState<Mode>('Basic');
+  const [rim, setRim] = useState(RIMS[0]!);
+  const [open, setOpen] = useState(false);
+  const [call, setCall] = useState(false);
+  const [size, setSize] = useState({ W: 800, H: 550, phone: false });
 
-  useEffect(() => {
-    const el = root.current;
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    window.scrollTo(0, 0);
-    const b = new AgentBuilder(el, {
-      scrollToY: (y, o) => (smooth ? smooth.scrollToY(y, o) : window.scrollTo({ top: y, behavior: 'smooth' })),
-      onLog: (line) => setLines((l) => [...l.slice(-30), line]),
-      onProgress: (built, total) => setProgress({ built, total }),
-      onFinish: (ms) => setDoneIn(ms),
-      play: new URLSearchParams(window.location.search).has('play'),
-    });
-    builder.current = b;
-    setLive(true);
-    b.start();
-    return () => {
-      b.destroy();
-      builder.current = null;
+  const section = useRef<HTMLElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const live = useRef<HTMLDivElement>(null);
+  const contentH = useRef(0);
+
+  // Device size: a wide tablet when open; on phones a taller one.
+  useLayoutEffect(() => {
+    const fit = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const phone = vw < 760;
+      const W = phone ? Math.min(vw * 0.92, 440) : Math.min(860, vw * 0.58, (vh - 200) / 0.68);
+      const H = phone ? Math.min(vh * 0.66, W * 1.45) : W * 0.68;
+      setSize({ W: Math.round(W), H: Math.round(H), phone });
     };
-  }, [smooth]);
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
 
-  const rebuild = () => {
-    setDoneIn(null);
-    setLines([]);
-    void builder.current?.rebuild();
+  // One loop: read the scroll, set every transform.
+  useEffect(() => {
+    let raf = 0;
+    let lastOpen = false;
+    let lastCall = false;
+    const frame = () => {
+      raf = requestAnimationFrame(frame);
+      const sec = section.current;
+      const st = stage.current;
+      if (!sec || !st) return;
+      const r = sec.getBoundingClientRect();
+      const vh = window.innerHeight;
+      if (r.bottom < 0 || r.top > vh) return;
+      const p = clamp(-r.top / Math.max(1, r.height - vh));
+      const u = ease(seg(p, T.unfold[0], T.unfold[1])) * (1 - ease(seg(p, T.fold[0], T.fold[1])));
+      const k = seg(p, T.scroll[0], T.scroll[1]);
+      st.style.setProperty('--u', u.toFixed(4));
+      // The site inside scrolls with the page (same offset on every copy).
+      const inner = live.current;
+      if (inner) {
+        const h = inner.scrollHeight;
+        if (h) contentH.current = h;
+        const max = Math.max(0, contentH.current - inner.parentElement!.clientHeight);
+        st.style.setProperty('--sy', `${(-k * max).toFixed(1)}px`);
+      }
+      const isOpen = u > 0.995;
+      if (isOpen !== lastOpen) setOpen((lastOpen = isOpen));
+      const isCall = p > T.call;
+      if (isCall !== lastCall) setCall((lastCall = isCall));
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  /** Jump to a part of the inner site by scrolling the page to the matching point. */
+  const go = (id: string) => {
+    const sec = section.current;
+    const inner = live.current;
+    if (!sec || !inner) return;
+    const el = inner.querySelector<HTMLElement>(`[data-sec="${id}"]`);
+    const max = Math.max(1, inner.scrollHeight - inner.parentElement!.clientHeight);
+    const k = el ? clamp(el.offsetTop / max) : 0;
+    const p = T.scroll[0] + k * (T.scroll[1] - T.scroll[0]);
+    const y = sec.getBoundingClientRect().top + window.scrollY + p * (sec.offsetHeight - window.innerHeight);
+    if (smooth) smooth.scrollToY(y, { duration: 1.4 });
+    else window.scrollTo({ top: y, behavior: 'smooth' });
   };
 
+  const vars = { '--W': `${size.W}px`, '--H': `${size.H}px`, '--rim': rim.c } as CSSProperties;
+  const half = (side: 'l' | 'r', children: ReactNode) => (
+    <div className={`fo-screen-clip is-${side}`} aria-hidden="true" inert>
+      <div className="fo-screen-move">{children}</div>
+    </div>
+  );
+
   return (
-    <div ref={root} className="agents">
-      <header data-section="" className="agents-header">
-        <Block className="agents-brand" log="set the masthead" code="<Masthead />" agent="Layout">
-          <span className="serif">{profile.firstName}.</span>
-          <span className="agents-crumb">/ Portfolio</span>
-          <span className="agents-crumb is-soft">/ Agents at work</span>
-        </Block>
-        <Block className="agents-count" log="counted the agents" code="<AgentCount />">
-          {AGENTS.length} agents on this page
-        </Block>
+    <div className={`fo is-${mode.toLowerCase()} ${size.phone ? 'is-phone' : ''}`} style={vars}>
+      <header className="fo-top">
+        <span className="fo-logo fo-display">{profile.name}</span>
+        <div className="fo-modes" role="radiogroup" aria-label="Background">
+          {MODES.map((m) => (
+            <button key={m} type="button" role="radio" aria-checked={mode === m} className={mode === m ? 'is-on' : ''} onClick={() => setMode(m)}>
+              {m}
+            </button>
+          ))}
+        </div>
       </header>
 
-      {/* Hero: his portrait, full bleed, with his name set large across it. */}
-      <section data-section="" className="agents-stage" aria-labelledby="agents-name">
-        <Block className="agents-photo" agent="Pixel" log="hung the portrait" code='<Portrait src="shreyas.jpg" />'>
-          <img src={PORTRAIT} alt={`${profile.name}, in a dark suit and blue tie`} className="agents-photo-img" fetchPriority="high" />
-        </Block>
-        <Block className="agents-stage-note" agent="Scout" log="captioned the portrait" code="<Caption />">
-          {profile.grade} · {profile.school} · {profile.schoolTown}
-        </Block>
-        <Block as="h1" type agent="Type" className="agents-name" log="set his name" code={`<h1>${profile.name}</h1>`}>
-          <span id="agents-name">{profile.name}</span>
-        </Block>
-      </section>
-
-      <section data-section="" className="agents-hero" aria-labelledby="agents-title">
-        <Block className="agents-eyebrow" log="wrote the eyebrow" code='<Eyebrow>Student researcher</Eyebrow>'>
-          00 · Hello
-        </Block>
-        <Block as="h2" type agent="Claude" className="agents-h1" log="wrote the headline" code="<h2>Curiosity has no limits.</h2>">
-          <span id="agents-title">Curiosity has no limits.</span>
-        </Block>
-        <Block as="p" className="agents-lead" agent="Copy" log="wrote the introduction" code="<Lead />">
-          I’m {profile.name}: a junior who loves computer science, AI and FinTech, researching AI in oncology and building an
-          AI trading app. Twelve named agents build this page in front of you. They mark out every block, rough it in, write it and hand it over.
-        </Block>
-        <Block className="agents-sky" agent="Pixel" log="hung the sky" code='<Sky src="sunset.jpg" />'>
-          <img src={SKY.src} alt="" className="agents-sky-img" />
-        </Block>
-        <div className="agents-cards">
-          {HERO_CARDS.map((c, i) => (
-            <Block
-              key={c.title}
-              className={cn('agents-card', i === 2 && 'is-centre')}
-              log={`pinned “${c.title}”`}
-              code={`<Card title="${c.title}" />`}
-            >
-              <img src={c.photo.src} alt={c.photo.alt} loading="lazy" />
-              <span className="agents-card-shade" />
-              <span className="agents-card-title serif">{c.title}</span>
-              <span className="agents-card-note">{c.note}</span>
-            </Block>
-          ))}
-        </div>
-        <Block as="p" className="agents-small" log="noted the photos" code="<Caption />">
-          Photos are illustrative and do not show Shreyas.
-        </Block>
-      </section>
-
-      <section data-section="" className="agents-section" aria-labelledby="agents-work">
-        <Block className="agents-eyebrow" log="numbered the section" code="<Eyebrow>01</Eyebrow>">
-          01 · What I work on
-        </Block>
-        <Block as="h2" type agent="Claude" className="agents-h2" log="wrote the work heading" code="<h2>Four things I work on.</h2>">
-          <span id="agents-work">Four things I work on.</span>
-        </Block>
-        <div className="agents-grid4">
-          {WORK.map((w) => (
-            <Block
-              key={w.title}
-              agent={w.agent}
-              paint={w.color}
-              className="agents-work"
-              log={`built the ${w.title} card`}
-              code={`<Work name="${w.title}" />`}
-            >
-              <Link to={w.href} className="agents-work-link">
-                <span className="agents-bar" style={{ background: w.color }} />
-                <span className="agents-work-title serif">{w.title}</span>
-                <span className="agents-work-text">{w.text}</span>
-                <span className="agents-work-more">Read more →</span>
-              </Link>
-            </Block>
-          ))}
-        </div>
-        <Block as="p" className="agents-small mono" log="added the fine print" code="<FinePrint />">
-          Oncure is a concept, not a tested treatment. The stock app is still being built.
-        </Block>
-      </section>
-
-      <section data-section="" className="agents-section" aria-labelledby="agents-proof">
-        <Block className="agents-eyebrow" log="numbered the section" code="<Eyebrow>02</Eyebrow>">
-          02 · The proof
-        </Block>
-        <Block as="h2" type agent="Claude" className="agents-h2" log="wrote the numbers heading" code="<h2>The proof, in four numbers.</h2>">
-          <span id="agents-proof">The proof, in four numbers.</span>
-        </Block>
-        <div className="agents-stats">
-          {NUMBERS.map((n) => (
-            <Block key={n.label} className="agents-stat" log={n.log} code={`<Stat label="${n.label}" />`}>
-              <span className="agents-stat-value serif">
-                <span data-count="" data-count-from={n.from}>
-                  {n.value}
-                </span>
-                {n.suffix && <span className="agents-stat-suffix">{n.suffix}</span>}
-              </span>
-              <span className="agents-stat-label mono">{n.label}</span>
-            </Block>
-          ))}
-        </div>
-      </section>
-
-      <section data-section="" className="agents-section" aria-labelledby="agents-journey">
-        <Block className="agents-eyebrow" log="numbered the section" code="<Eyebrow>03</Eyebrow>">
-          03 · The journey
-        </Block>
-        <Block as="h2" type agent="Claude" className="agents-h2" log="wrote the journey heading" code="<h2>Three schools, one direction.</h2>">
-          <span id="agents-journey">Three schools, one direction.</span>
-        </Block>
-        <div className="agents-grid3">
-          {schools.map((s, i) => (
-            <Block key={s.name} className="agents-school" log={`added ${s.name}`} code={`<School name="${s.name}" />`}>
-              <img src={SCHOOL_PHOTOS[i]!.src} alt={SCHOOL_PHOTOS[i]!.alt} loading="lazy" />
-              <span className="agents-card-shade" />
-              <span className="agents-school-step mono">0{i + 1} · {s.level}</span>
-              <span className="agents-school-name serif">{s.name}</span>
-            </Block>
-          ))}
-        </div>
-      </section>
-
-      <section data-section="" className="agents-end" aria-labelledby="agents-end">
-        <Block as="h2" type agent="Claude" className="agents-h1 is-end" log="wrote the sign-off" code="<h2>Built by agents. Checked by Shreyas.</h2>">
-          <span id="agents-end">Built by agents. Checked by Shreyas.</span>
-        </Block>
-        <Block className="agents-actions" agent="Pixel" log="wired the buttons" code="<Actions />">
-          <button type="button" className="agents-button" onClick={rebuild} disabled={!live}>
-            Watch it build again
-          </button>
-          <Link to="/contact" className="agents-link mono">
-            Say hello through the contact form →
-          </Link>
-        </Block>
-      </section>
-
-      <footer className="agents-footer mono">
-        <Link to="/about">About</Link>
-        <Link to="/research">Research</Link>
-        <Link to="/tutoring">Tutoring</Link>
-        <Link to="/achievements">Achievements</Link>
-        <Link to="/contact">Contact</Link>
-        <Link to="/privacy">Privacy</Link>
-      </footer>
-
-      {live && (
-        <aside className="agents-log mono" aria-label="Agent log">
-          <div className="agents-log-head">
-            <span>Agent log</span>
-            <span>
-              {doneIn !== null ? `Built in ${(doneIn / 1000).toFixed(1)}s` : `Built ${progress.built} / ${progress.total}`}
-            </span>
-          </div>
-          <ol className="agents-log-lines" aria-live="polite">
-            {lines.slice(-4).map((l) => (
-              <li key={l.id}>
-                <span className="agents-log-time">{l.time}</span>
-                <span className="agents-log-tag" style={{ background: l.agent.color, color: l.agent.ink }}>
-                  {l.agent.name}
-                </span>
-                <span className="agents-log-text">{l.text}</span>
-              </li>
+      <section ref={section} className="fo-scroll" aria-label={`${profile.name}: portfolio on a folding phone`}>
+        <div ref={stage} className="fo-stage">
+          <div className="fo-glow" aria-hidden="true" />
+          <div className="fo-orbit" aria-hidden="true">
+            {ORBIT.map((src, i) => (
+              <img key={src} src={src} alt="" style={{ '--i': i } as CSSProperties} draggable={false} />
             ))}
-          </ol>
-          {doneIn === null ? (
-            <button type="button" className="agents-log-button" onClick={() => builder.current?.skip()}>
-              Skip
-            </button>
-          ) : (
-            <button type="button" className="agents-log-button" onClick={rebuild}>
-              Rebuild
-            </button>
-          )}
-        </aside>
-      )}
+          </div>
+          <h2 className="fo-name fo-display" aria-hidden="true">
+            <span className="is-l">{profile.firstName}</span>
+            <span className="is-r">{profile.lastName}</span>
+          </h2>
+
+          <div className="fo-device">
+            {/* Right half: the right side of the open screen. */}
+            <div className="fo-half is-r">
+              <div className="fo-glass">{half('r', <Screen go={go} live={false} />)}</div>
+            </div>
+            {/* Left half: turns on the hinge. Front: left side of the open screen. Back: the cover. */}
+            <div className="fo-half is-l">
+              <div className="fo-face is-front">
+                <div className="fo-glass">{half('l', <Screen go={go} live={false} />)}</div>
+              </div>
+              <div className="fo-face is-back">
+                <div className="fo-glass">{call ? <CallScreen /> : <LockScreen time={time} />}</div>
+              </div>
+            </div>
+            {/* Fully open: one live screen you can use. */}
+            <div className={`fo-open ${open ? 'is-on' : ''}`} aria-hidden={!open} inert={!open}>
+              <div className="fo-glass">
+                <div className="fo-status fo-mono" aria-hidden="true">
+                  <span>{time}</span>
+                  <span>5G ▮</span>
+                </div>
+                <div className="fo-screen-clip">
+                  <div ref={live} className="fo-screen-move">
+                    <Screen go={go} live />
+                  </div>
+                </div>
+                <nav className="fo-nav" aria-label="Sections">
+                  {[
+                    ['home', 'Home'],
+                    ['about', 'Numbers'],
+                    ['work', 'Work'],
+                    ['skills', 'Skills'],
+                    ['contact', 'Contact'],
+                  ].map(([id, l]) => (
+                    <button key={id} type="button" onClick={() => go(id!)}>
+                      {l}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </div>
+          </div>
+
+          <div className="fo-swatches" role="radiogroup" aria-label="Phone colour">
+            {RIMS.map((r) => (
+              <button key={r.id} type="button" role="radio" aria-checked={rim.id === r.id} aria-label={r.id} className={rim.id === r.id ? 'is-on' : ''} style={{ '--c': r.c } as CSSProperties} onClick={() => setRim(r)} />
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
