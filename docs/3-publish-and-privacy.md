@@ -22,6 +22,18 @@ project's GitHub page, open the **Actions** tab:
 - Red cross: something failed. Click it and read the red step; `pnpm build` on your computer
   usually shows the same error.
 
+## The contact form
+
+The form on `/contact` sends messages to the address in the setting `VITE_CONTACT_ENDPOINT`. Until
+it is set, the form says plainly that it is not connected and sends nothing. To connect it, create a
+free form at a service such as Formspree (it forwards messages to a family email address), then add
+its form URL as a repository variable and to the build in `.github/workflows/pages.yml`, or to a
+local `.env` file:
+
+```sh
+VITE_CONTACT_ENDPOINT=https://formspree.io/f/your-form-id
+```
+
 To undo a version: `git log --oneline` lists them; `git revert <id>` then `git push` undoes one
 while keeping the history.
 

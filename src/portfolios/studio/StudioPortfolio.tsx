@@ -4,7 +4,8 @@ import { ArrowUpRight, EnvelopeSimple, Flask, Phone } from '@phosphor-icons/reac
 import '@fontsource-variable/geist';
 import '@fontsource-variable/geist-mono';
 import { SmoothScrollContext } from '@/app/providers/SmoothScroll';
-import { achievements, activities, languages, profile, schools, volunteering } from '@/content/portfolio';
+import { achievements, activities, courses, goals, languages, percentiles, profile, researchInterests, resume, schools, subjects, volunteering } from '@/content/portfolio';
+import { DetailSheet, type DetailId } from '@/features/details/Details';
 import './studio.css';
 
 /**
@@ -41,9 +42,9 @@ const NUMBERS = [
   { v: String(languages.length), l: 'Coding languages' },
 ];
 
-const WORK = [
-  { kind: 'Research concept', title: 'Oncure', line: 'AI-guided nanobots that could carry cancer therapy straight to tumour cells. A conceptual research proposal, not an existing treatment.', img: J('oncure'), tone: '#2f5fd6', to: '/research/oncure' },
-  { kind: 'FinTech · in progress', title: 'AI trading app', line: 'Suggests how much to buy, when to buy and when to sell. Hypothetical sample data, not financial advice.', img: J('trading'), tone: '#e39a2d', to: '/projects/stock-trading-app' },
+const WORK: { kind: string; title: string; line: string; img: string; tone: string; more?: DetailId }[] = [
+  { kind: 'Research concept', title: 'Oncure', line: 'AI-guided nanobots that could carry cancer therapy straight to tumour cells. A conceptual research proposal, not an existing treatment.', img: J('oncure'), tone: '#2f5fd6', more: 'oncure' },
+  { kind: 'FinTech · in progress', title: 'AI trading app', line: 'Suggests how much to buy, when to buy and when to sell. Hypothetical sample data, not financial advice.', img: J('trading'), tone: '#e39a2d', more: 'finance' },
   { kind: 'Recognition', title: 'Awards', line: 'College Board National Recognition Program, and the Principal’s Honors List in 2025 and 2026.', img: J('trophy'), tone: '#e8ae9f' },
   { kind: 'Teaching', title: 'Peer tutoring', line: 'Math and Science for 7th and 8th graders, at lunch and after school.', img: J('tutor'), tone: '#4f9a6f' },
   { kind: 'Writing', title: 'Young Authors', line: 'Young Authors Contest winner in 2023.', img: J('writing'), tone: '#f1c232' },
@@ -56,7 +57,6 @@ const SKILLS = [
   { title: 'Biomedical research', line: 'AP Biology, AP Chemistry and Mini-Medical School led to Oncure.' },
 ];
 
-const PLACES = [...schools.map((s) => s.name), 'Mini-Medical School', ...volunteering.slice(0, 2).map((v) => v.title), ...activities.map((a) => a.title)];
 
 const ORBIT = [J('oncure'), J('trading'), J('trophy'), J('tutor'), J('academy'), PORTRAIT];
 
@@ -93,7 +93,7 @@ function useDisplayFont() {
 
 // --- The site inside the unfolded screen -------------------------------------------------------
 
-function Screen({ go, live }: { go: (id: string) => void; live: boolean }) {
+function Screen({ go, live, onMore }: { go: (id: string) => void; live: boolean; onMore?: (id: DetailId, from: HTMLElement) => void }) {
   const tab = live ? undefined : -1;
   return (
     <div className="fo-site">
@@ -106,19 +106,15 @@ function Screen({ go, live }: { go: (id: string) => void; live: boolean }) {
             <button type="button" className="fo-btn is-dark" tabIndex={tab} onClick={() => go('work')}>
               See the work <ArrowUpRight weight="bold" aria-hidden="true" />
             </button>
-            {live ? (
-              <Link className="fo-btn" to="/contact">
-                Say hello
-              </Link>
-            ) : (
-              <span className="fo-btn">Say hello</span>
-            )}
+            <button type="button" className="fo-btn" tabIndex={tab} onClick={() => go('about')}>
+              About him
+            </button>
           </div>
         </div>
         <img className="fo-hero-img" src={PORTRAIT} alt={live ? `${profile.name}, in a dark suit and blue tie` : ''} draggable={false} />
       </section>
 
-      <section className="fo-band" data-sec="about">
+      <section className="fo-band" data-sec="numbers">
         <p className="fo-mono">In numbers</p>
         <div className="fo-nums">
           {NUMBERS.map((n) => (
@@ -147,10 +143,16 @@ function Screen({ go, live }: { go: (id: string) => void; live: boolean }) {
                 <p className="fo-mono">{w.kind}</p>
                 <h4 className="fo-display">{w.title}</h4>
                 <p>{w.line}</p>
-                {w.to && live ? (
-                  <Link className="fo-mono fo-more" to={w.to}>
-                    Read more →
-                  </Link>
+                {w.more ? (
+                  <button
+                    type="button"
+                    className="fo-more fo-mono"
+                    tabIndex={tab}
+                    data-voice={`view more ${w.title}`}
+                    onClick={(e) => onMore?.(w.more!, e.currentTarget.closest('.fo-card') as HTMLElement)}
+                  >
+                    View more →
+                  </button>
                 ) : null}
               </div>
             </div>
@@ -158,21 +160,122 @@ function Screen({ go, live }: { go: (id: string) => void; live: boolean }) {
         ))}
       </section>
 
-      <section className="fo-dark" data-sec="skills">
-        <p className="fo-mono">What he works on</p>
-        <ol className="fo-skills">
-          {SKILLS.map((s, i) => (
-            <li key={s.title}>
-              <span className="fo-mono">{String(i + 1).padStart(2, '0')}</span>
-              <b className="fo-display">{s.title}</b>
-              <p>{s.line}</p>
+      <section className="fo-light" data-sec="about">
+        <p className="fo-mono">Education</p>
+        <ol className="fo-tl">
+          {[...schools].reverse().map((sc) => (
+            <li key={sc.name}>
+              <b className="fo-display">{sc.name}</b>
+              <span>{sc.name === profile.school ? `${profile.grade} · ${profile.schoolTown} · all Honors and AP` : sc.level}</span>
             </li>
           ))}
         </ol>
-        <p className="fo-mono fo-places-h">Where he learns and gives back</p>
+        <div className="fo-two">
+          <div>
+            <p className="fo-mono">Subjects he loves</p>
+            <ul className="fo-tags">
+              {subjects.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="fo-mono">Research interests</p>
+            <ul className="fo-lines">
+              {researchInterests.map((r) => (
+                <li key={r.title}>
+                  <b>{r.title}</b> · {r.line}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="fo-dark" data-sec="skills">
+        <p className="fo-mono">What he works on</p>
+        <ol className="fo-skills">
+          {SKILLS.map((sk, i) => (
+            <li key={sk.title}>
+              <span className="fo-mono">{String(i + 1).padStart(2, '0')}</span>
+              <b className="fo-display">{sk.title}</b>
+              <p>{sk.line}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="fo-mono fo-places-h">Courses</p>
         <ul className="fo-places">
-          {PLACES.map((p) => (
-            <li key={p}>{p}</li>
+          {courses.map((c) => (
+            <li key={c}>{c}</li>
+          ))}
+        </ul>
+        <p className="fo-mono fo-places-h">Programming languages</p>
+        <ul className="fo-places">
+          {languages.map((l) => (
+            <li key={l}>{l}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="fo-light" data-sec="awards">
+        <p className="fo-mono">Achievements and certificates</p>
+        <ul className="fo-awards">
+          {achievements.map((a) => (
+            <li key={a.id}>
+              <span className="fo-mono">{a.kind}</span>
+              <b className="fo-display">{a.title}</b>
+              <p>{a.detail}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="fo-mono fo-places-h">Percentiles</p>
+        <ul className="fo-tags">
+          {percentiles.map((x) => (
+            <li key={x.test + x.grade}>
+              {x.test} · {x.grade} · {x.value}th
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="fo-dark" data-sec="life">
+        <div className="fo-two">
+          <div>
+            <p className="fo-mono">Volunteering</p>
+            <ul className="fo-lines">
+              {volunteering.map((v) => (
+                <li key={v.title}>
+                  <b>{v.title}</b> · {v.role}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="fo-mono">Other activities</p>
+            <ul className="fo-lines">
+              {activities.map((a) => (
+                <li key={a.title}>
+                  <b>{a.title}</b> · {a.role}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p className="fo-mono fo-places-h">As a peer tutor</p>
+        <ul className="fo-lines">
+          {resume.tutoring.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+        <p className="fo-mono fo-places-h">Goals</p>
+        <ul className="fo-lines">
+          <li>
+            <b>Education</b> · {goals.education}
+          </li>
+          {goals.career.map((g) => (
+            <li key={g}>
+              <b>Career</b> · {g}
+            </li>
           ))}
         </ul>
         <div className="fo-cta" data-sec="contact">
@@ -284,6 +387,8 @@ export function StudioPortfolio() {
   const [open, setOpen] = useState(false);
   const [call, setCall] = useState(false);
   const [size, setSize] = useState({ W: 800, H: 550, phone: false });
+  /** Oncure or the trading app, opened inside the phone screen. */
+  const [detail, setDetail] = useState<{ id: DetailId; from: DOMRect } | null>(null);
 
   const section = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -409,15 +514,15 @@ export function StudioPortfolio() {
                 </div>
                 <div className="fo-screen-clip">
                   <div ref={live} className="fo-screen-move">
-                    <Screen go={go} live />
+                    <Screen go={go} live onMore={(id, el) => setDetail({ id, from: el.getBoundingClientRect() })} />
                   </div>
                 </div>
                 <nav className="fo-nav" aria-label="Sections">
                   {[
                     ['home', 'Home'],
-                    ['about', 'Numbers'],
                     ['work', 'Work'],
-                    ['skills', 'Skills'],
+                    ['about', 'About'],
+                    ['awards', 'Awards'],
                     ['contact', 'Contact'],
                   ].map(([id, l]) => (
                     <button key={id} type="button" onClick={() => go(id!)}>
@@ -425,6 +530,7 @@ export function StudioPortfolio() {
                     </button>
                   ))}
                 </nav>
+                <DetailSheet id={detail?.id ?? null} origin={detail?.from ?? null} onClose={() => setDetail(null)} contained theme="studio" />
               </div>
             </div>
           </div>

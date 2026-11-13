@@ -9,8 +9,8 @@ The site has three looks. Visitors switch between them with the tab bar at the b
 | Tab | What it is |
 | --- | --- |
 | **Creative** (opens first) | A 3D house to walk through, with glass app cards, voice control and hand control |
+| **Studio** | A folding phone: it unfolds as you scroll, and his whole story scrolls inside its screen |
 | **Classic** | A scroll film: the hero turns into a card, then Oncure, the trading app, awards and skills |
-| **Studio** | A page that builds itself, block by block |
 
 ---
 
@@ -24,11 +24,12 @@ SHREYAS_BALLARI_PORTFOLIO/
 │   │   └── portfolio.ts      ★ The words on the site (school, awards, Oncure, skills …)
 │   ├── portfolios/
 │   │   ├── creative/         ★ Creative tab
-│   │   ├── classic/          ★ Classic tab
 │   │   ├── studio/           ★ Studio tab
+│   │   ├── classic/          ★ Classic tab
 │   │   └── switcher/         The tab bar at the bottom
 │   ├── pages/                One file per web address (HomePage shows the tabs)
-│   ├── features/             Hand control and voice, shared by the tabs
+│   ├── features/             Shared by the tabs: hand control, voice, and details/
+│   │                         (the full Oncure and trading app details, "View more")
 │   ├── app/, components/,    Small shared parts: page frame, error pages, buttons,
 │   │   hooks/, lib/, styles/   smooth scrolling, colours and text styles
 │   ├── main.tsx              Where the site starts
@@ -69,7 +70,9 @@ they are made automatically.
 | Creative: what voice commands do | `src/portfolios/creative/spatial/ui/commands.ts` |
 | Classic: the order and speed of the scroll film | `src/portfolios/classic/flow/timeline.ts` |
 | Classic: the top menu bar | `src/portfolios/classic/flow/Dock.tsx` |
-| Studio: the page | `src/portfolios/studio/StudioPortfolio.tsx` |
+| Studio: the folding phone and the page inside it | `src/portfolios/studio/StudioPortfolio.tsx` |
+| The full Oncure / trading app details ("View more") | `src/features/details/Details.tsx` |
+| Where contact form messages go | `VITE_CONTACT_ENDPOINT` in `.env` (see docs/3) |
 
 Can't find a sentence? In VS Code press **Ctrl + Shift + F** and search for a few of its words.
 

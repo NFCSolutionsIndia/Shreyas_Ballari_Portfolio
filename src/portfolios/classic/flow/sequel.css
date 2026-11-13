@@ -1023,3 +1023,17 @@
     display: none;
   }
 }
+
+/* "View more" on the video bar: a labelled pill, not just an icon. */
+.fv-bar button.fv-more {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font: 600 13px/18px 'Geist Variable', 'Geist', system-ui, sans-serif;
+  white-space: nowrap;
+}

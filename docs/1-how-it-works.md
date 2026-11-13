@@ -25,7 +25,7 @@
 
 1. The browser loads `index.html`, which starts `src/main.tsx`.
 2. `src/routes.tsx` decides the page: the address `/` shows `src/pages/HomePage.tsx`.
-3. `HomePage` shows the tab bar and one of the three tabs. Creative opens first; after that the
+3. `HomePage` shows the tab bar and one of the three tabs (Creative, Studio, Classic). Creative opens first; after that the
    site remembers the visitor's last tab. `?style=classic` in the address opens a given tab.
 4. Every tab takes its words from `src/content/portfolio.ts` and its pictures from `public/assets/`.
 
@@ -96,8 +96,18 @@ To make a chapter last longer, widen its numbers. Chapters set to 2 or more are 
 
 ## Studio tab: `src/portfolios/studio/`
 
-Small named cursors ("agents") build the page block by block. `StudioPortfolio.tsx` is the page;
-`engine.ts` moves the cursors. A real scroll hands control to the visitor.
+A folding phone. Closed, it shows a lock screen in front of his name; scrolling unfolds it into a
+wide screen, and his whole story scrolls inside that screen (work, education, courses, awards,
+activities, goals). At the end it folds shut on an "incoming call" screen that opens the contact
+form. One number, the scroll progress from 0 to 1, drives everything (`T` in
+`StudioPortfolio.tsx`). The colour dots change the phone; Basic, Glow and Orbit the background.
+
+## "View more": `src/features/details/`
+
+`Details.tsx` holds the full Oncure details (with the film) and the full trading app details.
+`<DetailSheet>` opens them like an app on a phone: it grows out of the card you tapped and shrinks
+back when closed. Studio opens it inside the phone screen, Classic over the page, and the pages
+`/research/oncure` and `/projects/stock-trading-app` show the same content.
 
 ## Addresses on the live site
 

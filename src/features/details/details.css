@@ -1,0 +1,438 @@
+/* Full details for Oncure and the AI trading app. One layout, three looks (studio, classic,
+   page) set by variables. Sizes follow the width of the sheet (container queries), so the same
+   content fits the Studio phone screen and a full desktop page. */
+
+.dt {
+  --dt-bg: #f7f6f2;
+  --dt-ink: #121214;
+  --dt-muted: rgba(18, 18, 20, 0.66);
+  --dt-card: #ffffff;
+  --dt-line: rgba(18, 18, 20, 0.1);
+  --dt-accent: #7b4dff;
+  --dt-display: 'Geist Variable', 'Geist', system-ui, sans-serif;
+  --dt-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace;
+  --dt-case: none;
+  --dt-weight: 600;
+  container-type: inline-size;
+  background: var(--dt-bg);
+  color: var(--dt-ink);
+  font-family: 'Geist Variable', 'Geist', system-ui, sans-serif;
+}
+.dt--studio {
+  --dt-bg: #ffffff;
+  --dt-card: #f2f1ee;
+  --dt-accent: #2f5fd6;
+  --dt-display: 'Sofia Sans Extra Condensed', 'Bebas Neue', sans-serif;
+  --dt-case: uppercase;
+  --dt-weight: 800;
+}
+
+/* The sheet itself. */
+.dt.is-contained,
+.dt.is-page {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.dt.is-contained {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+}
+.dt.is-page {
+  position: fixed;
+  inset: 0;
+  z-index: 2147482000;
+}
+.dt-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--dt-bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--dt-line);
+}
+.dt.is-contained .dt-bar {
+  padding-top: 30px;
+}
+.dt-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dt-ink);
+  color: var(--dt-bg);
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dt-close:hover {
+  transform: scale(1.06);
+}
+.dt-close:active {
+  transform: scale(0.96);
+}
+.dt-inner {
+  transform-origin: 50% 0;
+}
+
+/* --- Content --------------------------------------------------------------------------------- */
+.dt-body {
+  display: grid;
+  gap: 40px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 24px 56px;
+}
+.dt-kicker,
+.dt-mono,
+.dt-n {
+  margin: 0;
+  font-family: var(--dt-mono);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.dt-kicker {
+  color: var(--dt-accent);
+}
+.dt-head {
+  display: grid;
+  gap: 12px;
+}
+.dt-title,
+.dt-h {
+  margin: 0;
+  font-family: var(--dt-display);
+  font-weight: var(--dt-weight);
+  text-transform: var(--dt-case);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.dt-title {
+  font-size: clamp(40px, 9cqw, 96px);
+  line-height: 0.95;
+}
+.dt-h {
+  margin-bottom: 16px;
+  font-size: clamp(26px, 4.4cqw, 44px);
+  line-height: 1;
+}
+.dt-lede {
+  max-width: 60ch;
+  margin: 0;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--dt-muted);
+  text-wrap: pretty;
+}
+.dt-note {
+  justify-self: start;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dt-accent) 12%, transparent);
+  color: var(--dt-ink);
+  font-size: 13px;
+  line-height: 18px;
+}
+.dt-sec p,
+.dt-grid p,
+.dt-steps p,
+.dt-road p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--dt-muted);
+  text-wrap: pretty;
+}
+.dt-sec > p + p {
+  margin-top: 12px;
+}
+.dt-big {
+  font-size: clamp(18px, 2.4cqw, 26px) !important;
+  line-height: 1.4 !important;
+  color: var(--dt-ink) !important;
+  text-wrap: pretty;
+}
+.dt-video {
+  margin: 0;
+}
+.dt-video video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 20px;
+  background: #000;
+}
+.dt-video figcaption {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--dt-muted);
+}
+.dt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dt-grid li,
+.dt-steps li {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--dt-card);
+  border: 1px solid var(--dt-line);
+}
+.dt-grid b,
+.dt-steps b,
+.dt-road b {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.dt-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dt-n {
+  color: var(--dt-accent);
+}
+.dt-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--dt-muted);
+}
+.dt-road {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dt-road li {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--dt-line);
+}
+.dt-road .dt-n {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--dt-accent);
+  color: #fff;
+  letter-spacing: 0;
+}
+.dt-end {
+  display: grid;
+  gap: 12px;
+  padding: 28px;
+  border-radius: 24px;
+  background: var(--dt-card);
+  border: 1px solid var(--dt-line);
+}
+
+/* Sample dashboard (made-up data). */
+.dt-dash {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border-radius: 24px;
+  background: #0f1630;
+  color: #fff;
+}
+.dt-dash-chart {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.dt-dash-chart > b {
+  font-size: 28px;
+  line-height: 32px;
+}
+.dt-dash-chart svg {
+  width: 100%;
+  height: 96px;
+  margin-top: 8px;
+  color: #34d399;
+}
+.dt-up {
+  color: #34d399;
+  font-size: 13px;
+}
+.dt-advice {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(52, 211, 153, 0.12);
+  font-size: 13px;
+  line-height: 18px;
+}
+.dt-dash-rows {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dt-dash-rows li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+}
+.dt-dash-rows span {
+  color: rgba(255, 255, 255, 0.7);
+}
+.dt-dash-rows em {
+  font-style: normal;
+  font-weight: 600;
+}
+.is-up {
+  color: #34d399;
+}
+.is-down {
+  color: #f87171;
+}
+.dt-dash figcaption {
+  grid-column: 1 / -1;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Narrow (the Studio phone screen, phones). */
+@container (max-width: 640px) {
+  .dt-body {
+    gap: 28px;
+    padding: 20px 16px 40px;
+  }
+  .dt-grid {
+    grid-template-columns: 1fr;
+  }
+  .dt-dash {
+    grid-template-columns: 1fr;
+  }
+  .dt-lede {
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
+@container (min-width: 641px) and (max-width: 860px) {
+  .dt-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Full pages (/research/oncure, /projects/...): no sheet chrome. */
+.dt--page.is-static .dt-body {
+  padding-top: 8px;
+}
+
+/* Cards that link to a full page. */
+.dt-link {
+  color: inherit;
+  text-decoration: none;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), border-color 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dt-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--dt-accent);
+}
+.dt-link .dt-h {
+  margin: 0;
+}
+.dt-go {
+  font-weight: 600;
+  color: var(--dt-accent);
+}
+
+/* Contact form. */
+.dt-form {
+  display: grid;
+  gap: 16px;
+  max-width: 640px;
+}
+.dt-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.dt-form input,
+.dt-form textarea {
+  padding: 12px 14px;
+  border: 1px solid var(--dt-line);
+  border-radius: 12px;
+  background: var(--dt-card);
+  color: var(--dt-ink);
+  font: 400 16px/24px 'Geist Variable', 'Geist', system-ui, sans-serif;
+}
+.dt-form input:focus-visible,
+.dt-form textarea:focus-visible {
+  outline: 2px solid var(--dt-accent);
+  outline-offset: 1px;
+}
+.dt-form [aria-invalid='true'] {
+  border-color: #dc2626;
+}
+.dt-err {
+  font-size: 13px;
+  font-weight: 500;
+  color: #dc2626;
+}
+.dt-send {
+  justify-self: start;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dt-ink);
+  color: var(--dt-bg);
+  font: 600 16px/24px 'Geist Variable', 'Geist', system-ui, sans-serif;
+  cursor: pointer;
+}
+.dt-send:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.dt-status {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--dt-card);
+  border: 1px solid var(--dt-line);
+  font-size: 15px;
+  line-height: 22px;
+}

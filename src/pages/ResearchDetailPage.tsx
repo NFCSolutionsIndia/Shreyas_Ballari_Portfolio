@@ -1,10 +1,15 @@
-import { PagePlaceholder } from '@/app/PagePlaceholder';
+import { Seo } from '@/components/seo/Seo';
+import { oncure } from '@/content/portfolio';
+import { OncureDetails } from '@/features/details/Details';
 
+/** /research/oncure: the full Oncure research concept, with the film. */
 export function Component() {
   return (
-    <PagePlaceholder
-      title="Oncure"
-      description="Oncure: a concept for AI-guided nanobot cancer therapy, with the problem, workflow, challenges, roadmap and sources."
-    />
+    <>
+      <Seo title="Oncure" description={oncure.pitch} />
+      <div className="dt dt--page is-static">
+        <OncureDetails />
+      </div>
+    </>
   );
 }

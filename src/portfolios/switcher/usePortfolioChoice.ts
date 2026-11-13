@@ -6,8 +6,8 @@ import { useCallback, useEffect, useState } from 'react';
  */
 export const PORTFOLIOS = [
   { id: 'creative', label: 'Creative' },
-  { id: 'classic', label: 'Classic' },
   { id: 'studio', label: 'Studio' },
+  { id: 'classic', label: 'Classic' },
 ] as const;
 
 export type PortfolioId = (typeof PORTFOLIOS)[number]['id'];
