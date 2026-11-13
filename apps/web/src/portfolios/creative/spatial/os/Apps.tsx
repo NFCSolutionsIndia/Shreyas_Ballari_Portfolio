@@ -358,7 +358,7 @@ export function ControlCenter({ voice, hands, setHands, replayIntro }: { voice: 
   const tiles = [
     { k: 'Narrator', on: narrate, icon: ClosedCaptioning, act: () => spatial.setNarrate(!narrate) },
     { k: 'Sound', on: sound, icon: sound ? SpeakerHigh : SpeakerSimpleSlash, act: () => spatial.set({ sound: !sound }) },
-    { k: 'Voice', on: voice.listening, icon: Microphone, act: () => (voice.listening ? voice.stop() : voice.start()), off: !voice.supported },
+    { k: 'Voice', on: voice.listening, icon: Microphone, act: () => (spatial.set({ control: false }), voice.listening ? voice.stop() : voice.start()) },
     { k: 'Hands', on: hands, icon: HandWaving, act: () => setHands(!hands) },
     { k: '360° view', on: look360, icon: Globe, act: () => spatial.set({ look360: !look360, control: false }) },
     { k: 'Profile', on: false, icon: UserCircle, act: () => (spatial.set({ control: false }), spatial.openWindow('profile')) },
@@ -402,8 +402,8 @@ export function ControlCenter({ voice, hands, setHands, replayIntro }: { voice: 
       </div>
       <p className="os-cc-note">{envAuto ? 'Following the time of day in Georgia' : 'Chosen by you · tap Auto to follow the clock'}</p>
       <div className="os-cc-grid">
-        {tiles.map(({ k, on, icon: I, act, off }, i) => (
-          <button key={k} type="button" className={`os-cc-tile ${on ? 'is-on' : ''}`} style={st(i)} aria-pressed={on} disabled={off} onClick={act}>
+        {tiles.map(({ k, on, icon: I, act }, i) => (
+          <button key={k} type="button" className={`os-cc-tile ${on ? 'is-on' : ''}`} style={st(i)} aria-pressed={on} onClick={act}>
             <I weight={on ? 'fill' : 'bold'} aria-hidden="true" />
             <small>{k}</small>
           </button>

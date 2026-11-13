@@ -5,20 +5,21 @@ import { useCallback, useEffect, useState } from 'react';
  * chosen, delete the switcher and the other folders (see README "Choosing a portfolio").
  */
 export const PORTFOLIOS = [
-  { id: 'classic', label: 'Classic' },
   { id: 'creative', label: 'Creative' },
+  { id: 'classic', label: 'Classic' },
   { id: 'studio', label: 'Studio' },
 ] as const;
 
 export type PortfolioId = (typeof PORTFOLIOS)[number]['id'];
 
-const DEFAULT: PortfolioId = 'classic';
-const STORAGE_KEY = 'portfolio-style';
+const DEFAULT: PortfolioId = 'creative';
+// v2: Creative became the first tab; older saved picks are ignored once.
+const STORAGE_KEY = 'portfolio-style-v2';
 const isPortfolio = (v: string | null): v is PortfolioId => PORTFOLIOS.some((p) => p.id === v);
 
 /**
- * Which portfolio to show. Pre-rendered HTML is always Classic (good for search engines); after
- * load the choice comes from `?style=` first, then the visitor's last pick, then Classic.
+ * Which portfolio to show. Pre-rendered HTML is the default (Creative); after load the choice comes
+ * from `?style=` first, then the visitor's last pick, then Creative.
  */
 export function usePortfolioChoice() {
   const [choice, setChoice] = useState<PortfolioId>(DEFAULT);

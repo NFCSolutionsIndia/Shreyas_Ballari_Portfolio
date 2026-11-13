@@ -55,7 +55,7 @@ export interface SpatialState {
   pendingAsk: string | null;
 }
 
-let state: SpatialState = { phase: 'intro', chapter: 0, dir: 1, room: 'living', narrate: false, auto: false, caption: null, sound: false, toast: null, dock: true, windows: [], homeView: false, control: false, env: envNow(), envAuto: true, look360: false, tour: false, tourTarget: 0, tourIndex: 0, bubble: false, video: false, walk: false, pinned: ['oncure', 'awards'], pendingAsk: null };
+let state: SpatialState = { phase: 'intro', chapter: 0, dir: 1, room: 'living', narrate: false, auto: false, caption: null, sound: false, toast: null, dock: true, windows: [], homeView: false, control: false, env: envNow(), envAuto: true, look360: false, tour: false, tourTarget: 0, tourIndex: 0, bubble: false, video: false, walk: false, pinned: ['oncure', 'finance', 'awards', 'guitar'], pendingAsk: null };
 const subs = new Set<() => void>();
 let autoTimer = 0;
 

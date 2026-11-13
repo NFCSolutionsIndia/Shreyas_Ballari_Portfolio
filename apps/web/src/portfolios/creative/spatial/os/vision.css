@@ -1834,3 +1834,203 @@
     line-height: 20px;
   }
 }
+
+/* =============================================================================================
+   FINAL PASS: house tour bar, and phones (loaded last, so these rules win).
+   ============================================================================================= */
+
+/* House tour: every card can be closed; when closed, a small bar names the room. */
+.tour-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+}
+.tour-card > .tour-n,
+.tour-card > .tour-back {
+  margin-right: 44px;
+}
+.tour-mini {
+  position: absolute;
+  left: 32px;
+  bottom: 96px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 8px 8px 16px;
+  border-radius: 999px;
+  background: rgba(20, 22, 30, 0.62);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  animation: tour-in 600ms var(--ease) backwards;
+}
+.tour-mini > span {
+  display: grid;
+  min-width: 0;
+}
+.tour-mini b {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.tour-mini small {
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Light windows (the AI chat): a dark back button, so it never disappears into the glass. */
+.os-win:not(.is-dark) .os-win-chrome .os-round {
+  background: rgba(20, 22, 30, 0.08);
+  color: #15161a;
+}
+
+@media (max-width: 760px) {
+  /* The row of app icons is gone on phones: the arrows in the top bar and the dashboard cards
+     reach every app, and the screen keeps its space for content. */
+  .sp-rail {
+    display: none !important;
+  }
+  .sp-ui .os-stage,
+  .sp-ui .os-stage.is-home,
+  .sp-ui .os-stage.is-oncure,
+  .sp-ui .os-stage.is-finance {
+    inset: 84px 8px 132px !important;
+  }
+
+  /* Dashboard: one column; every card is as tall as it needs. The clock and the pinboard (which
+     only takes dragged cards, and fingers scroll instead of dragging) are left out. */
+  .os-board {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .os-board .os-w {
+    flex: none;
+    height: auto !important;
+    min-height: 180px;
+    animation: none;
+    transform: none !important;
+  }
+  .os-board .w-clock,
+  .os-board .w-pinboard,
+  .os-board .w-grip {
+    display: none !important;
+  }
+  /* His photo: tall enough that the name panel sits under his face, not over it. */
+  .os-board .w-profile {
+    min-height: min(480px, 70svh);
+  }
+  .os-board .w-profile .w-portrait {
+    object-fit: cover;
+    object-position: 50% 10% !important;
+  }
+  .os-board .w-profile .w-portrait-text {
+    margin-top: auto;
+  }
+  .os-board .w-awards,
+  .os-board .w-games,
+  .os-board .w-oncure {
+    min-height: 220px;
+  }
+  .os-board .w-chat {
+    min-height: 0;
+  }
+  /* Short lists show in full instead of scrolling inside the card. */
+  .os-board .w-acts {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Opened apps: one full card that scrolls as a whole (photo included), not a small box inside. */
+  .os-profile-grid {
+    display: block !important;
+    height: 100%;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .os-profile-grid .os-hero {
+    height: min(420px, 62svh) !important;
+  }
+  .os-profile-grid .os-hero img {
+    object-position: 50% 12%;
+  }
+  .os-profile-grid .os-scroll {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .os-free {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* The back button already sits above the app, so the app needs no extra top gap. */
+  .os-free:has(> .os-back) > .os-scene > .os-pane {
+    padding-top: 16px !important;
+  }
+
+  /* Games: the play area gets real height on phones. */
+  .gm-pane.gm-playing {
+    min-height: 100%;
+  }
+  .gm-stage {
+    flex: 1 0 auto !important;
+    min-height: min(440px, 60svh);
+  }
+  .fun-cd__stage {
+    flex: 1 0 auto !important;
+    min-height: min(380px, 52svh);
+  }
+
+  /* "Would you like an AI voice?": text across the card, the two buttons below it. */
+  .sp-voiceask {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    left: 12px !important;
+    right: 12px;
+    bottom: 136px !important;
+    width: auto !important;
+    transform: none !important;
+    padding: 16px;
+  }
+  .sp-voiceask > span:not(.cb-orb) {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .sp-voiceask-actions {
+    grid-column: 1 / -1;
+  }
+  .sp-voiceask-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* House tour: the house first. The room bar and any open card sit above the bottom buttons. */
+  .tour-mini {
+    left: 12px;
+    right: 12px;
+    bottom: 136px;
+    justify-content: space-between;
+    border-radius: 20px;
+  }
+  .tour-card {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 132px !important;
+    max-height: calc(100svh - 230px) !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}

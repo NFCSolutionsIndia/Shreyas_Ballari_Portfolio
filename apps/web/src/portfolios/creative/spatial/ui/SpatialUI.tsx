@@ -18,6 +18,7 @@ import { Walk } from '../os/Walk';
 import { stopSpeaking } from '../story/narrator';
 import { runCommand } from './commands';
 import { Hands } from './Hands';
+import { VoiceControl } from './VoiceControl';
 
 /**
  * The Liquid Glass layer over the 3D home, built like a spatial OS: the app rail (tab bar) on the
@@ -179,10 +180,14 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
     window.setTimeout(() => window.location.reload(), 150);
   };
   const ccRef = useRef<HTMLDivElement>(null);
+  /** Voice mode (like hand mode): explained and agreed to first, then a live status panel. */
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [voiceResult, setVoiceResult] = useState('');
   const voice = useVoice((text) => {
-    const did = runCommand(text, { replayIntro, sound: (on) => spatial.set({ sound: on }) });
-    spatial.toast(did ? `“${text}” · ${did}` : `“${text}” · try “open awards” or “ask who is Shreyas”`);
+    const did = runCommand(text, { replayIntro, sound: (on) => spatial.set({ sound: on }), voiceOff: () => setVoiceOn(false) });
+    setVoiceResult(did ?? 'Not sure what to do. Try “what can I say”');
   });
+  const voiceMode = { ...voice, listening: voiceOn, start: () => setVoiceOn(true), stop: () => setVoiceOn(false) };
   // The light follows the real time of day (checked every minute) until the visitor picks one.
   useEffect(() => {
     if (!envAuto) return;
@@ -308,13 +313,13 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
         </button>
         <button
           type="button"
-          className={`sp-icon-btn ${voice.listening ? 'is-on' : ''}`}
-          aria-pressed={voice.listening}
-          aria-label={voice.supported ? (voice.listening ? 'Stop listening' : 'Voice commands') : 'Voice commands are not supported in this browser'}
-          disabled={!voice.supported}
-          onClick={() => (voice.listening ? voice.stop() : voice.start())}
+          className={`sp-icon-btn ${voiceOn ? 'is-on' : ''}`}
+          aria-pressed={voiceOn}
+          aria-label={voiceOn ? 'Stop voice control' : 'Voice control'}
+          title={voiceOn ? 'Stop voice control' : 'Voice control'}
+          onClick={() => setVoiceOn(!voiceOn)}
         >
-          {voice.listening ? <Microphone weight="fill" /> : <MicrophoneSlash weight="bold" />}
+          {voiceOn ? <Microphone weight="fill" /> : <MicrophoneSlash weight="bold" />}
         </button>
         <button type="button" className={`sp-icon-btn ${hands ? 'is-on' : ''}`} aria-pressed={hands} aria-label="Hand gestures" onClick={() => setHands(!hands)}>
           <HandWaving weight={hands ? 'fill' : 'bold'} />
@@ -338,16 +343,10 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
       </div>
       {control && (
         <div ref={ccRef}>
-          <ControlCenter voice={voice} hands={hands} setHands={setHands} replayIntro={replayIntro} />
+          <ControlCenter voice={voiceMode} hands={hands} setHands={setHands} replayIntro={replayIntro} />
         </div>
       )}
 
-      {voice.listening && (
-        <div className="sp-listening" role="status">
-          <span className="sp-orb" aria-hidden="true" />
-          {voice.heard ? `“${voice.heard}”` : 'Listening… try “open awards” or “next award”'}
-        </div>
-      )}
       {toast && (
         <p className="sp-toast" role="status">
           {toast}
@@ -371,6 +370,7 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
       <VideoOverlay />
 
       <Hands on={hands} onOff={() => setHands(false)} />
+      <VoiceControl on={voiceOn} voice={voice} result={voiceResult} onOff={() => setVoiceOn(false)} />
     </div>
   );
 }

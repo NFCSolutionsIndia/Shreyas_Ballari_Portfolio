@@ -2,11 +2,12 @@ import { useRef, type DragEvent as ReactDragEvent, type MouseEvent as ReactMouse
 import { playUi } from '../store';
 
 /**
- * Drag and drop for cards, with mouse, touch or a pinch (hand mode sends the same pointer events
+ * Drag and drop for cards, with a mouse, a pen or a pinch (hand mode sends the same pointer events
  * to elements marked `data-drag`). Press and move a card: a copy lifts out (so nothing clips it),
  * follows the pointer and tilts with the motion; any element with `data-drop="<zone>"` under the
  * pointer lights up. Release over a zone and the card flies into it; anywhere else it springs
- * back. A press that hardly moves is a tap.
+ * back. A press that hardly moves is a tap. On touch screens a finger only taps (so the page
+ * scrolls freely under it); cards are rearranged with a mouse or in hand mode.
  *
  * Moves and the release are followed on the whole window, so a fast drag never "loses" the card.
  */
@@ -139,10 +140,16 @@ export function useDrag({ id, onDrop, onTap }: DragOptions) {
     window.addEventListener('pointercancel', cancel);
   };
 
+  /** A real finger on a touch screen: the card is only tapped, so scrolling past it never drags it. */
+  const fingerTap = useRef(false);
+
   return {
     'data-drag': '',
     onPointerDown(e: ReactPointerEvent<HTMLElement>) {
       if (e.button > 0) return;
+      // Hand mode sends synthetic touch events (not trusted) and still drags; a finger does not.
+      fingerTap.current = e.pointerType === 'touch' && e.nativeEvent.isTrusted;
+      if (fingerTap.current) return;
       // Controls inside a card keep working as controls.
       const ctl = e.target instanceof Element ? e.target.closest('button, a, input, textarea, [role="slider"], [role="switch"]') : null;
       if (ctl && ctl !== e.currentTarget) return;
@@ -150,7 +157,12 @@ export function useDrag({ id, onDrop, onTap }: DragOptions) {
     },
     /** Keyboard (Enter / Space) opens the card too. */
     onClick(e: ReactMouseEvent<HTMLElement>) {
-      if (e.detail === 0) opts.current.onTap?.();
+      if (e.detail === 0 || fingerTap.current) {
+        // A control inside the card handles its own tap.
+        const ctl = e.target instanceof Element ? e.target.closest('button, a, input, textarea, [role="slider"], [role="switch"]') : null;
+        if (ctl && ctl !== e.currentTarget) return;
+        opts.current.onTap?.();
+      }
     },
     onDragStart(e: ReactDragEvent<HTMLElement>) {
       e.preventDefault();

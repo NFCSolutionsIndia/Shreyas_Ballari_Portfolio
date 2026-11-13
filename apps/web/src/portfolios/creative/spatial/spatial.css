@@ -752,6 +752,95 @@ kbd {
   margin-top: 24px;
 }
 
+/* Voice mode */
+.sp-voice-panel {
+  position: absolute;
+  top: 84px;
+  right: 20px;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(380px, calc(100vw - 24px));
+  padding: 8px 8px 8px 10px;
+  border-radius: 24px;
+  background: rgba(18, 20, 28, 0.72);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+.sp-voice-panel:not(.is-live) .sp-orb {
+  animation: none;
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+.sp-voice-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.sp-voice-text b,
+.sp-voice-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sp-voice-text b {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.sp-voice-text small {
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.72);
+}
+.sp-voice-modal {
+  position: relative;
+  max-height: calc(100svh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sp-voice-badge {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #8f5bff, #4f7bff);
+  font-size: 24px;
+}
+.sp-voice-x {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.sp-voice-guide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.sp-voice-guide h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+.sp-voice-guide ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 22px;
+}
+
 /* Phones: rail across the top, windows as bottom sheets */
 @media (max-width: 760px) {
   .sp-capsule-room {
@@ -794,6 +883,30 @@ kbd {
   }
   .sp-hint {
     display: none;
+  }
+  .sp-voice-panel {
+    top: auto;
+    right: 12px;
+    bottom: 132px;
+  }
+  .sp-voice-guide {
+    gap: 12px;
+  }
+  .sp-voice-guide ul {
+    font-size: 13px;
+    line-height: 20px;
+  }
+  /* Above the bottom buttons, and clear of the site's tab bar. */
+  .sp-modal {
+    z-index: 60;
+    padding: 12px 12px 76px;
+  }
+  .sp-voice-modal {
+    max-height: calc(100svh - 100px);
+  }
+  .sp-modal-glass {
+    padding: 20px;
+    border-radius: 24px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

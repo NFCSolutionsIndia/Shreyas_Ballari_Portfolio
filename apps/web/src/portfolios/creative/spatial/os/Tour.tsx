@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ChatsCircle, Footprints, HandPointing, Play, SpeakerHigh, SquaresFour, X } from '@phosphor-icons/react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ChatsCircle, Footprints, HandPointing, Info, Play, SpeakerHigh, SquaresFour, X } from '@phosphor-icons/react';
 import { HOTSPOTS, hotspotEls, type Hotspot } from '../house/hotspots';
 import { CHAPTERS } from '../story/chapters';
 import { speak, stopSpeaking } from '../story/narrator';
@@ -11,7 +11,13 @@ import { playUi, spatial, useSpatial } from '../store';
  * the story of the room you are in, and changes into the details of anything you tap in the room
  * (the glowing points sit on real objects: certificates, the trophy, the hologram, the guitars…).
  * The room stays visible behind everything.
+ *
+ * On phones the card would cover the whole house, so it starts closed: a small bar names the
+ * room, and the card opens only when the visitor taps a glowing point or "About this room".
+ * Every card has a close button.
  */
+
+const isPhone = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches;
 
 export function RoomPoints({ station, open, onOpen }: { station: string | null; open: string | null; onOpen: (h: Hotspot) => void }) {
   const points = station ? HOTSPOTS.filter((h) => h.station === station) : HOTSPOTS;
@@ -77,13 +83,18 @@ export function Tour() {
   const target = useSpatial((s) => s.tourTarget);
   const narrate = useSpatial((s) => s.narrate);
   const [spot, setSpot] = useState<Hotspot | null>(null);
+  /** The room's story card: open by default on larger screens, on request on phones. */
+  const [info, setInfo] = useState(() => !isPhone());
   const stop = TOUR[at]!;
   const last = at === TOUR.length - 1;
   const app = stop.app ? CHAPTERS.find((c) => c.id === stop.app) : undefined;
   const count = HOTSPOTS.filter((h) => h.station === stop.station).length;
 
   // A new room closes any open details.
-  useEffect(() => setSpot(null), [at]);
+  useEffect(() => {
+    setSpot(null);
+    setInfo(!isPhone());
+  }, [at]);
   useEffect(() => () => hotspotEls.clear(), []);
 
   // Read each room aloud as you arrive (only when the AI voice is on).
@@ -139,8 +150,11 @@ export function Tour() {
       {/* The story card, on the right */}
       {spot ? (
         <article key={spot.id} className="tour-card is-detail" style={{ '--tint': spot.tint ?? '#fff' } as CSSProperties} aria-live="polite">
-          <button type="button" className="tour-back" onClick={() => setSpot(null)}>
-            <ArrowLeft weight="bold" aria-hidden="true" /> Back to {stop.room.toLowerCase()}
+          <button type="button" className="os-round is-sm tour-close" aria-label="Close" data-voice="close" onClick={() => (setSpot(null), setInfo(false))}>
+            <X weight="bold" />
+          </button>
+          <button type="button" className="tour-back" onClick={() => (setSpot(null), setInfo(true))}>
+            <ArrowLeft weight="bold" aria-hidden="true" /> About this room
           </button>
           <span className="tour-n">{spot.kicker}</span>
           <h2>{spot.title}</h2>
@@ -163,8 +177,21 @@ export function Tour() {
             <SpotAction spot={spot} onGo={go} />
           </footer>
         </article>
+      ) : !info ? (
+        <div className="tour-mini" role="status">
+          <span>
+            <b>{stop.room}</b>
+            <small>{count > 0 ? `Tap the ${count} glowing point${count > 1 ? 's' : ''} to explore` : `${at + 1} of ${TOUR.length}`}</small>
+          </span>
+          <button type="button" className="tour-go" data-voice="about this room" onClick={() => setInfo(true)}>
+            <Info weight="bold" aria-hidden="true" /> About
+          </button>
+        </div>
       ) : (
         <article key={at} className="tour-card" aria-live="polite">
+          <button type="button" className="os-round is-sm tour-close" aria-label="Close" data-voice="close" onClick={() => setInfo(false)}>
+            <X weight="bold" />
+          </button>
           {stop.image && (
             <figure className="tour-img">
               <img src={stop.image} alt="" style={{ objectPosition: stop.focus ?? '50% 50%' }} />

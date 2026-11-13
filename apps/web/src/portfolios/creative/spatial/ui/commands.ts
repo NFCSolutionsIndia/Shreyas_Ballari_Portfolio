@@ -55,9 +55,38 @@ function clickByName(words: string): string | null {
   return null;
 }
 
-export function runCommand(raw: string, actions: { replayIntro: () => void; sound: (on: boolean) => void }): string | null {
+/** The scrollable area the visitor is most likely looking at: the front window's content first. */
+function mainScroller(): HTMLElement | null {
+  const all = [...document.querySelectorAll<HTMLElement>('.sp-ui *')].filter((el) => {
+    if (!visible(el)) return false;
+    const cs = getComputedStyle(el);
+    return (cs.overflowY === 'auto' || cs.overflowY === 'scroll') && el.scrollHeight > el.clientHeight + 4;
+  });
+  // Later in the page means on top; among those, the biggest.
+  return all.reverse().sort((a, b) => b.clientHeight * b.clientWidth - a.clientHeight * a.clientWidth)[0] ?? null;
+}
+
+export function runCommand(raw: string, actions: { replayIntro: () => void; sound: (on: boolean) => void; voiceOff?: () => void }): string | null {
   const t = norm(raw);
   const has = (...w: string[]) => w.some((x) => t.includes(` ${x} `));
+  if (has('stop listening', 'stop voice control', 'microphone off', 'mic off', 'turn off voice control')) {
+    actions.voiceOff?.();
+    return 'Stopped listening';
+  }
+  if (has('what can i say', 'help', 'commands', 'voice commands', 'show commands')) {
+    window.dispatchEvent(new Event('sp-voice-guide'));
+    return 'Here is what you can say';
+  }
+  const scroll = t.match(/ (?:scroll|move|go) (up|down|to the top|to top|to the bottom|to bottom) /) ?? t.match(/ (page down|page up) /);
+  if (scroll) {
+    const box = mainScroller();
+    if (!box) return 'Nothing to scroll here';
+    const w = scroll[1]!;
+    if (w.includes('top')) box.scrollTo({ top: 0, behavior: 'smooth' });
+    else if (w.includes('bottom')) box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+    else box.scrollBy({ top: (w.includes('up') ? -0.7 : 0.7) * box.clientHeight, behavior: 'smooth' });
+    return w.includes('up') || w.includes('top') ? 'Scrolled up' : 'Scrolled down';
+  }
   // "click …" / "press …" / "select …" / "tap …"
   const click = t.match(/ (?:click|press|select|tap|choose|pick)(?: on)? (.+) $/);
   if (click) {
@@ -191,7 +220,7 @@ export function runCommand(raw: string, actions: { replayIntro: () => void; soun
     else spatial.startWalk();
     return spatial.get().walk ? 'Walk mode: W A S D to move' : 'Stopped walking';
   }
-  if (has('watch video', 'play video', 'oncure video')) {
+  if (has('watch video', 'watch the video', 'play video', 'play the video', 'oncure video')) {
     spatial.set({ video: true });
     return 'Playing the Oncure video';
   }

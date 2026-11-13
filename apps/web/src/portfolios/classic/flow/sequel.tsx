@@ -1,7 +1,7 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowsOut, ArrowClockwise, ArrowCounterClockwise, ChartLineUp, Pause, Play, SpeakerHigh, SpeakerSlash, Sparkle } from '@phosphor-icons/react';
-import { achievements, languages, oncure, percentiles, profile, resumeExtra } from '@/content/portfolio';
+import { achievements, languages, oncure, profile, resumeExtra } from '@/content/portfolio';
 import { show, useFx, type Reg } from './fx';
 import { F, out, seg, smooth, within } from './timeline';
 import './sequel.css';
@@ -20,7 +20,6 @@ import './sequel.css';
  */
 
 const BASE = import.meta.env.BASE_URL;
-const J = (n: string) => `${BASE}assets/journey/${n}.placeholder.jpg`;
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 // --- Film -------------------------------------------------------------------------------------
@@ -115,87 +114,6 @@ export function Film({ reg }: { reg: Reg }) {
         <button type="button" onClick={() => void video.current?.requestFullscreen?.().catch(() => undefined)} aria-label="Full screen">
           <ArrowsOut weight="bold" />
         </button>
-      </div>
-    </div>
-  );
-}
-
-// --- Vortex of awards -------------------------------------------------------------------------
-
-const PALETTE = ['#e8432f', '#1f8a4c', '#7a3cff', '#f2c230', '#2a7fff', '#ff6fa1', '#14b8a6', '#f97316', '#334155', '#a855f7', '#0ea5e9', '#e11d48'];
-const AWARD_IMG: Record<string, string> = { cbnrp: J('trophy'), honors: J('academy'), psat: J('trophy'), map: J('academy'), arrow: J('arrow'), authors: J('writing'), minimed: J('medical') };
-const VORTEX = [
-  ...achievements.map((a) => ({ title: a.title, line: a.detail, tag: `${a.kind} · ${a.when}`, img: AWARD_IMG[a.id] ?? J('trophy') })),
-  ...percentiles.map((p) => ({ title: `${p.test} · ${p.value}th`, line: `${p.value}th percentile in ${p.grade}.`, tag: `Score · ${p.grade}`, img: J('trophy') })),
-];
-
-export function Vortex({ reg }: { reg: Reg }) {
-  const root = useRef<HTMLDivElement>(null);
-  const [cur, setCur] = useState(0);
-  const last = useRef(-1);
-  useFx(reg, (t, vw, vh) => {
-    const k = within(t, 'vortex');
-    const el = root.current;
-    if (!el) return;
-    const enter = smooth(seg(t, F.video[1] - 0.03, F.video[1]));
-    const leave = seg(t, F.open[0] + 0.01, F.open[1]);
-    const on = enter > 0 && leave < 1;
-    show(el, on);
-    if (!on) return;
-    el.style.opacity = String(Math.min(enter, 1 - leave));
-    const n = VORTEX.length;
-    const f = smooth(seg(k, 0.06, 0.94)) * (n - 1);
-    const R = Math.min(vw, vh) * 0.42;
-    const now = performance.now() / 1000;
-    el.querySelectorAll<HTMLElement>('.fx-card').forEach((c, i) => {
-      const d = i - f;
-      const a = d * 0.72 + 2.3 + Math.sin(now * 0.3) * 0.03;
-      const x = Math.cos(a) * R * 1.25;
-      const y = -Math.sin(a) * R * 0.95;
-      const z = -d * 300 + (d < 0 ? -d * 500 : 0);
-      const vis = d < -1.2 || d > 9 ? 0 : d < 0 ? 1 + d / 1.2 : 1 - Math.max(0, d - 6) / 3;
-      c.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateZ(${Math.sin(a) * 10}deg) rotateY(${Math.cos(a) * -18}deg)`;
-      c.style.opacity = String(Math.max(0, vis));
-      c.style.zIndex = String(100 - Math.round(Math.abs(d) * 4));
-    });
-    el.querySelectorAll<HTMLElement>('.fx-tick').forEach((tk, i) => tk.classList.toggle('is-on', i === Math.round(f)));
-    const i = Math.round(f);
-    if (i !== last.current) setCur((last.current = i));
-  });
-  const c = VORTEX[cur]!;
-  return (
-    <div ref={root} className="fx">
-      <div className="fx-burst" aria-hidden="true" />
-      <div className="fx-space">
-        {VORTEX.map((v, i) => (
-          <article key={v.title + i} className="fx-card" style={{ '--c': PALETTE[i % PALETTE.length] } as CSSProperties}>
-            <span className="fx-card-head">
-              <b>{v.title}</b>
-              <small>{v.tag}</small>
-            </span>
-            <img src={v.img} alt="" loading="lazy" />
-          </article>
-        ))}
-      </div>
-      <div className="fx-left">
-        <p className="fx-count">
-          <b>{String(cur + 1).padStart(2, '0')}</b> / {String(VORTEX.length).padStart(2, '0')}
-        </p>
-        <h2 className="fx-title" key={c.title}>
-          <i aria-hidden="true" /> {c.title}
-        </h2>
-        <p className="fx-line">
-          <b>{c.tag}</b> · {c.line}
-        </p>
-      </div>
-      <p className="fx-head">
-        <b>Awards &amp; certificates</b>
-        <small>Pictures are illustrations, not the original certificates</small>
-      </p>
-      <div className="fx-ticks" aria-hidden="true">
-        {VORTEX.map((v, i) => (
-          <i key={v.title + i} className="fx-tick" />
-        ))}
       </div>
     </div>
   );
