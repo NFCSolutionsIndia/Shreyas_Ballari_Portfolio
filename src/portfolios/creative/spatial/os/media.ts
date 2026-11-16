@@ -28,7 +28,7 @@ export const STORIES: Card[] = [
   { id: 'profile', title: profile.name, sub: 'Profile', image: profile.portrait, app: 'profile', line: `${profile.grade} at ${profile.school}, ${profile.schoolTown}.` },
   { id: 'oncure', title: 'Oncure', sub: 'Research concept', image: J('oncure'), app: 'oncure', line: 'AI-guided nanobots that could deliver cancer therapy to tumour cells and spare healthy tissue (a concept).', illustrative: true },
   { id: 'finance', title: 'AI trading app', sub: 'In progress', image: J('trading'), app: 'finance', line: 'A beginner-friendly stock trading website where an AI model suggests when and how much to buy and sell.', illustrative: true },
-  { id: 'awards', title: 'Awards', sub: `${achievements.length} achievements`, image: STILL('gallery.jpg'), app: 'awards', line: 'PSAT and MAP 99th percentile, Principal’s Honors List, College Board National Recognition Program and more.' },
+  { id: 'awards', title: 'Awards', sub: `${achievements.length} achievements`, image: STILL('gallery.jpg'), app: 'awards', line: 'PSAT and MAP top 99%, Principal’s Honors List, College Board National Recognition Program and more.' },
   { id: 'guitar', title: 'Guitar', sub: 'Since 2021', image: STILL('music.jpg'), app: 'activities', line: 'Guitar at Atlanta Piano Fortissimo since 2021. Play an original generated piece.' },
   { id: 'code', title: 'Code', sub: 'JavaScript · Python · Java', image: PHOTOS.code.src, app: 'profile', line: 'He writes code in JavaScript, Python and Java.', illustrative: true },
   { id: 'games', title: 'Games', sub: 'Four games', image: STILL('games.svg'), app: 'games', line: 'Four games from his story: Cell Defender, Market Sense, String Rhythm and Award Match.' },

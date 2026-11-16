@@ -37,8 +37,8 @@ const MODES = ['Basic', 'Glow', 'Orbit'] as const;
 type Mode = (typeof MODES)[number];
 
 const NUMBERS = [
-  { v: '99th', l: 'PSAT percentile' },
-  { v: '99th', l: 'MAP percentile' },
+  { v: 'Top 99%', l: 'PSAT' },
+  { v: 'Top 99%', l: 'MAP' },
   { v: String(achievements.length), l: 'Awards and honors' },
   { v: String(languages.length), l: 'Coding languages' },
 ];

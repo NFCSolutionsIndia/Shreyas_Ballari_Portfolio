@@ -75,11 +75,11 @@ function buildQuestions(): Question[] {
     qs.push({
       id: 'psat',
       prompt: `What was his PSAT percentile in ${psat10.grade}?`,
-      correct: `${psat10.value}th`,
+      correct: `Top ${psat10.value}%`,
       wrong: ['85th', '90th', '94th'],
-      explain: `${psat10.value}th percentile. His PSAT percentiles were ${percentiles
+      explain: `Top ${psat10.value}%. His PSAT results were ${percentiles
         .filter((p) => p.test === 'PSAT')
-        .map((p) => `${p.value}th (${p.grade})`)
+        .map((p) => `top ${p.value}% (${p.grade})`)
         .join(', ')}.`,
     });
   }

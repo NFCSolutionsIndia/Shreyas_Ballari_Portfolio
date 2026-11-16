@@ -8,6 +8,7 @@ import { ENTRY } from '../rooms';
 import { CHAPTERS } from '../story/chapters';
 import { TOUR } from '../story/tour';
 import { spatial } from '../store';
+import { batchStatic, lighten } from './batch';
 import { House } from './House';
 import { LivingRoom } from './LivingRoom';
 import { HOTSPOTS, hotspotEls } from './hotspots';
@@ -451,8 +452,17 @@ const _fwd = new Vector3();
 const BY_ID = new Map(HOTSPOTS.map((h) => [h.id, h]));
 function HotspotProjector() {
   const { camera, size } = useThree();
-  useFrame(() => {
+  const last = useMemo(() => new Vector3(), []);
+  const still = useRef(0);
+  useFrame((_, delta) => {
     if (!hotspotEls.size) return;
+    // While the camera walks between rooms the points would float over walls and corridors, so
+    // they show only once it has settled (they then sit on their objects).
+    // (A gentle idle sway is not walking: only real movement, over ~1 cm a frame, hides them.)
+    const moved = camera.position.distanceTo(last) > 0.012;
+    last.copy(camera.position);
+    still.current = moved ? 0 : still.current + delta;
+    const settled = still.current > 0.25 || spatial.get().walk;
     camera.getWorldDirection(_fwd);
     hotspotEls.forEach((el, id) => {
       const h = BY_ID.get(id);
@@ -461,7 +471,7 @@ function HotspotProjector() {
       const ahead = _hp.clone().sub(camera.position).normalize().dot(_fwd);
       _hp.project(camera);
       const near = !spatial.get().walk || camera.position.distanceTo(_near.set(...h.pos)) < 5.5;
-      const show = near && ahead > 0.15 && Math.abs(_hp.x) < 0.94 && Math.abs(_hp.y) < 0.9;
+      const show = settled && near && ahead > 0.15 && Math.abs(_hp.x) < 0.94 && Math.abs(_hp.y) < 0.9;
       el.style.opacity = show ? '1' : '0';
       el.style.pointerEvents = show ? 'auto' : 'none';
       el.style.transform = `translate(${((_hp.x + 1) / 2) * size.width}px, ${((1 - _hp.y) / 2) * size.height}px) translate(-50%, -50%)`;
@@ -481,7 +491,7 @@ function Progress({ onProgress }: { onProgress: (p: number, done: boolean) => vo
  * house is drawn for the first time. Without this, the first frame compiles them all at once and
  * the page freezes for many seconds on Windows (Chrome and Edge).
  */
-function WarmUp({ onWarm }: { onWarm: () => void }) {
+function WarmUp({ onWarm, low }: { onWarm: () => void; low: boolean }) {
   const get = useThree((st) => st.get);
   useEffect(() => {
     const { gl, scene, camera } = get();
@@ -489,6 +499,10 @@ function WarmUp({ onWarm }: { onWarm: () => void }) {
     const finish = () => {
       if (done) return;
       done = true;
+      // The sun and the furniture never move, so the sun's shadow is drawn once (on the next frame)
+      // instead of every frame: about half the work per frame where shadows are on.
+      gl.shadowMap.autoUpdate = false;
+      gl.shadowMap.needsUpdate = true;
       onWarm();
     };
     // Then the textures go to the graphics card a few per frame, instead of all in the first frame.
@@ -512,6 +526,13 @@ function WarmUp({ onWarm }: { onWarm: () => void }) {
       };
       requestAnimationFrame(step);
     };
+    // First merge the still furniture into a few objects (far fewer draw requests per frame).
+    try {
+      batchStatic(scene);
+      if (low) lighten(scene);
+    } catch {
+      /* if merging fails, the house still works, just with more draw requests */
+    }
     gl.compileAsync(scene, camera).then(upload, finish);
     // Never wait forever.
     const t = window.setTimeout(finish, 20000);
@@ -586,13 +607,13 @@ export function HouseScene({ low, live, onProgress, onReady }: { low: boolean; l
       dpr={low ? 1 : [1, dprMax]}
       camera={{ fov: 50, near: 0.05, far: 200, position: ENTRY.eye }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
-      onCreated={({ gl }) => {
+      onCreated={({ gl, scene }) => {
         gl.toneMapping = ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.22;
         gl.outputColorSpace = SRGBColorSpace;
         if (!low) gl.shadowMap.type = PCFShadowMap;
-        // ?perf in the address: expose the renderer for performance checks.
-        if (new URLSearchParams(window.location.search).has('perf')) (window as unknown as { __gl: unknown }).__gl = gl;
+        // ?perf in the address: expose the renderer and scene for performance checks.
+        if (new URLSearchParams(window.location.search).has('perf')) Object.assign(window, { __gl: gl, __scene: scene });
       }}
     >
       {/* Drops the resolution on slower computers, and while the camera is moving. */}
@@ -605,7 +626,7 @@ export function HouseScene({ low, live, onProgress, onReady }: { low: boolean; l
         <Lights />
         <LivingRoom low={low} />
         <House low={low} />
-        <WarmUp onWarm={() => setWarm(true)} />
+        <WarmUp low={low} onWarm={() => setWarm(true)} />
         {warm && <Ready onReady={onReady} />}
       </Suspense>
       <CameraRig />

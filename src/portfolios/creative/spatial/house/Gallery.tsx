@@ -14,8 +14,8 @@ const { x0: X0, x1: X1, z0: Z0, z1: Z1 } = GALLERY;
 const CERTS = {
   collegeBoard: 'College Board National Recognition Program',
   honors: "Principal's Honors List · FSA · 2025 & 2026",
-  psat: 'PSAT · 99th percentile',
-  map: 'MAP · 99th percentile',
+  psat: 'PSAT · top 99%',
+  map: 'MAP · top 99%',
   arrow: 'Project Arrow · IPSD · since 2nd grade',
 } as const;
 

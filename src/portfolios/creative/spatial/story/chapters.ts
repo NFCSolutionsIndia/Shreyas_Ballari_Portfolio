@@ -60,7 +60,7 @@ export const CHAPTERS: Chapter[] = [
     station: 'gallery',
     icon: Trophy,
     tint: '#d4a43a',
-    say: "Welcome to the trophy gallery. He has been in Project Arrow in his school district since second grade, was named to the Principal's Honors List at Fulton Science Academy in 2025 and 2026, scored in the 99th percentile on the PSAT in eighth and tenth grade and the 98th in ninth, the 98th and 99th on MAP, received the College Board National Recognition Program award, won the Young Authors Contest in 2023 and completed Mini Medical School in 2021.",
+    say: "Welcome to the trophy gallery. He has been in Project Arrow in his school district since second grade, was named to the Principal's Honors List at Fulton Science Academy in 2025 and 2026, was in the top 99 percent on the PSAT in eighth and tenth grade and the top 98 percent in ninth, the top 98 and 99 percent on MAP, received the College Board National Recognition Program award, won the Young Authors Contest in 2023 and completed Mini Medical School in 2021.",
     voice: ['awards', 'award', 'achievements', 'achievement', 'trophies', 'trophy', 'gallery', 'honors', 'certificates', 'rewards'],
   },
   {

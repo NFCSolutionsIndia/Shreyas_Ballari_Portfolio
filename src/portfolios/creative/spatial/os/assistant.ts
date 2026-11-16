@@ -169,7 +169,7 @@ const TOPICS: Topic[] = [
     id: 'scores',
     words: ['psat', 'map', 'percentile', 'score', 'scores', 'test', 'tests', 'sat', 'exam', 'exams', 'grades', 'gpa'],
     answer: () => ({
-      text: `${percentiles.map((p) => `${p.test} in ${p.grade}: ${p.value}th percentile`).join('. ')}. His PSAT 8/9 score was 1280 out of 1440. (The portfolio does not list a GPA.)`,
+      text: `${percentiles.map((p) => `${p.test} in ${p.grade}: top ${p.value}%`).join('. ')}. His PSAT 8/9 score was 1280 out of 1440. (The portfolio does not list a GPA.)`,
       cards: story('awards'),
       chips: ['What are his awards?', 'What does he study?'],
     }),

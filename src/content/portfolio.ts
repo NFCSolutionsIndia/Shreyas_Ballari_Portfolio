@@ -90,8 +90,8 @@ export interface Achievement {
 export const achievements: Achievement[] = [
   { id: 'cbnrp', kind: 'Award', title: 'College Board National Recognition Program', value: 'Recipient', when: 'Award', detail: 'Recipient of the College Board National Recognition Program award.' },
   { id: 'honors', kind: 'Honor', title: 'Principal’s Honors List', value: '2025 · 2026', when: 'FSA', detail: 'Named to the Principal’s Honors List at Fulton Science Academy in 2025 and 2026.' },
-  { id: 'psat', kind: 'Score', title: 'PSAT', value: '99th', when: 'Percentile', detail: 'PSAT percentiles: 99th in 8th grade, 98th in 9th grade, 99th in 10th grade. PSAT 8/9 score: 1280 out of 1440.' },
-  { id: 'map', kind: 'Score', title: 'MAP', value: '99th', when: 'Percentile', detail: 'MAP percentiles: 98th in 9th grade, 99th in 10th grade.' },
+  { id: 'psat', kind: 'Score', title: 'PSAT', value: 'Top 99%', when: '8th to 10th grade', detail: 'PSAT: top 99% in 8th grade, top 98% in 9th grade, top 99% in 10th grade. PSAT 8/9 score: 1280 out of 1440.' },
+  { id: 'map', kind: 'Score', title: 'MAP', value: 'Top 99%', when: '9th and 10th grade', detail: 'MAP: top 98% in 9th grade, top 99% in 10th grade.' },
   { id: 'arrow', kind: 'Program', title: 'Project Arrow', value: 'Since 2nd grade', when: 'IPSD', detail: 'Placed in Project Arrow at Indian Prairie School District 204 (IPSD) since 2nd grade.' },
   { id: 'authors', kind: 'Award', title: 'Young Authors Contest', value: 'Winner', when: '2023', detail: 'Young Authors Contest winner in 2023, Indian Prairie School District 204.' },
   { id: 'minimed', kind: 'Certificate', title: 'Mini-Medical School', value: 'Completed', when: '2021', detail: 'Certificate of completion, 2021.' },
@@ -137,7 +137,7 @@ export const intro = {
     'A junior at Fulton Science Academy exploring computer science, artificial intelligence and FinTech, with research interests in AI for cancer research and AI-enabled trading.',
   ),
   /** Proof line under the hero button. Confirmed facts only. */
-  proof: ['College Board National Recognition Program', 'PSAT 99th percentile', 'Principal’s Honors List 2025 · 2026'],
+  proof: ['College Board National Recognition Program', 'PSAT top 99%', 'Principal’s Honors List 2025 · 2026'],
 };
 
 export interface Cluster {
@@ -207,8 +207,8 @@ export const clusters: Cluster[] = [
     body: [
       confirmed('College Board National Recognition Program award recipient.'),
       confirmed('Principal’s Honors List at Fulton Science Academy, 2025 and 2026.'),
-      confirmed('PSAT: 99th percentile (8th grade), 98th (9th), 99th (10th). PSAT 8/9: 1280 out of 1440.'),
-      confirmed('MAP: 98th percentile (9th grade), 99th (10th).'),
+      confirmed('PSAT: top 99% (8th grade), top 98% (9th), top 99% (10th). PSAT 8/9: 1280 out of 1440.'),
+      confirmed('MAP: top 98% (9th grade), top 99% (10th).'),
       confirmed('Project Arrow at Indian Prairie School District 204 since 2nd grade.'),
     ],
   },
@@ -318,7 +318,7 @@ export const faq = [
   },
   {
     q: 'What has he achieved?',
-    a: 'College Board National Recognition Program award, the Principal’s Honors List in 2025 and 2026, PSAT and MAP results in the 98th to 99th percentile, Project Arrow since 2nd grade, and the Young Authors Contest in 2023.',
+    a: 'College Board National Recognition Program award, the Principal’s Honors List in 2025 and 2026, PSAT and MAP results in the top 98% to 99%, Project Arrow since 2nd grade, and the Young Authors Contest in 2023.',
   },
   {
     q: 'What does he do outside class?',
@@ -442,7 +442,7 @@ export const resume = {
     'Advanced courses throughout: Project Arrow in middle school, all honours and AP in high school.',
     'Mathematics through AP Pre-calculus.',
     'Top 1% scores in standardised testing for mathematics and English language arts.',
-    'PSAT 8/9: 1280 out of 1440 in 8th grade, top 1% nationwide.',
+    'PSAT 8/9: 1280 out of 1440 in 8th grade.',
     'Young Authors Contest winner, Indian Prairie School District 204, 2023.',
     'Mini-Medical School certificate, July 2021.',
   ],
@@ -452,7 +452,7 @@ export const resume = {
 export const resumeExtra = {
   headline: 'High School Student · Independent Researcher (AI & Biomedical) · Peer Tutor',
   scores: [
-    { value: '1280 / 1440', label: 'PSAT 8/9 in 8th grade, top 1% nationwide' },
+    { value: '1280 / 1440', label: 'PSAT 8/9 in 8th grade' },
     { value: 'Top 1%', label: 'MAP and i-Ready in Mathematics and English Language Arts' },
   ],
   skills: [

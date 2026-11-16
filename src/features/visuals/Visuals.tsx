@@ -144,13 +144,13 @@ export function Scores() {
     <Block className="vz-scores">
       {(['PSAT', 'MAP'] as const).map((test, k) => (
         <div key={test} className="vz-panel vz-barbox" data-vz style={at(k)}>
-          <p className="vz-label">{test} percentile, by grade</p>
+          <p className="vz-label">{test}, by grade</p>
           <div className="vz-bars">
             {percentiles
               .filter((p) => p.test === test)
               .map((p, i) => (
                 <div key={p.grade} className="vz-bar" style={at(i, { '--v': p.value })}>
-                  <b>{p.value}th</b>
+                  <b>Top {p.value}%</b>
                   <span className="vz-bar-track">
                     <span className="vz-bar-fill" />
                   </span>
@@ -169,7 +169,7 @@ export function Scores() {
           <b>{psat}</b>
           <small>out of {of}</small>
         </div>
-        <p className="vz-label">PSAT 8/9 in 8th grade · top 1% nationwide</p>
+        <p className="vz-label">PSAT 8/9 score in 8th grade</p>
       </div>
     </Block>
   );

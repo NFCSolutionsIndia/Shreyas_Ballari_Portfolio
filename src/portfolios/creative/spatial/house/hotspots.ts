@@ -1,4 +1,4 @@
-import { achievements, activities, courses, goals, languages, oncure, percentiles, resume, stockApp, volunteering } from '@/content/portfolio';
+import { achievements, activities, courses, goals, languages, oncure, percentiles, stockApp } from '@/content/portfolio';
 import type { StationName } from './stations';
 
 /**
@@ -27,7 +27,7 @@ export interface Hotspot {
 }
 
 const ach = (id: string) => achievements.find((a) => a.id === id)!;
-const pct = (test: string) => percentiles.filter((p) => p.test === test).map((p) => `${p.grade}: ${p.value}th percentile`);
+const pct = (test: string) => percentiles.filter((p) => p.test === test).map((p) => `${p.grade}: top ${p.value}%`);
 const act = (t: string) => activities.find((a) => a.title === t)!;
 const GOLD = '#ffd770';
 const PINK = '#e0466e';
@@ -70,17 +70,6 @@ export const HOTSPOTS: Hotspot[] = [
     title: 'Programming languages',
     text: `He writes code in ${languages.join(', ').replace(/, ([^,]*)$/, ' and $1')}.`,
     items: languages,
-    tint: BLUE,
-  },
-  {
-    id: 'skills',
-    station: 'bedroom',
-    pos: [-11.2, 1.0, 1.4],
-    label: 'Skills',
-    kicker: 'His room',
-    title: 'Skills',
-    text: resume.summary,
-    items: resume.skills,
     tint: BLUE,
   },
   {
@@ -186,45 +175,12 @@ export const HOTSPOTS: Hotspot[] = [
     id: 'trade-board',
     station: 'lab',
     pos: [-8.2, 1.95, -8.84],
-    label: 'Trading app',
-    kicker: 'Research & Development',
+    label: 'AI trading app',
+    kicker: 'Research & Development · his app (concept)',
     title: stockApp.name,
     text: `${stockApp.summary} For: ${stockApp.forWhom.charAt(0).toLowerCase()}${stockApp.forWhom.slice(1)}`,
     items: stockApp.features.map((f) => `${f.title}: ${f.line}`),
     app: { id: 'finance', label: 'Open the trading app' },
-    tint: GREEN,
-  },
-  {
-    id: 'scr-dash',
-    station: 'lab',
-    pos: [-9.75, 1.3, -8.6],
-    label: 'App: dashboard',
-    kicker: 'Trading app · concept screen',
-    title: 'Your dashboard',
-    text: 'The stocks you hold and the buy or sell stage each one is at, pending buys and sells, and top-performing stocks you may be interested in. Sample data.',
-    app: { id: 'finance', label: 'See all the app screens' },
-    tint: GREEN,
-  },
-  {
-    id: 'scr-stock',
-    station: 'lab',
-    pos: [-10.6, 1.3, -8.62],
-    label: 'App: AI advice',
-    kicker: 'Trading app · concept screen',
-    title: 'AI advice next to the graph',
-    text: 'Beside the stock you are looking at: how much to buy, when to buy, and an estimated time to sell, worked out by an AI model from real-world data. Instead of candlesticks and equations. Sample data; hypothetical, not financial advice.',
-    app: { id: 'finance', label: 'See all the app screens' },
-    tint: GREEN,
-  },
-  {
-    id: 'scr-calc',
-    station: 'lab',
-    pos: [-12.45, 1.3, -5.15],
-    label: 'App: calculator',
-    kicker: 'Trading app · concept screen',
-    title: 'AI calculators',
-    text: 'Calculators that use the AI model to suggest the best amount of a stock to buy and when to buy or sell it. Sample data; hypothetical.',
-    app: { id: 'finance', label: 'See all the app screens' },
     tint: GREEN,
   },
   // --- Gallery -----------------------------------------------------------------------------------
@@ -244,7 +200,7 @@ export const HOTSPOTS: Hotspot[] = [
     pos: [-11.3, 1.65, -13.9],
     label: 'PSAT',
     kicker: 'Certificate',
-    title: 'PSAT · top 1%',
+    title: 'PSAT · top 99%',
     text: ach('psat').detail,
     items: pct('PSAT'),
     tint: GOLD,
@@ -255,8 +211,8 @@ export const HOTSPOTS: Hotspot[] = [
     pos: [-10.15, 1.65, -13.9],
     label: 'Scores chart',
     kicker: 'The gallery',
-    title: 'Top percentile scores',
-    text: 'PSAT and MAP percentiles across the years.',
+    title: 'His PSAT and MAP results',
+    text: 'PSAT and MAP across the years.',
     items: [...pct('PSAT').map((x) => `PSAT ${x}`), ...pct('MAP').map((x) => `MAP ${x}`)],
     tint: GOLD,
   },
@@ -266,7 +222,7 @@ export const HOTSPOTS: Hotspot[] = [
     pos: [-9.0, 1.65, -13.9],
     label: 'MAP',
     kicker: 'Certificate',
-    title: 'MAP · 99th percentile',
+    title: 'MAP · top 99%',
     text: ach('map').detail,
     items: pct('MAP'),
     tint: GOLD,
@@ -323,50 +279,21 @@ export const HOTSPOTS: Hotspot[] = [
     text: 'Completed Mini-Medical School for middle school students in July 2021, and received a certificate of completion.',
     tint: GOLD,
   },
-  // --- Community room -----------------------------------------------------------------------------
+  // --- Volunteering & tutoring -------------------------------------------------------------------
   {
     id: 'tutor-board',
     station: 'kitchen',
     pos: [-2.2, 1.95, -13.9],
     label: 'How he tutors',
-    kicker: 'The community room',
+    kicker: 'Volunteering & tutoring',
     title: 'How Shreyas tutors',
     text: 'Peer tutor for 7th and 8th grade students in mathematics and science, one on one and in small groups, at lunch or after school.',
     items: ['1. Find the gaps: identify lagging skills', '2. Explain step by step, with visual aids and diagrams', '3. Practise together: homework and small groups', '4. Get ready for quizzes and exams', '5. Give feedback on writing and critical thinking'],
     tint: SKY,
   },
-  {
-    id: 'students',
-    station: 'kitchen',
-    pos: [-1.6, 1.25, -11.6],
-    label: 'Study group',
-    kicker: 'The community room',
-    title: 'Tutoring sessions',
-    text: resume.summary,
-    items: resume.tutoring,
-    tint: SKY,
-  },
-  ...volunteering.map((v, i) => ({
-    id: `vol-${i}`,
-    station: 'kitchen' as StationName,
-    pos: [0.55 + i * 0.95, i === 1 ? 1.25 : 2.0, -13.9] as [number, number, number],
-    label: ['Medical camp', 'Temple', 'Tutoring'][i]!,
-    kicker: 'Giving back',
-    title: v.title,
-    text: `${v.role}.`,
-    tint: ['#e0466e', '#f28c28', '#3b82f6'][i],
-  })),
+  // (The volunteering and activity posters on the walls show everything about each one, so they
+  // have no extra popups.)
   // --- Music & activities ----------------------------------------------------------------------
-  ...['Swim Atlanta', 'Muay Thai', 'Science Olympiad', 'DECA'].map((t, i) => ({
-    id: `act-${i}`,
-    station: 'music' as StationName,
-    pos: [3.22, 2.0, -13.15 + i * 0.98] as [number, number, number],
-    label: t,
-    kicker: 'Beyond class',
-    title: t,
-    text: `${act(t).role}.`,
-    tint: ['#2bb5e8', '#ff5a6e', '#6c8cff', '#2fd18b'][i],
-  })),
   {
     id: 'electric',
     station: 'music',

@@ -253,7 +253,7 @@ export function scoresTexture() {
       g.fillStyle = '#fff';
       font(g, 40, 800);
       g.textAlign = 'center';
-      g.fillText(`${p.value}th`, x + 55, base - h - 18);
+      g.fillText(`Top ${p.value}%`, x + 55, base - h - 18);
       font(g, 22, 600);
       g.fillStyle = 'rgba(255,255,255,0.75)';
       g.fillText(p.test, x + 55, base + 40);

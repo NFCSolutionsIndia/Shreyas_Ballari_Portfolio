@@ -65,11 +65,11 @@ function ProfileW() {
         </small>
         <div className="w-stats">
           <span>
-            <b>99th</b>
+            <b>Top 99%</b>
             <small>PSAT</small>
           </span>
           <span>
-            <b>99th</b>
+            <b>Top 99%</b>
             <small>MAP</small>
           </span>
           <span>

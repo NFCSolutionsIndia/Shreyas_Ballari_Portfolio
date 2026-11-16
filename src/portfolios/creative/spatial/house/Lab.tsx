@@ -140,7 +140,8 @@ function Hologram() {
         <circleGeometry args={[0.2, 48]} />
       </mesh>
       <mesh position={[0, 1.16, 0]} geometry={BEAM} material={parts.mats.beam} />
-      <group position={[0, 1.55, 0]}>
+      {/* dynamic: it moves every frame, so it is never merged with the still furniture */}
+      <group position={[0, 1.55, 0]} userData={{ dynamic: true }}>
         <group ref={spin}>
           <mesh geometry={parts.membrane} material={parts.mats.membrane} />
           <mesh geometry={parts.nucleus} material={parts.mats.nucleus} position={[0.04, 0.02, 0]} />

@@ -79,8 +79,8 @@ export function ProfileWindow() {
           </div>
           <div className="os-statbar" aria-label="Highlights">
             {[
-              ['99th', 'PSAT percentile'],
-              ['99th', 'MAP percentile'],
+              ['Top 99%', 'PSAT'],
+              ['Top 99%', 'MAP'],
               [String(courses.length), 'Courses'],
               [String(languages.length), 'Languages'],
               [String(achievements.length), 'Achievements'],
