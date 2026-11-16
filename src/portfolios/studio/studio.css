@@ -1081,3 +1081,146 @@ button.fo-more:active {
     font-size: 12cqw;
   }
 }
+
+
+/* =============================================================================================
+   A more real device: polished metal frame, side buttons, camera, glass sheen, a slight
+   product-shot tilt with the hinge visible while closed, and soft real shadows. All CSS (no 3D
+   model to download), so it stays fast.
+   ============================================================================================= */
+.fo-device {
+  transform: translate(-50%, -50%) translateX(calc(var(--W) * (1 - var(--u)) * -0.25)) translateY(-28px)
+    rotateX(calc((1 - var(--u)) * 5deg)) rotateY(calc((1 - var(--u)) * 13deg + sin(var(--u) * 3.1416) * -10deg));
+}
+.fo-half.is-r,
+.fo-face,
+.fo-open {
+  background: #0b0b0c;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 0 4px var(--rim),
+    0 0 0 5px rgba(0, 0, 0, 0.18),
+    0 2px 3px rgba(0, 0, 0, 0.1),
+    0 22px 44px rgba(0, 0, 0, 0.16),
+    0 60px 110px rgba(0, 0, 0, 0.14);
+}
+/* Polished metal: light running round the frame. */
+.fo-half.is-r::after,
+.fo-face::after,
+.fo-open::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  z-index: 4;
+  padding: 4px;
+  border-radius: calc(var(--R) + 4px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 22%, rgba(0, 0, 0, 0.28) 48%, rgba(255, 255, 255, 0.5) 62%, rgba(0, 0, 0, 0.22) 84%, rgba(255, 255, 255, 0.7));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+.fo-half.is-r::after {
+  border-radius: calc(var(--R) * (1 - var(--u)) + 4px) calc(var(--R) + 4px) calc(var(--R) + 4px) calc(var(--R) * (1 - var(--u)) + 4px);
+}
+.fo-face.is-front::after {
+  border-radius: calc(var(--R) + 4px) 0 0 calc(var(--R) + 4px);
+}
+/* Glass: a soft reflection across every screen. */
+.fo-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border-radius: inherit;
+  background: linear-gradient(118deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 28%, rgba(255, 255, 255, 0) 42%);
+  pointer-events: none;
+}
+/* Side buttons on the closed phone's outer edge. */
+.fo-face.is-back::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 20%;
+  width: 4px;
+  height: 9%;
+  border-radius: 3px 0 0 3px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.25), var(--rim));
+  box-shadow: 0 calc(var(--H) * 0.13) 0 var(--rim);
+}
+/* The camera on the cover screen. */
+.fo-lock::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  z-index: 3;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3a4660 0 18%, #0a0a0c 40%);
+  box-shadow: 0 0 0 1.5px #1c1c1f;
+}
+/* The hinge: the closed phone's spine, seen thanks to the tilt; it fades as the phone opens. */
+.fo-spine {
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  width: calc(var(--W) * 0.03);
+  height: 94%;
+  border-radius: 999px;
+  transform-origin: 0 50%;
+  transform: rotateY(90deg);
+  background:
+    linear-gradient(180deg, transparent 0 18%, rgba(0, 0, 0, 0.35) 18% 18.6%, transparent 18.6% 81.4%, rgba(0, 0, 0, 0.35) 81.4% 82%, transparent 82%),
+    linear-gradient(90deg, #1d1d20, color-mix(in srgb, var(--rim) 70%, #555) 25%, color-mix(in srgb, var(--rim) 60%, #fff) 50%, color-mix(in srgb, var(--rim) 70%, #444) 75%, #1d1d20);
+  opacity: clamp(0, (0.18 - var(--u)) * 12, 1);
+}
+
+/* --- Lock screen: Apple-style frosted glass ------------------------------------------------- */
+.fo-note {
+  background: rgba(250, 250, 252, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+}
+.fo-note b {
+  color: #0d0d0f;
+}
+.fo-note small {
+  color: rgba(0, 0, 0, 0.62);
+}
+.fo-round,
+.fo-pill {
+  background: rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+}
+
+/* --- His full name, always on screen ------------------------------------------------------- */
+.fo-name span {
+  color: color-mix(in srgb, var(--ink) calc((1 - var(--u)) * 100%), #bdb9b1);
+}
+.fo-name .is-l {
+  transform-origin: 100% 50%;
+  transform: translateX(calc(var(--u) * var(--W) / -4)) scale(calc(1 - var(--u) * (1 - var(--nk, 1))));
+}
+.fo-name .is-r {
+  transform-origin: 0 50%;
+  transform: translateX(calc(var(--u) * var(--W) / 4)) scale(calc(1 - var(--u) * (1 - var(--nk, 1))));
+}
+.fo.is-phone .fo-name span {
+  opacity: 1;
+}
+.fo.is-phone .fo-name .is-l,
+.fo.is-phone .fo-name .is-r {
+  transform: none;
+}
+.fo.is-phone .fo-spine {
+  display: none;
+}

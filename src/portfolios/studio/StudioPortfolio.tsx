@@ -305,6 +305,8 @@ export function StudioPortfolio() {
 
   const section = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const nameL = useRef<HTMLSpanElement>(null);
+  const nameR = useRef<HTMLSpanElement>(null);
   const live = useRef<HTMLDivElement>(null);
   const contentH = useRef(0);
 
@@ -323,16 +325,43 @@ export function StudioPortfolio() {
     return () => window.removeEventListener('resize', fit);
   }, []);
 
+  // His full name stays on screen when the phone opens: each word shrinks just enough to fit
+  // beside the open phone (--nk is that scale).
+  useLayoutEffect(() => {
+    const fitName = () => {
+      const st = stage.current;
+      const l = nameL.current;
+      const r = nameR.current;
+      if (!st || !l || !r || size.phone) return;
+      const room = window.innerWidth / 2 - size.W / 2 - 18 - 28;
+      const widest = Math.max(l.offsetWidth, r.offsetWidth, 1);
+      st.style.setProperty('--nk', Math.max(0.2, Math.min(1, room / widest)).toFixed(3));
+    };
+    fitName();
+    void document.fonts?.ready.then(fitName);
+    window.addEventListener('resize', fitName);
+    return () => window.removeEventListener('resize', fitName);
+  }, [size]);
+
   // One loop: read the scroll, set every transform.
   useEffect(() => {
     let raf = 0;
     let lastOpen = false;
     let lastCall = false;
+    // Only does work when the page has scrolled or resized (or a few times a second while the
+    // inner site's pictures load), not on every frame.
+    let lastY = NaN;
+    let lastVh = 0;
+    let tick = 0;
     const frame = () => {
       raf = requestAnimationFrame(frame);
       const sec = section.current;
       const st = stage.current;
       if (!sec || !st) return;
+      tick = (tick + 1) % 20;
+      if (window.scrollY === lastY && window.innerHeight === lastVh && tick !== 0) return;
+      lastY = window.scrollY;
+      lastVh = window.innerHeight;
       const r = sec.getBoundingClientRect();
       const vh = window.innerHeight;
       if (r.bottom < 0 || r.top > vh) return;
@@ -400,11 +429,17 @@ export function StudioPortfolio() {
             ))}
           </div>
           <h2 className="fo-name fo-display" aria-hidden="true">
-            <span className="is-l">{profile.firstName}</span>
-            <span className="is-r">{profile.lastName}</span>
+            <span ref={nameL} className="is-l">
+              {profile.firstName}
+            </span>
+            <span ref={nameR} className="is-r">
+              {profile.lastName}
+            </span>
           </h2>
 
           <div className="fo-device">
+            {/* The hinge, seen from the side while the phone is closed. */}
+            <div className="fo-spine" aria-hidden="true" />
             {/* Right half: the right side of the open screen. */}
             <div className="fo-half is-r">
               <div className="fo-glass">{half('r', <Screen go={go} live={false} />)}</div>
