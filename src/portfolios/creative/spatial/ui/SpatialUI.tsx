@@ -11,6 +11,7 @@ import { envNow } from '../os/localTime';
 import { ChatBubble } from '../os/ChatBubble';
 import { Tour } from '../os/Tour';
 import { VideoOverlay } from '../os/VideoOverlay';
+import { prefetchRooms } from '../house/prefetch';
 import { runCommand } from './commands';
 import { Hands } from './Hands';
 import { VoiceControl } from './VoiceControl';
@@ -38,6 +39,7 @@ export function prefetchApps() {
   void loadAwards().catch(() => {});
   void loadChat().catch(() => {});
   void import('../os/games/Games').catch(() => {});
+  prefetchRooms();
 }
 
 /** Shown for the moment an app is still downloading. */
@@ -267,20 +269,20 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
       {/* The AI is always one tap away, in the tour too. */}
       <ChatBubble />
 
-      {/* The tour button: draws the apps in and tells his story card by card; then lets them out. */}
+      {/* The tour button: draws the apps in and walks you through the house; then lets them out. */}
       <button
         type="button"
         className={`sp-tourbtn ${tour ? 'is-tour' : ''} ${genie === 'swallowing' ? 'is-gulp' : ''}`}
-        aria-label={apps ? 'Back to the apps' : 'Take the story tour'}
-        data-voice={apps ? 'vision apps' : 'story tour'}
+        aria-label={apps ? 'Back to the apps' : 'Take the house tour'}
+        data-voice={apps ? 'vision apps' : 'house tour'}
         onClick={tourButton}
       >
         <span className="sp-tourbtn-ico" key={apps ? 'apps' : 'tour'}>
           {apps ? <VirtualReality weight="fill" /> : <MapTrifold weight="fill" />}
         </span>
         <span className="sp-tourbtn-text" key={apps ? 'a' : 't'}>
-          <b>{apps ? 'Vision apps' : 'Story tour'}</b>
-          <small>{apps ? 'Bring the apps back' : 'His story, step by step'}</small>
+          <b>{apps ? 'Vision apps' : 'House tour'}</b>
+          <small>{apps ? 'Bring the apps back' : 'Walk through his home'}</small>
         </span>
       </button>
 

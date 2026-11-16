@@ -66,7 +66,7 @@ they are made automatically.
 | The Oncure video | Replace `public/assets/videos/oncure.mp4` |
 | A certificate picture | Add `public/assets/certificates/<award id>.jpg` |
 | Creative: the dashboard cards | `src/portfolios/creative/spatial/os/Dashboard.tsx` |
-| Creative: the story tour text | `src/portfolios/creative/spatial/story/tour.ts` |
+| Creative: the house tour text | `src/portfolios/creative/spatial/story/tour.ts` |
 | Creative: what voice commands do | `src/portfolios/creative/spatial/ui/commands.ts` |
 | Classic: the order and speed of the scroll film | `src/portfolios/classic/flow/timeline.ts` |
 | Classic: the top menu bar | `src/portfolios/classic/flow/Dock.tsx` |

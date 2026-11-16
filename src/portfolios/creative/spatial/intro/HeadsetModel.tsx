@@ -73,7 +73,8 @@ function Loaded() {
       const list = [...all];
       const step = () => {
         if (done) return;
-        list.splice(0, 4).forEach((t) => gl.initTexture(t));
+        const t0 = performance.now();
+        while (list.length && performance.now() - t0 < 12) gl.initTexture(list.shift()!);
         if (list.length) requestAnimationFrame(step);
         else show();
       };

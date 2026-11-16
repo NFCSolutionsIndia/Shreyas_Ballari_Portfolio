@@ -18,7 +18,7 @@ import './os/vision.css';
 /**
  * Creative: Shreyas's spatial home. Every time it opens (a refresh too) the headset splash plays,
  * then his dashboard floats in front of a realistic living room, which stays still: every app
- * opens as a glass window in front of it. The story tour is one tap away on the button in the
+ * opens as a glass window in front of it. The house tour (the camera walks room to room) is one tap away on the button in the
  * bottom left corner. Mouse, touch, keyboard, voice and hands all work.
  */
 
@@ -101,7 +101,7 @@ export function SpatialPortfolio() {
 
   const startTour = useCallback(() => spatial.startTour(), []);
 
-  // Keyboard, wheel and touch. In the tour they move through the story cards; otherwise arrows change
+  // Keyboard, wheel and touch. In the tour they walk through the house; otherwise arrows change
   // apps, 1–7 jump to an app and Escape steps back.
   useEffect(() => {
     const rooms = TOUR.length;

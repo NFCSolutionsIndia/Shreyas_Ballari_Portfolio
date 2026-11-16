@@ -35,12 +35,14 @@ export interface SpatialState {
   env: 'day' | 'sunset' | 'night';
   /** Follow the real time of day in Georgia (on until the visitor picks a light). */
   envAuto: boolean;
-  /** Story tour: his story, one card at a time, in front of the living room (see story/tour.ts). */
+  /** House tour: scrolling walks the camera from room to room (see story/tour.ts). */
   tour: boolean;
   /** Where the scroll wants the tour to be (0 … stops−1). */
   tourTarget: number;
   /** The card the tour shows now. */
   tourIndex: number;
+  /** The rooms beyond the living room are loaded and prepared (the first tour loads them). */
+  roomsReady: boolean;
   /** The small AI chat in the corner is open. */
   bubble: boolean;
   /** His Oncure video in full view. */
@@ -51,7 +53,7 @@ export interface SpatialState {
   pendingAsk: string | null;
 }
 
-let state: SpatialState = { phase: 'intro', chapter: 0, dir: 1, room: 'living', narrate: false, auto: false, caption: null, sound: false, toast: null, dock: true, windows: [], homeView: false, control: false, env: envNow(), envAuto: true, tour: false, tourTarget: 0, tourIndex: 0, bubble: false, video: false, pinned: ['oncure', 'finance', 'awards', 'guitar'], pendingAsk: null };
+let state: SpatialState = { phase: 'intro', chapter: 0, dir: 1, room: 'living', narrate: false, auto: false, caption: null, sound: false, toast: null, dock: true, windows: [], homeView: false, control: false, env: envNow(), envAuto: true, tour: false, tourTarget: 0, tourIndex: 0, roomsReady: false, bubble: false, video: false, pinned: ['oncure', 'finance', 'awards', 'guitar'], pendingAsk: null };
 const subs = new Set<() => void>();
 let autoTimer = 0;
 
@@ -148,7 +150,7 @@ export const spatial = {
   unpin(id: string) {
     spatial.set({ pinned: state.pinned.filter((p) => p !== id) });
   },
-  /** Start the story tour from the first card. */
+  /** Start the house tour from the front door. */
   startTour() {
     window.clearTimeout(autoTimer);
     stopSpeaking();
@@ -156,7 +158,9 @@ export const spatial = {
   },
   /** Show one card of the tour (the scroll may sit between two; the nearest one shows). */
   tourTo(target: number, rooms: number) {
-    const t = Math.max(0, Math.min(rooms - 1, target));
+    // Until the other rooms are ready the tour waits at the entrance and in the living room.
+    const max = state.roomsReady ? rooms - 1 : Math.min(rooms - 1, 1);
+    const t = Math.max(0, Math.min(max, target));
     const i = Math.round(t);
     if (t !== state.tourTarget || i !== state.tourIndex) spatial.set({ tourTarget: t, tourIndex: i });
   },

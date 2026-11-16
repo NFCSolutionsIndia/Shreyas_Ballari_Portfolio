@@ -11,11 +11,16 @@ required (credited here anyway). Downloaded 2026-11-11 at 1k resolution for web 
 | Model | mid_century_lounge_chair | https://polyhaven.com/a/mid_century_lounge_chair |
 | Model | modern_coffee_table_01 | https://polyhaven.com/a/modern_coffee_table_01 |
 | Model | side_table_01 | https://polyhaven.com/a/side_table_01 |
+| Model | throw_pillows_01 | https://polyhaven.com/a/throw_pillows_01 |
 | Model | pachira_aquatica_01 | https://polyhaven.com/a/pachira_aquatica_01 |
 | Model | calathea_orbifolia_01 | https://polyhaven.com/a/calathea_orbifolia_01 |
 | Model | ceramic_vase_01 | https://polyhaven.com/a/ceramic_vase_01 |
 | Model | modern_ceiling_lamp_01 | https://polyhaven.com/a/modern_ceiling_lamp_01 |
 | Model | wooden_display_shelves_01 | https://polyhaven.com/a/wooden_display_shelves_01 |
+| Model | desk_lamp_arm_01 (bedroom and study desks) | https://polyhaven.com/a/desk_lamp_arm_01 |
+| Model | dining_chair_02 (dining table, desks) | https://polyhaven.com/a/dining_chair_02 |
+| Model | industrial_microscope (innovation lab) | https://polyhaven.com/a/industrial_microscope |
+| Model | metal_stool_01 (innovation lab) | https://polyhaven.com/a/metal_stool_01 |
 | Model | outdoor_table_chair_set_01 (garden bistro table) | https://polyhaven.com/a/outdoor_table_chair_set_01 |
 | Model | stone_fire_pit (garden) | https://polyhaven.com/a/stone_fire_pit |
 | Model | fern_02 (garden planting) | https://polyhaven.com/a/fern_02 |

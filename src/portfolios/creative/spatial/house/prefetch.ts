@@ -39,6 +39,21 @@ async function model(id: string) {
   await Promise.all(uris.map((u) => get(`${dir}/${u}`)));
 }
 
+/** The furniture only the other rooms use (loaded for the house tour). */
+const ROOM_MODELS = ['desk_lamp_arm_01', 'dining_chair_02', 'industrial_microscope', 'metal_stool_01'];
+let roomsStarted = false;
+
+/** Downloads the tour's rooms in the background once the home is on screen (files only). */
+export function prefetchRooms() {
+  if (roomsStarted || typeof window === 'undefined') return;
+  roomsStarted = true;
+  const queue = [...ROOM_MODELS];
+  const worker = async () => {
+    for (let id = queue.shift(); id; id = queue.shift()) await model(id);
+  };
+  void Promise.all([worker(), worker()]);
+}
+
 export function prefetchHouse() {
   if (started || typeof window === 'undefined') return;
   started = true;

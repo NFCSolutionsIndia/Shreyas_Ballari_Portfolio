@@ -50,8 +50,8 @@ export function Hello() {
 | `SpatialPortfolio.tsx` | Puts the tab together: the headset intro, then the house and the apps |
 | `intro/` | The opening: a 3D headset you look into |
 | `house/` | The 3D house, one file per room (`LivingRoom.tsx`, `Lab.tsx`, `Garden.tsx` …) and the glowing points (`hotspots.ts`) |
-| `os/` | The glass app windows: `Dashboard.tsx` (the cards), `Profile.tsx`, `OncureApp.tsx`, `Awards.tsx`, `Chat.tsx`, `Tour.tsx` (story tour), `games/` |
-| `story/` | The list of apps (`chapters.ts`) and the story tour text (`tour.ts`) |
+| `os/` | The glass app windows: `Dashboard.tsx` (the cards), `Profile.tsx`, `OncureApp.tsx`, `Awards.tsx`, `Chat.tsx`, `Tour.tsx` (house tour), `games/` |
+| `story/` | The list of apps (`chapters.ts`) and the house tour text (`tour.ts`) |
 | `ui/` | Buttons on top of the 3D: `SpatialUI.tsx`, voice control (`VoiceControl.tsx`, `commands.ts`) and hand control (`Hands.tsx`) |
 | `fun/` | The quiz, the music player and the cell game |
 | `store.ts` | What is open right now (which app, the tour, the light …) |
@@ -62,12 +62,13 @@ turns on the microphone or camera. Nothing is recorded. Voice commands are match
 `ui/commands.ts`; to add one, copy an existing `if (has('…')) { … }` block.
 
 **On phones** the dashboard is one column (no clock or pinboard), each app is one full card that
-scrolls as a whole, and the story tour shows the room first: a small bar names the stop and the
+scrolls as a whole, and the house tour shows the room first: a small bar names the room and the
 details open only when you tap "About".
 
-**Speed:** the camera never leaves the living room, and the 3D view is drawn only when something
-in it changes (the light at day, golden hour or night), so most of the time it costs nothing.
-Only the living room and the garden are loaded. Oncure, Awards, AI Chat and Games download the
+**Speed:** in vision mode (the apps) the camera stays in the living room, and the 3D view is
+drawn only when something in it changes (the light at day, golden hour or night), so most of the
+time it costs nothing. Only the living room and the garden load at first; the other rooms load
+the first time the house tour opens (`house/House.tsx`), and the camera walks through them. Oncure, Awards, AI Chat and Games download the
 first time they open. On lighter computers and phones (`?quality=low` forces this,
 `?quality=high` turns it off) there are no shadows and the glass has no blur. `?perf` in the
 address shows the renderer to the browser console for measuring.

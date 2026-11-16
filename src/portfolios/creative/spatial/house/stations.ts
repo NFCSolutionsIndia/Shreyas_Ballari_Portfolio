@@ -1,5 +1,5 @@
 /**
- * Camera stations for the story tour (metres, same frame as layout.ts). `eye` is where the camera
+ * Camera stations for the house tour (metres, same frame as layout.ts). `eye` is where the camera
  * stands, `look` what it looks at. `via` lists the waypoints the camera passes through when it
  * comes from the PREVIOUS station in tour order, so the walk goes through doorways and never
  * through a wall: entry → living → sofa → bedroom → study → lab → gallery → kitchen → music →

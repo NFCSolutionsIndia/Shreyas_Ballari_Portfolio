@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
-import { ACESFilmicToneMapping, Color, DirectionalLight, EquirectangularReflectionMapping, HemisphereLight, MathUtils, Object3D, RectAreaLight, SRGBColorSpace, TextureLoader, Vector3, PCFShadowMap, type Material, type Mesh, type Texture } from 'three';
+import { ACESFilmicToneMapping, Color, DirectionalLight, EquirectangularReflectionMapping, HemisphereLight, MathUtils, Object3D, RectAreaLight, SRGBColorSpace, TextureLoader, Vector3, PCFShadowMap, type CatmullRomCurve3, type Material, type Mesh, type Texture } from 'three';
 import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { spatial } from '../store';
@@ -9,7 +9,9 @@ import { batchStatic, lighten } from './batch';
 import { House } from './House';
 import { LivingRoom } from './LivingRoom';
 import { HOTSPOTS, hotspotEls } from './hotspots';
-import { STATIONS } from './stations';
+import { STATIONS, type StationName } from './stations';
+import { walkPath } from './route';
+import { TOUR } from '../story/tour';
 
 /**
  * The house: the living room is the fixed background of his spatial home. The camera stays in
@@ -105,31 +107,202 @@ function Lights() {
 }
 
 /**
- * The camera stands in the living room and never moves: the room is the fixed background of his
- * spatial home, and every app opens as a glass window in front of it. (Moving the camera made the
- * browser redraw the whole house sixty times a second, which froze slower computers.)
+ * The camera. In vision mode it stands still in the living room (the fixed background of his
+ * apps), so nothing is redrawn. In the house tour the scroll walks it from room to room along
+ * smooth paths through the doorways, and the visitor can drag to look around. When the tour ends
+ * it walks back to the living room and stands still again.
  */
 const LIVING = STATIONS.living;
+const HOME_EYE = new Vector3(...LIVING.eye);
+const HOME_LOOK = new Vector3(...LIVING.look);
+/** True while the camera moves: the scene is then drawn every frame (see RenderPacer). */
+export const camState = { moving: false };
+if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('perf')) Object.assign(window, { __camState: camState });
+
+const _eye = new Vector3();
+const _look = new Vector3();
+const _ahead = new Vector3();
+const _dir = new Vector3();
+const WALK_SPEED = 1.15;
+const MAX_WALK = 12;
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+/** Point the camera from `eye` at a yaw / pitch offset from the direction eye to look. */
+function aim(camera: { lookAt: (v: Vector3) => void }, eye: Vector3, look: Vector3, dyaw: number, dpitch: number) {
+  _dir.subVectors(look, eye);
+  const yaw = Math.atan2(_dir.x, _dir.z) + dyaw;
+  const pitch = Math.atan2(_dir.y, Math.hypot(_dir.x, _dir.z)) + dpitch;
+  _look.set(eye.x + Math.sin(yaw) * Math.cos(pitch), eye.y + Math.sin(pitch), eye.z + Math.cos(yaw) * Math.cos(pitch));
+  camera.lookAt(_look);
+}
+
 function CameraRig() {
-  const camera = useThree((st) => st.camera);
+  const { camera, gl } = useThree();
+  const cur = useRef({ eye: new Vector3(...LIVING.eye), look: new Vector3(...LIVING.look) });
+  const walk = useRef<{ curve: CatmullRomCurve3; t: number; dur: number; fromLook: Vector3; to: StationName } | null>(null);
+  const at = useRef<StationName>('living');
+  const turn = useRef({ yaw: 0, pitch: 0, vyaw: 0, drag: null as null | { x: number; y: number } });
+  const tourP = useRef(0);
+  const wasTour = useRef(false);
+  // One smooth path per pair of neighbouring tour stops.
+  const tourPaths = useMemo(
+    () =>
+      TOUR.slice(1).map((stop, i) => {
+        const from = TOUR[i]!.station;
+        return walkPath(new Vector3(...STATIONS[from].eye), from, stop.station).curve;
+      }),
+    [],
+  );
+
   useEffect(() => {
     camera.position.set(...LIVING.eye);
     camera.lookAt(...LIVING.look);
     camera.updateMatrixWorld();
   }, [camera]);
+
+  // In the tour: drag anywhere that is not a control (mouse, touch or a pinch) to look around.
+  useEffect(() => {
+    const doc = gl.domElement.ownerDocument;
+    const down = (e: PointerEvent) => {
+      if (!spatial.get().tour) return;
+      if (e.target instanceof Element && e.target.closest('button, a, input, [role="toolbar"], nav, .tour-card, .tour-mini, .cb, .sp-voiceask')) return;
+      turn.current.drag = { x: e.clientX, y: e.clientY };
+    };
+    const move = (e: PointerEvent) => {
+      const d = turn.current.drag;
+      if (!d) return;
+      const dx = e.clientX - d.x;
+      turn.current.yaw -= dx * 0.0055;
+      turn.current.vyaw = -dx * 0.0055;
+      turn.current.pitch = MathUtils.clamp(turn.current.pitch - (e.clientY - d.y) * 0.004, -0.6, 0.55);
+      turn.current.drag = { x: e.clientX, y: e.clientY };
+    };
+    const up = () => (turn.current.drag = null);
+    doc.addEventListener('pointerdown', down);
+    doc.addEventListener('pointermove', move);
+    doc.addEventListener('pointerup', up);
+    doc.addEventListener('pointercancel', up);
+    return () => {
+      doc.removeEventListener('pointerdown', down);
+      doc.removeEventListener('pointermove', move);
+      doc.removeEventListener('pointerup', up);
+      doc.removeEventListener('pointercancel', up);
+    };
+  }, [gl]);
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.05);
+    const s = spatial.get();
+    const T = turn.current;
+
+    if (s.tour) {
+      if (!wasTour.current) {
+        // The tour starts at its first stop.
+        wasTour.current = true;
+        tourP.current = s.tourTarget;
+        walk.current = null;
+      }
+      // Ease towards where the scroll wants to be; linger in each room, walk between them.
+      tourP.current += (s.tourTarget - tourP.current) * (1 - Math.exp(-dt * 1.5));
+      const p = MathUtils.clamp(tourP.current, 0, TOUR.length - 1);
+      const i = Math.min(TOUR.length - 2, Math.floor(p));
+      const u = MathUtils.smoothstep(p - i, 0.12, 0.88);
+      const curve = tourPaths[i]!;
+      curve.getPointAt(u, cur.current.eye);
+      curve.getPointAt(Math.min(1, u + 0.05), _ahead);
+      _dir.subVectors(_ahead, cur.current.eye).setY(0);
+      if (_dir.lengthSq() > 1e-6) _ahead.copy(cur.current.eye).addScaledVector(_dir.normalize(), 2).setY(cur.current.eye.y - 0.1);
+      _eye.set(...STATIONS[TOUR[i]!.station].look);
+      _look.set(...STATIONS[TOUR[i + 1]!.station].look);
+      const settle = MathUtils.smoothstep(u, 0.6, 1);
+      const leave = 1 - MathUtils.smoothstep(u, 0, 0.35);
+      if (u <= 0.0001) cur.current.look.copy(_eye);
+      else if (u >= 0.9999) cur.current.look.copy(_look);
+      else cur.current.look.copy(_ahead).lerp(_eye, leave * (1 - settle)).lerp(_look, settle);
+      at.current = TOUR[Math.round(p)]!.station;
+      camera.position.copy(cur.current.eye);
+      const walking = Math.abs(s.tourTarget - p) > 0.004;
+      if (!T.drag) {
+        T.vyaw *= Math.exp(-dt * 3);
+        T.yaw += T.vyaw;
+        if (walking) {
+          T.yaw = Math.atan2(Math.sin(T.yaw), Math.cos(T.yaw)) * Math.exp(-dt * 2.5);
+          T.pitch *= Math.exp(-dt * 2.5);
+        }
+      }
+      aim(camera, cur.current.eye, cur.current.look, T.yaw, T.pitch);
+      camState.moving = walking || !!T.drag || Math.abs(T.vyaw) > 1e-4;
+      return;
+    }
+
+    // Vision mode: be in the living room (walking back if the tour left the camera elsewhere).
+    // The walk back keeps to real time even on slow frames, so it always ends.
+    const dtr = Math.min(delta, 0.25);
+    if (wasTour.current) {
+      wasTour.current = false;
+      T.drag = null;
+    }
+    if (at.current !== 'living' && walk.current?.to !== 'living') {
+      const { curve, length } = walkPath(cur.current.eye, at.current, 'living');
+      walk.current = { curve, t: 0, dur: MathUtils.clamp(length / WALK_SPEED, 2.6, MAX_WALK), fromLook: cur.current.look.clone(), to: 'living' };
+    }
+    const w = walk.current;
+    if (w) {
+      w.t = Math.min(1, w.t + dtr / w.dur);
+      const e = ease(w.t);
+      w.curve.getPointAt(e, cur.current.eye);
+      w.curve.getPointAt(Math.min(1, e + 0.06), _ahead);
+      _dir.subVectors(_ahead, cur.current.eye).setY(0);
+      if (_dir.lengthSq() > 1e-6) _ahead.copy(cur.current.eye).addScaledVector(_dir.normalize(), 2).setY(cur.current.eye.y - 0.1);
+      else _ahead.copy(cur.current.look);
+      const settle = MathUtils.smoothstep(e, 0.55, 1);
+      const leave = 1 - MathUtils.smoothstep(e, 0, 0.2);
+      cur.current.look.copy(_ahead).lerp(w.fromLook, leave * (1 - settle)).lerp(HOME_LOOK, settle);
+      if (w.t >= 1) {
+        at.current = 'living';
+        walk.current = null;
+      }
+    } else {
+      cur.current.eye.lerp(HOME_EYE, 1 - Math.exp(-dtr * 3));
+      cur.current.look.lerp(HOME_LOOK, 1 - Math.exp(-dtr * 3));
+    }
+    // Turn back to the room's view if the visitor had looked around.
+    T.yaw = Math.atan2(Math.sin(T.yaw), Math.cos(T.yaw)) * Math.exp(-dtr * 3);
+    T.pitch *= Math.exp(-dtr * 3);
+    T.vyaw = 0;
+    camera.position.copy(cur.current.eye);
+    aim(camera, cur.current.eye, cur.current.look, T.yaw, T.pitch);
+    const still = !w && cur.current.eye.distanceToSquared(HOME_EYE) < 1e-6 && cur.current.look.distanceToSquared(HOME_LOOK) < 1e-6 && Math.abs(T.yaw) < 1e-4 && Math.abs(T.pitch) < 1e-4;
+    if (still) {
+      // Arrived: stand exactly on the pose; nothing more to draw.
+      cur.current.eye.copy(HOME_EYE);
+      cur.current.look.copy(HOME_LOOK);
+      T.yaw = 0;
+      T.pitch = 0;
+      camera.position.copy(HOME_EYE);
+      camera.lookAt(HOME_LOOK);
+    }
+    camState.moving = !still;
+  });
   return null;
 }
 
 /**
- * Keeps the room's clickable points on their objects. The camera is still, so this only has to
- * run when a frame is drawn (after a resize, or when points appear).
+ * Keeps the room's clickable points on their objects. While the camera walks between rooms they
+ * would float over walls, so they show once it has settled.
  */
 const _hp = new Vector3();
 const _fwd = new Vector3();
+const _last = new Vector3();
 const BY_ID = new Map(HOTSPOTS.map((h) => [h.id, h]));
 function HotspotProjector() {
-  useFrame(({ camera, size }) => {
+  const still = useRef(0);
+  useFrame(({ camera, size }, delta) => {
     if (!hotspotEls.size) return;
+    const moved = camera.position.distanceTo(_last) > 0.012;
+    _last.copy(camera.position);
+    still.current = moved ? 0 : still.current + delta;
+    const settled = still.current > 0.25;
     camera.getWorldDirection(_fwd);
     hotspotEls.forEach((el, id) => {
       const h = BY_ID.get(id);
@@ -137,7 +310,7 @@ function HotspotProjector() {
       _hp.set(...h.pos);
       const ahead = _hp.clone().sub(camera.position).normalize().dot(_fwd);
       _hp.project(camera);
-      const show = ahead > 0.15 && Math.abs(_hp.x) < 0.94 && Math.abs(_hp.y) < 0.9;
+      const show = settled && ahead > 0.15 && Math.abs(_hp.x) < 0.94 && Math.abs(_hp.y) < 0.9;
       el.style.opacity = show ? '1' : '0';
       el.style.pointerEvents = show ? 'auto' : 'none';
       el.style.transform = `translate(${((_hp.x + 1) / 2) * size.width}px, ${((1 - _hp.y) / 2) * size.height}px) translate(-50%, -50%)`;
@@ -227,7 +400,8 @@ function Ready({ onReady }: { onReady: () => void }) {
 }
 
 /**
- * Draws the house only when something in it changes. The room is still, so most of the time
+ * Draws the house only when something in it changes. In the house tour (and while the camera
+ * walks back) it draws every frame; in vision mode the room is still, so most of the time
  * nothing is drawn at all and the computer is free for the glass windows in front of it. A new
  * frame is asked for when the light changes (day, golden hour, night: a few seconds while it
  * fades), when the room's glowing points appear, and once after the visitor arrives.
@@ -239,7 +413,8 @@ function RenderPacer() {
     let raf = 0;
     const loop = () => {
       raf = 0;
-      if (performance.now() > until) return;
+      // Every frame in the tour and while the camera walks; otherwise only for a short burst.
+      if (performance.now() > until && !camState.moving && !spatial.get().tour) return;
       get().invalidate();
       raf = requestAnimationFrame(loop);
     };

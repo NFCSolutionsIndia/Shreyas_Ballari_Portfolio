@@ -368,7 +368,7 @@ export function ControlCenter({ voice, hands, setHands, replayIntro }: { voice: 
     { k: 'Voice', on: voice.listening, icon: Microphone, act: () => (spatial.set({ control: false }), voice.listening ? voice.stop() : voice.start()) },
     { k: 'Hands', on: hands, icon: HandWaving, act: () => setHands(!hands) },
     { k: 'Profile', on: false, icon: UserCircle, act: () => (spatial.set({ control: false }), spatial.openWindow('profile')) },
-    { k: 'Story tour', on: false, icon: MapTrifold, act: () => (spatial.set({ control: false }), replayIntro()) },
+    { k: 'House tour', on: false, icon: MapTrifold, act: () => (spatial.set({ control: false }), replayIntro()) },
     { k: auto ? 'Stop reading' : 'Read apps aloud', on: auto, icon: Play, act: () => (auto ? spatial.pause() : spatial.play()) },
     // The toolbar's other actions, so on phones this one panel holds every control.
     { k: 'Home View', on: false, icon: SquaresFour, act: () => spatial.set({ control: false, homeView: true }) },

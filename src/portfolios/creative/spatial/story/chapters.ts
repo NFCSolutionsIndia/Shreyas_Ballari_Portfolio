@@ -3,7 +3,7 @@ import { ChartLineUp, ChatsCircle, Dna, GameController, Guitar, SquaresFour, Tro
 
 /**
  * The apps of Shreyas's spatial home (the rail on the left, the Home View, voice and the guided
- * tour all use this list). Each app has the house station it belongs to (used by the story tour)
+ * tour all use this list). Each app has the house station it belongs to (used by the house tour)
  * and what the narrator says when you open it. Every fact comes from the family's brief (content/portfolio.ts).
  */
 

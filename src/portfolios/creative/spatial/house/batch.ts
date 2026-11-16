@@ -126,6 +126,11 @@ export function lighten(scene: Object3D & { background?: unknown }) {
   if (bg?.isTexture) slim(bg as never, 2048);
 }
 
+/** Merges the still objects of one group (a room loaded later); returns the draw requests saved. */
+export function batchGroup(group: Object3D) {
+  return batchIn(group);
+}
+
 /** Merges the still objects of the whole house; returns how many draw requests it saved. */
 export function batchStatic(scene: Object3D) {
   let saved = 0;

@@ -7,10 +7,10 @@ import { TOUR } from '../story/tour';
 import { playUi, spatial, useSpatial } from '../store';
 
 /**
- * The story tour overlay. The living room stays still behind it. Left: the stops of his story
- * (tap one to jump there). Right: a glass card that tells that part of the story, and changes
- * into the details of anything you tap (in the living room, the glowing points sit on real
- * objects).
+ * The house tour overlay. Left: the rooms (tap one to walk there). Right: a glass card that tells
+ * the story of the room you are in, and changes into the details of anything you tap in the room
+ * (the glowing points sit on real objects: certificates, the trophy, the hologram, the guitars…),
+ * or on the buttons on the card. The room stays visible behind everything.
  *
  * On phones the card would cover the whole house, so it starts closed: a small bar names the
  * room, and the card opens only when the visitor taps a glowing point or "About this room".
@@ -91,7 +91,8 @@ export function Tour() {
   const count = spots.length;
   /** Only the living room is drawn (the camera stays there), so only its points sit on objects;
       every other stop lists its things as buttons on the card. */
-  const here = stop.station === 'living' || stop.station === 'sofa';
+  const roomsReady = useSpatial((s) => s.roomsReady);
+  const here = roomsReady || stop.station === 'living' || stop.station === 'sofa' || stop.station === 'entry';
 
   // A new room closes any open details.
   useEffect(() => {
@@ -119,7 +120,12 @@ export function Tour() {
   return (
     <div className="tour">
       <header className="tour-top">
-        <span className="tour-badge">Story tour</span>
+        <span className="tour-badge">House tour</span>
+        {!roomsReady && (
+          <span className="tour-badge is-loading" role="status">
+            Opening the other rooms…
+          </span>
+        )}
         <button type="button" className="tour-skip" data-voice="skip tour" onClick={() => spatial.endTour('home')}>
           Skip to dashboard <X weight="bold" aria-hidden="true" />
         </button>
@@ -128,7 +134,7 @@ export function Tour() {
       {here && <RoomPoints station={stop.station} open={spot?.id ?? null} onOpen={openSpot} />}
 
       {/* Rooms, on the left */}
-      <nav className="tour-rooms" aria-label="Story">
+      <nav className="tour-rooms" aria-label="Rooms">
         <button type="button" className="tour-arrow" aria-label="Previous" disabled={at === 0} onClick={() => spatial.tourStep(-1, TOUR.length)}>
           <ArrowUp weight="bold" />
         </button>
@@ -252,7 +258,7 @@ export function Tour() {
       </div>
       {at === 0 && (
         <p className="tour-hint">
-          <span className="tour-mouse" aria-hidden="true" /> Scroll or use the arrows to move through his story
+          <span className="tour-mouse" aria-hidden="true" /> Scroll to walk room to room · drag to look around
         </p>
       )}
     </div>

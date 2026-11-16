@@ -2305,3 +2305,11 @@
 .sp .sp-voiceask small {
   color: #4a4e59;
 }
+
+/* The house tour while the other rooms are still being opened. */
+.tour-badge.is-loading {
+  margin-left: 8px;
+  background: rgba(24, 26, 34, 0.75);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
