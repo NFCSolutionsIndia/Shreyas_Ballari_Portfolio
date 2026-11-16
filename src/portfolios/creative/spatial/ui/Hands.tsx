@@ -70,7 +70,7 @@ export function Hands({ on, onOff }: { on: boolean; onOff: () => void }) {
       lx: number;
       ly: number;
       moved: boolean;
-      mode: 'tap' | 'drag' | 'scroll' | 'look' | 'tour';
+      mode: 'tap' | 'drag' | 'scroll' | 'tour';
       box: HTMLElement | null;
     } = null;
 
@@ -132,7 +132,6 @@ export function Hands({ on, onOff }: { on: boolean; onOff: () => void }) {
           c.style.transform = `translate3d(${x}px, ${y}px, 0) scale(0.7)`;
           if (pinch.moved) {
             if (pinch.mode === 'drag' && pinch.el) fire('pointermove', pinch.el, x, y);
-            else if (pinch.mode === 'look') fire('pointermove', document, x, y);
             else if (pinch.mode === 'scroll' && pinch.box) pinch.box.scrollTop -= (y - pinch.ly) * 1.6;
             else if (pinch.mode === 'tour') {
               const s = spatial.get();
@@ -149,7 +148,6 @@ export function Hands({ on, onOff }: { on: boolean; onOff: () => void }) {
           const p = pinch;
           pinch = null;
           if (p.mode === 'drag' && p.el) fire('pointerup', p.el, p.lx, p.ly);
-          else if (p.mode === 'look') fire('pointerup', document, p.lx, p.ly);
           else if (p.mode === 'tour') spatial.set({ tourTarget: Math.round(spatial.get().tourTarget) });
           else if (!p.moved) {
             if (p.el) select(p.el, p.x, p.y);
@@ -198,14 +196,12 @@ export function Hands({ on, onOff }: { on: boolean; onOff: () => void }) {
           const y = aim.y;
           const hit = document.elementFromPoint(x, y);
           const el = hit?.closest(TARGETS) ?? null;
-          let mode: 'tap' | 'drag' | 'scroll' | 'look' | 'tour' = 'tap';
+          let mode: 'tap' | 'drag' | 'scroll' | 'tour' = 'tap';
           if (el?.matches('[data-drag]')) mode = 'drag';
-          else if (!el && s.look360) mode = 'look';
           else if (!el && s.tour) mode = 'tour';
           dwell = null;
           pinch = { el, x, y, gx: NaN, gy: NaN, lx: x, ly: y, moved: false, mode, box: el ? null : scroller(hit ?? null) };
           if (mode === 'drag' && el) fire('pointerdown', el, x, y);
-          if (mode === 'look') fire('pointerdown', document.body, x, y);
           return;
         }
         if (e.type === 'swipe') {

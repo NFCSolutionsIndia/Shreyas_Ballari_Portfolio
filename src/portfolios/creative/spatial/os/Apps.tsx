@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
-  Footprints,
   ArrowClockwise,
   CornersOut,
   SquaresFour,
@@ -14,7 +13,6 @@ import {
   Flask,
   FirstAid,
   Flower,
-  Globe,
   MapTrifold,
   Guitar,
   HandFist,
@@ -38,7 +36,6 @@ import { createGuitar, TRACKS, type GuitarEngine, type GuitarState, type TrackId
 import { CHAPTERS } from '../story/chapters';
 import { speak } from '../story/narrator';
 import { appCalcTexture, appDashboardTexture, appStockTexture } from '../house/Story3D';
-import { GamesHub } from './games/Games';
 import { playUi, spatial, useSpatial } from '../store';
 import { askAI } from './Dashboard';
 import { envNow } from './localTime';
@@ -72,11 +69,21 @@ const SCREENS = [
   { k: 'Calculator', alt: 'Concept screen: the AI amount and timing calculator', line: 'AI calculators for the best amount to buy and when to buy or sell. Hypothetical, not financial advice.' },
 ];
 
+/** The concept screens, drawn once and kept (drawing and encoding them takes a moment). */
+let shotCache: string[] | null = null;
+function financeShots() {
+  shotCache ??= [appDashboardTexture(), appStockTexture(), appCalcTexture()].map((t) => {
+    const url = (t.image as HTMLCanvasElement).toDataURL('image/jpeg', 0.88);
+    t.dispose();
+    return url;
+  });
+  return shotCache;
+}
+
 export function FinanceApp() {
   const img = storyById('finance')!.image;
   const [screen, setScreen] = useState(0);
-  // The same concept screens as on the monitors in his R&D room.
-  const shots = useMemo(() => [appDashboardTexture(), appStockTexture(), appCalcTexture()].map((t) => (t.image as HTMLCanvasElement).toDataURL('image/jpeg', 0.88)), []);
+  const shots = financeShots();
   return (
     <div className="os-scene fi">
       <section className="os-pane is-side is-left fi-how" style={st(1)}>
@@ -140,10 +147,15 @@ export function FinanceApp() {
 
 // --- Games --------------------------------------------------------------------------------------
 
+/** The games (and their sounds) are downloaded the first time Games is opened. */
+const GamesHub = lazy(() => import('./games/Games').then((m) => ({ default: m.GamesHub })));
+
 export function GamesApp() {
   return (
     <div className="os-scene gm">
-      <GamesHub />
+      <Suspense fallback={<p className="os-loading" role="status">Opening the games…</p>}>
+        <GamesHub />
+      </Suspense>
     </div>
   );
 }
@@ -195,14 +207,16 @@ function Visualizer({ analyser, on }: { analyser: () => AnalyserNode | null; on:
     const bars = ref.current ? [...ref.current.children] as HTMLElement[] : [];
     let raf = 0;
     const data = new Uint8Array(64);
+    // Moves only while music plays; otherwise the bars rest in a gentle wave (no redraws).
     const tick = () => {
       const a = analyser();
-      if (a && on) a.getByteFrequencyData(data);
+      const live = !!a && on;
+      if (live) a.getByteFrequencyData(data);
       bars.forEach((b, i) => {
-        const v = a && on ? data[2 + i]! / 255 : 0.08 + Math.sin(performance.now() / 600 + i * 0.5) * 0.04;
+        const v = live ? data[2 + i]! / 255 : 0.08 + Math.sin(i * 0.5) * 0.04;
         b.style.transform = `scaleY(${Math.max(0.04, v)})`;
       });
-      raf = requestAnimationFrame(tick);
+      if (on) raf = requestAnimationFrame(tick);
     };
     tick();
     return () => cancelAnimationFrame(raf);
@@ -334,12 +348,6 @@ export function HomeView() {
             </button>
           );
         })}
-        <button type="button" className="os-hv-app" style={st(CHAPTERS.length + 1)} data-voice="360 view" onClick={() => spatial.set({ homeView: false, look360: true })}>
-          <span className="os-hv-ico" style={{ '--tint': '#2a9d8f' } as CSSProperties}>
-            <Globe weight="fill" aria-hidden="true" />
-          </span>
-          <small>360° view</small>
-        </button>
       </div>
       <p className="os-hv-hint">Pick an app, or say its name</p>
     </div>
@@ -354,18 +362,15 @@ export function ControlCenter({ voice, hands, setHands, replayIntro }: { voice: 
   const narrate = useSpatial((s) => s.narrate);
   const sound = useSpatial((s) => s.sound);
   const auto = useSpatial((s) => s.auto);
-  const look360 = useSpatial((s) => s.look360);
   const tiles = [
     { k: 'Narrator', on: narrate, icon: ClosedCaptioning, act: () => spatial.setNarrate(!narrate) },
     { k: 'Sound', on: sound, icon: sound ? SpeakerHigh : SpeakerSimpleSlash, act: () => spatial.set({ sound: !sound }) },
     { k: 'Voice', on: voice.listening, icon: Microphone, act: () => (spatial.set({ control: false }), voice.listening ? voice.stop() : voice.start()) },
     { k: 'Hands', on: hands, icon: HandWaving, act: () => setHands(!hands) },
-    { k: '360° view', on: look360, icon: Globe, act: () => spatial.set({ look360: !look360, control: false }) },
     { k: 'Profile', on: false, icon: UserCircle, act: () => (spatial.set({ control: false }), spatial.openWindow('profile')) },
-    { k: 'House tour', on: false, icon: MapTrifold, act: () => (spatial.set({ control: false }), replayIntro()) },
+    { k: 'Story tour', on: false, icon: MapTrifold, act: () => (spatial.set({ control: false }), replayIntro()) },
     { k: auto ? 'Stop reading' : 'Read apps aloud', on: auto, icon: Play, act: () => (auto ? spatial.pause() : spatial.play()) },
     // The toolbar's other actions, so on phones this one panel holds every control.
-    { k: 'Walk freely', on: false, icon: Footprints, act: () => (spatial.set({ control: false }), spatial.startWalk()) },
     { k: 'Home View', on: false, icon: SquaresFour, act: () => spatial.set({ control: false, homeView: true }) },
     {
       k: 'Full view',

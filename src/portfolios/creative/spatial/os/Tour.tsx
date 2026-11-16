@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ChatsCircle, Footprints, HandPointing, Info, Play, SpeakerHigh, SquaresFour, X } from '@phosphor-icons/react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ChatsCircle, HandPointing, Info, Play, SpeakerHigh, SquaresFour, X } from '@phosphor-icons/react';
 import { HOTSPOTS, hotspotEls, type Hotspot } from '../house/hotspots';
 import { CHAPTERS } from '../story/chapters';
 import { speak, stopSpeaking } from '../story/narrator';
@@ -7,10 +7,10 @@ import { TOUR } from '../story/tour';
 import { playUi, spatial, useSpatial } from '../store';
 
 /**
- * The house tour overlay. Left: the rooms (tap one to walk there). Right: a glass card that tells
- * the story of the room you are in, and changes into the details of anything you tap in the room
- * (the glowing points sit on real objects: certificates, the trophy, the hologram, the guitars…).
- * The room stays visible behind everything.
+ * The story tour overlay. The living room stays still behind it. Left: the stops of his story
+ * (tap one to jump there). Right: a glass card that tells that part of the story, and changes
+ * into the details of anything you tap (in the living room, the glowing points sit on real
+ * objects).
  *
  * On phones the card would cover the whole house, so it starts closed: a small bar names the
  * room, and the card opens only when the visitor taps a glowing point or "About this room".
@@ -21,6 +21,10 @@ const isPhone = () => typeof window !== 'undefined' && window.matchMedia('(max-w
 
 export function RoomPoints({ station, open, onOpen }: { station: string | null; open: string | null; onOpen: (h: Hotspot) => void }) {
   const points = station ? HOTSPOTS.filter((h) => h.station === station) : HOTSPOTS;
+  // Ask the 3D view for a frame so the points are placed on their objects.
+  useEffect(() => {
+    if (points.length) window.dispatchEvent(new Event('sp-points'));
+  }, [points.length, station]);
   return (
     <div className="tour-points" aria-label="Things to explore in this room">
       {points.map((h, i) => (
@@ -49,12 +53,7 @@ export function RoomPoints({ station, open, onOpen }: { station: string | null; 
 export function goSpot(h: Hotspot) {
   if (h.ask) spatial.set({ bubble: true });
   else if (h.video) spatial.set({ video: true });
-  else if (h.app) {
-    if (spatial.get().walk) {
-      spatial.endWalk();
-      spatial.goChapter(h.app.id);
-    } else spatial.endTour(h.app.id);
-  }
+  else if (h.app) spatial.endTour(h.app.id);
 }
 
 export function SpotAction({ spot, onGo }: { spot: Hotspot; onGo: (h: Hotspot) => void }) {
@@ -88,7 +87,11 @@ export function Tour() {
   const stop = TOUR[at]!;
   const last = at === TOUR.length - 1;
   const app = stop.app ? CHAPTERS.find((c) => c.id === stop.app) : undefined;
-  const count = HOTSPOTS.filter((h) => h.station === stop.station).length;
+  const spots = HOTSPOTS.filter((h) => h.station === stop.station);
+  const count = spots.length;
+  /** Only the living room is drawn (the camera stays there), so only its points sit on objects;
+      every other stop lists its things as buttons on the card. */
+  const here = stop.station === 'living' || stop.station === 'sofa';
 
   // A new room closes any open details.
   useEffect(() => {
@@ -116,33 +119,30 @@ export function Tour() {
   return (
     <div className="tour">
       <header className="tour-top">
-        <span className="tour-badge">House tour</span>
+        <span className="tour-badge">Story tour</span>
         <button type="button" className="tour-skip" data-voice="skip tour" onClick={() => spatial.endTour('home')}>
           Skip to dashboard <X weight="bold" aria-hidden="true" />
         </button>
-        <button type="button" className="tour-skip" data-voice="walk freely" onClick={() => spatial.startWalk()}>
-          <Footprints weight="fill" aria-hidden="true" /> Walk freely
-        </button>
       </header>
 
-      <RoomPoints station={stop.station} open={spot?.id ?? null} onOpen={openSpot} />
+      {here && <RoomPoints station={stop.station} open={spot?.id ?? null} onOpen={openSpot} />}
 
       {/* Rooms, on the left */}
-      <nav className="tour-rooms" aria-label="Rooms">
-        <button type="button" className="tour-arrow" aria-label="Previous room" disabled={at === 0} onClick={() => spatial.tourStep(-1, TOUR.length)}>
+      <nav className="tour-rooms" aria-label="Story">
+        <button type="button" className="tour-arrow" aria-label="Previous" disabled={at === 0} onClick={() => spatial.tourStep(-1, TOUR.length)}>
           <ArrowUp weight="bold" />
         </button>
         <ol>
           {TOUR.map((t, i) => (
             <li key={t.station}>
-              <button type="button" className={i === at ? 'is-on' : i < at ? 'is-past' : ''} aria-current={i === at ? 'step' : undefined} data-voice={t.room} onClick={() => spatial.set({ tourTarget: i })}>
+              <button type="button" className={i === at ? 'is-on' : i < at ? 'is-past' : ''} aria-current={i === at ? 'step' : undefined} data-voice={t.room} onClick={() => spatial.tourTo(i, TOUR.length)}>
                 <i aria-hidden="true" />
                 <span>{t.room}</span>
               </button>
             </li>
           ))}
         </ol>
-        <button type="button" className="tour-arrow" aria-label="Next room" disabled={last} onClick={() => spatial.tourStep(1, TOUR.length)}>
+        <button type="button" className="tour-arrow" aria-label="Next" disabled={last} onClick={() => spatial.tourStep(1, TOUR.length)}>
           <ArrowDown weight="bold" />
         </button>
       </nav>
@@ -181,7 +181,7 @@ export function Tour() {
         <div className="tour-mini" role="status">
           <span>
             <b>{stop.room}</b>
-            <small>{count > 0 ? `Tap the ${count} glowing point${count > 1 ? 's' : ''} to explore` : `${at + 1} of ${TOUR.length}`}</small>
+            <small>{count > 0 ? `${count} thing${count > 1 ? 's' : ''} to explore` : `${at + 1} of ${TOUR.length}`}</small>
           </span>
           <button type="button" className="tour-go" data-voice="about this room" onClick={() => setInfo(true)}>
             <Info weight="bold" aria-hidden="true" /> About
@@ -215,9 +215,18 @@ export function Tour() {
             )}
           </div>
           {count > 0 && (
-            <p className="tour-explore">
-              <HandPointing weight="fill" aria-hidden="true" /> Tap the {count} glowing point{count > 1 ? 's' : ''} in this room to explore
-            </p>
+            <div className="tour-explore">
+              <span>
+                <HandPointing weight="fill" aria-hidden="true" /> Explore
+              </span>
+              <div className="tour-chips">
+                {spots.map((h) => (
+                  <button key={h.id} type="button" className="tour-chip" style={{ '--tint': h.tint ?? '#fff' } as CSSProperties} data-voice={h.label} onClick={() => openSpot(h)}>
+                    {h.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
           <footer className="tour-actions">
             <button type="button" className="os-round" aria-label="Read this room aloud" onClick={() => speak(`${stop.title}. ${stop.text}`)}>
@@ -243,7 +252,7 @@ export function Tour() {
       </div>
       {at === 0 && (
         <p className="tour-hint">
-          <span className="tour-mouse" aria-hidden="true" /> Scroll to walk room to room · drag to look around 360°
+          <span className="tour-mouse" aria-hidden="true" /> Scroll or use the arrows to move through his story
         </p>
       )}
     </div>

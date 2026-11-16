@@ -1,12 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Footprints, CaretLeft, CaretRight, Globe, HandWaving, MapTrifold, Microphone, MicrophoneSlash, SlidersHorizontal, SpeakerHigh, SpeakerSlash, SquaresFour, VirtualReality, X } from '@phosphor-icons/react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { CaretLeft, CaretRight, HandWaving, MapTrifold, Microphone, MicrophoneSlash, SlidersHorizontal, SpeakerHigh, SpeakerSlash, SquaresFour, VirtualReality } from '@phosphor-icons/react';
 import { useVoice } from '@/features/voice/useVoice';
 import { CHAPTERS } from '../story/chapters';
 import { playUi, spatial, useSpatial } from '../store';
 import { ActivitiesApp, ControlCenter, FinanceApp, GamesApp, HomeView } from '../os/Apps';
-import { OncureApp } from '../os/OncureApp';
-import { AwardsFlow } from '../os/Awards';
-import { Chat } from '../os/Chat';
 import { Dashboard } from '../os/Dashboard';
 import { ProfileWindow } from '../os/Profile';
 import { OSWindow } from '../os/Window';
@@ -14,7 +11,6 @@ import { envNow } from '../os/localTime';
 import { ChatBubble } from '../os/ChatBubble';
 import { Tour } from '../os/Tour';
 import { VideoOverlay } from '../os/VideoOverlay';
-import { Walk } from '../os/Walk';
 import { runCommand } from './commands';
 import { Hands } from './Hands';
 import { VoiceControl } from './VoiceControl';
@@ -26,6 +22,36 @@ import { VoiceControl } from './VoiceControl';
  * Mouse, touch, keyboard, voice and hands all drive the same actions.
  */
 
+/**
+ * The bigger apps are downloaded the first time they are opened (the browser keeps them after
+ * that), so the home opens faster. A moment after the home is ready they are fetched quietly in
+ * the background, so most visitors never wait for them.
+ */
+const loadOncure = () => import('../os/OncureApp');
+const loadAwards = () => import('../os/Awards');
+const loadChat = () => import('../os/Chat');
+const OncureApp = lazy(() => loadOncure().then((m) => ({ default: m.OncureApp })));
+const AwardsFlow = lazy(() => loadAwards().then((m) => ({ default: m.AwardsFlow })));
+const Chat = lazy(() => loadChat().then((m) => ({ default: m.Chat })));
+export function prefetchApps() {
+  void loadOncure().catch(() => {});
+  void loadAwards().catch(() => {});
+  void loadChat().catch(() => {});
+  void import('../os/games/Games').catch(() => {});
+}
+
+/** Shown for the moment an app is still downloading. */
+export function AppLoading() {
+  return (
+    <div className="os-loading" role="status">
+      <i aria-hidden="true" />
+      <i aria-hidden="true" />
+      <i aria-hidden="true" />
+      <span>Opening…</span>
+    </div>
+  );
+}
+
 function AppBody({ id, expanded, setExpanded }: { id: string; expanded: string | null; setExpanded: (v: string | null) => void }) {
   const apps: Record<string, () => ReactNode> = {
     home: () => <Dashboard />,
@@ -36,7 +62,7 @@ function AppBody({ id, expanded, setExpanded }: { id: string; expanded: string |
     games: () => <GamesApp />,
     activities: () => <ActivitiesApp />,
   };
-  return <>{apps[id]?.()}</>;
+  return <Suspense fallback={<AppLoading />}>{apps[id]?.()}</Suspense>;
 }
 
 /** The app window: deals the new app in, sweeps the previous one out. */
@@ -115,15 +141,13 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
   const chapter = useSpatial((s) => s.chapter);
   const dir = useSpatial((s) => s.dir);
   const tour = useSpatial((s) => s.tour);
-  const walking = useSpatial((s) => s.walk);
-  /** The apps are tucked into the corner button (in the tour or while walking). */
-  const apps = tour || walking;
+  /** The apps are tucked into the corner button during the tour. */
+  const apps = tour;
   const toast = useSpatial((s) => s.toast);
   const dock = useSpatial((s) => s.dock);
   const windows = useSpatial((s) => s.windows);
   const homeView = useSpatial((s) => s.homeView);
   const control = useSpatial((s) => s.control);
-  const look360 = useSpatial((s) => s.look360);
   const envAuto = useSpatial((s) => s.envAuto);
   const narrate = useSpatial((s) => s.narrate);
   const [hands, setHands] = useState(false);
@@ -144,12 +168,6 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
   }, [tour]);
   /** The corner button: swallow the apps and start the tour, or let them back out. */
   const tourButton = () => {
-    if (walking) {
-      // Walking: the apps are tucked away, so this button lets them out again.
-      spatial.endWalk();
-      playUi('open');
-      return;
-    }
     if (tour) {
       spatial.endTour(CHAPTERS[spatial.get().chapter]?.id ?? 'home');
       return;
@@ -171,6 +189,12 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
     setVoiceResult(did ?? 'Not sure what to do. Try “what can I say”');
   });
   const voiceMode = { ...voice, listening: voiceOn, start: () => setVoiceOn(true), stop: () => setVoiceOn(false) };
+  // Fetch the bigger apps quietly once the home is on screen.
+  useEffect(() => {
+    const w = window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void };
+    const t = window.setTimeout(() => (w.requestIdleCallback ? w.requestIdleCallback(prefetchApps, { timeout: 4000 }) : prefetchApps()), 3000);
+    return () => window.clearTimeout(t);
+  }, []);
   // The light follows the real time of day (checked every minute) until the visitor picks one.
   useEffect(() => {
     if (!envAuto) return;
@@ -197,7 +221,7 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
   const c = CHAPTERS[chapter]!;
   const I = c.icon;
   return (
-    <div className={`sp-ui ${look360 ? 'is-360' : ''} ${tour ? 'is-touring' : ''} is-${genie} ${walking ? 'is-walking' : ''}`}>
+    <div className={`sp-ui ${tour ? 'is-touring' : ''} is-${genie}`}>
       <div className="sp-apps">
       {/* Capsule */}
       <nav className="sp-capsule" aria-label="Apps">
@@ -243,20 +267,20 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
       {/* The AI is always one tap away, in the tour too. */}
       <ChatBubble />
 
-      {/* The tour button: draws the apps in and walks you through the house; then lets them out. */}
+      {/* The tour button: draws the apps in and tells his story card by card; then lets them out. */}
       <button
         type="button"
-        className={`sp-tourbtn ${tour || walking ? 'is-tour' : ''} ${genie === 'swallowing' ? 'is-gulp' : ''}`}
-        aria-label={apps ? 'Back to the apps' : 'Take the house tour'}
-        data-voice={apps ? 'vision apps' : 'house tour'}
+        className={`sp-tourbtn ${tour ? 'is-tour' : ''} ${genie === 'swallowing' ? 'is-gulp' : ''}`}
+        aria-label={apps ? 'Back to the apps' : 'Take the story tour'}
+        data-voice={apps ? 'vision apps' : 'story tour'}
         onClick={tourButton}
       >
         <span className="sp-tourbtn-ico" key={apps ? 'apps' : 'tour'}>
           {apps ? <VirtualReality weight="fill" /> : <MapTrifold weight="fill" />}
         </span>
         <span className="sp-tourbtn-text" key={apps ? 'a' : 't'}>
-          <b>{apps ? 'Vision apps' : 'House tour'}</b>
-          <small>{apps ? 'Bring the apps back' : 'Walk through his home'}</small>
+          <b>{apps ? 'Vision apps' : 'Story tour'}</b>
+          <small>{apps ? 'Bring the apps back' : 'His story, step by step'}</small>
         </span>
       </button>
 
@@ -311,14 +335,6 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
           <HandWaving weight={hands ? 'fill' : 'bold'} />
           <span className="sp-mode-label">Hands</span>
         </button>
- <button type="button" className={`sp-icon-btn ${look360 ? 'is-on' : ''}`} aria-pressed={look360} aria-label="360 degree view" data-voice="360 view" onClick={() => spatial.set({ look360: !look360, control: false, homeView: false })}>
-          <Globe weight={look360 ? 'fill' : 'bold'} />
-          <span className="sp-mode-label">360° view</span>
-        </button>
-        <button type="button" className={`sp-icon-btn ${walking ? 'is-on' : ''}`} aria-pressed={walking} aria-label={walking ? 'Stop walking' : 'Walk freely through the house'} title="Walk (W A S D)" data-voice="walk" onClick={() => (walking ? spatial.endWalk() : spatial.startWalk())}>
-          <Footprints weight={walking ? 'fill' : 'bold'} />
-          <span className="sp-mode-label">Walk</span>
-        </button>
         <button type="button" data-cc-toggle="" className={`sp-icon-btn ${control ? 'is-on' : ''}`} aria-pressed={control} aria-label="Control Center" data-voice="control center" onClick={() => spatial.set({ control: !control, homeView: false })}>
           <SlidersHorizontal weight="bold" />
           <span className="sp-cc-label">Controls</span>
@@ -336,20 +352,7 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
         </p>
       )}
 
-      {look360 && (
-        <div className="sp-360-bar" role="status">
-          <Globe weight="fill" aria-hidden="true" />
-          <span>
-            <b>360° view</b>
-            <small>Drag to look all the way round</small>
-          </span>
-          <button type="button" className="os-round is-sm" aria-label="Exit 360 degree view" data-voice="exit 360" onClick={() => spatial.set({ look360: false })}>
-            <X weight="bold" />
-          </button>
-        </div>
-      )}
       {tour && <Tour />}
-      {walking && <Walk />}
       <VideoOverlay />
 
       <Hands on={hands} onOff={() => setHands(false)} />

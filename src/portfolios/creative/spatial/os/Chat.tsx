@@ -33,7 +33,13 @@ function Typed({ text }: { text: string }) {
   const [n, setN] = useState(0);
   useEffect(() => {
     setN(0);
-    const id = window.setInterval(() => setN((v) => (v >= text.length ? v : v + 3)), 16);
+    // Types a few letters a frame, and stops its timer once the answer is complete.
+    let shown = 0;
+    const id = window.setInterval(() => {
+      shown = Math.min(text.length, shown + 3);
+      setN(shown);
+      if (shown >= text.length) window.clearInterval(id);
+    }, 16);
     return () => window.clearInterval(id);
   }, [text]);
   return <>{text.slice(0, n)}</>;

@@ -144,7 +144,7 @@ export function StringRhythm() {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target;
       if (t instanceof HTMLElement && (t.isContentEditable || ['INPUT', 'TEXTAREA'].includes(t.tagName))) return;
-      if (spatial.get().walk || spatial.get().tour) return;
+      if (spatial.get().tour) return;
       const i = LANES.findIndex((l) => l.key === e.key.toUpperCase());
       if (i < 0 || e.repeat) return;
       e.preventDefault();

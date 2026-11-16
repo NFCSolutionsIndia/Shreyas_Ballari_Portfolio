@@ -2,9 +2,10 @@ import { achievements, activities, courses, goals, languages, oncure, percentile
 import type { StationName } from './stations';
 
 /**
- * Things you can click in each room of the house: a glowing point on the real object (its
- * position in metres, the same frame as layout.ts) and what it tells you. Every fact comes from
- * content/portfolio.ts. The 3D scene moves the points to where the objects are on screen.
+ * The things to explore at each stop of the story tour, and what each one tells you. Every fact
+ * comes from content/portfolio.ts. The camera stays in the living room, so only the living-room
+ * points sit on real objects (their position in metres, the same frame as layout.ts); the others
+ * appear as buttons on the tour card.
  */
 
 export interface Hotspot {
@@ -134,7 +135,7 @@ export const HOTSPOTS: Hotspot[] = [
     label: 'Oncure video',
     kicker: 'Research & Development',
     title: 'Watch his Oncure video',
-    text: 'His video about Oncure is playing on the wall screen (muted). Open it in full view with sound.',
+    text: 'His short film about Oncure. Open it in full view with sound.',
     video: true,
     tint: PINK,
   },
@@ -254,7 +255,7 @@ export const HOTSPOTS: Hotspot[] = [
     label: 'All awards',
     kicker: 'The gallery',
     title: 'Awards and honours',
-    text: 'Everything in this room, in one list:',
+    text: 'All his awards and honours, in one list:',
     items: achievements.map((a) => `${a.title} · ${a.value}`),
     app: { id: 'awards', label: 'Open the awards' },
     tint: GOLD,

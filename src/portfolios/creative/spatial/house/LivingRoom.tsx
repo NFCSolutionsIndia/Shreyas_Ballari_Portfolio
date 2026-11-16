@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { MeshReflectorMaterial, useTexture } from '@react-three/drei';
+import { useTexture } from '@react-three/drei';
 import { CanvasTexture, Color, MeshStandardMaterial, PointLight, RepeatWrapping, SRGBColorSpace, type Texture } from 'three';
 import { Model } from './Model';
 
@@ -164,14 +164,11 @@ export function LivingRoom({ low = false }: { low?: boolean }) {
   const plasterMat = useMemo(() => new MeshStandardMaterial({ ...plaster, color: new Color('#f6f2ec'), roughness: 0.95, emissive: new Color('#f6f1ea'), emissiveIntensity: 0.06 }), [plaster]);
   return (
     <group>
-      {/* Floor: oak boards with a soft, blurred reflection */}
+      {/* Floor: oak boards with a soft sheen (the sky light gives the reflection; a live mirror
+          would draw the whole room a second time) */}
       <mesh position={[0, 0, (Z0 + Z1) / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[X1 - X0, Z1 - Z0]} />
-        {low ? (
-          <meshStandardMaterial {...floor} roughness={0.7} />
-        ) : (
-          <MeshReflectorMaterial {...floor} blur={[400, 120]} resolution={1024} mixBlur={1} mixStrength={0.22} mirror={0.12} roughness={0.75} depthScale={0.6} minDepthThreshold={0.4} maxDepthThreshold={1.2} metalness={0} />
-        )}
+        <meshStandardMaterial {...floor} roughness={low ? 0.7 : 0.55} envMapIntensity={low ? 1 : 1.2} />
       </mesh>
       {/* Ceiling with linear light strips */}
       <mesh position={[0, CEIL, (Z0 + Z1) / 2]} rotation={[Math.PI / 2, 0, 0]} material={plasterMat}>

@@ -8,7 +8,7 @@ The site has three looks. Visitors switch between them with the tab bar at the b
 
 | Tab | What it is |
 | --- | --- |
-| **Creative** (opens first) | A 3D house to walk through, with glass app cards, voice control and hand control |
+| **Creative** (opens first) | A still 3D living room with glass app windows in front of it, voice control and hand control |
 | **Studio** | A folding phone: it unfolds as you scroll, and his whole story scrolls inside its screen |
 | **Classic** | A scroll film: the hero turns into a card, then Oncure, the trading app, awards and skills |
 
@@ -66,7 +66,7 @@ they are made automatically.
 | The Oncure video | Replace `public/assets/videos/oncure.mp4` |
 | A certificate picture | Add `public/assets/certificates/<award id>.jpg` |
 | Creative: the dashboard cards | `src/portfolios/creative/spatial/os/Dashboard.tsx` |
-| Creative: the house tour text | `src/portfolios/creative/spatial/story/tour.ts` |
+| Creative: the story tour text | `src/portfolios/creative/spatial/story/tour.ts` |
 | Creative: what voice commands do | `src/portfolios/creative/spatial/ui/commands.ts` |
 | Classic: the order and speed of the scroll film | `src/portfolios/classic/flow/timeline.ts` |
 | Classic: the top menu bar | `src/portfolios/classic/flow/Dock.tsx` |

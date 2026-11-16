@@ -16,8 +16,9 @@ import './os/vision.css';
 
 /**
  * Creative: Shreyas's spatial home. Every time it opens (a refresh too) the headset splash plays,
- * then his dashboard floats in a realistic house. The house tour is one tap away on the button
- * in the bottom left corner. Mouse, touch, keyboard, voice and hands all work.
+ * then his dashboard floats in front of a realistic living room, which stays still: every app
+ * opens as a glass window in front of it. The story tour is one tap away on the button in the
+ * bottom left corner. Mouse, touch, keyboard, voice and hands all work.
  */
 
 /**
@@ -88,19 +89,18 @@ export function SpatialPortfolio() {
 
   const startTour = useCallback(() => spatial.startTour(), []);
 
-  // Keyboard, wheel and touch. In the tour they walk through the house; otherwise arrows change
+  // Keyboard, wheel and touch. In the tour they move through the story cards; otherwise arrows change
   // apps, 1–7 jump to an app and Escape steps back.
   useEffect(() => {
     const rooms = TOUR.length;
     let snap = 0;
     const settle = () => {
       window.clearTimeout(snap);
-      // Come to rest in the nearest room shortly after the scrolling stops.
-      snap = window.setTimeout(() => spatial.set({ tourTarget: Math.round(spatial.get().tourTarget) }), 420);
+      // Come to rest on the nearest card shortly after the scrolling stops.
+      snap = window.setTimeout(() => spatial.tourTo(Math.round(spatial.get().tourTarget), rooms), 420);
     };
     const nudge = (d: number) => {
-      const s = spatial.get();
-      spatial.set({ tourTarget: Math.max(0, Math.min(rooms - 1, s.tourTarget + d)) });
+      spatial.tourTo(spatial.get().tourTarget + d, rooms);
       settle();
     };
     const typing = (t: EventTarget | null) => t instanceof HTMLElement && (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || !!t.closest('[role="slider"]'));
@@ -110,23 +110,12 @@ export function SpatialPortfolio() {
       const t = e.target;
       if (typing(t)) return;
       if (s.video) return;
-      // Walk mode: the camera handles the movement keys; Esc stops walking.
-      if (s.walk) {
-        if (e.key === 'Escape') spatial.endWalk();
-        return;
-      }
-      // W anywhere starts walking.
-      if (!s.tour && (e.key === 'w' || e.key === 'W') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        spatial.startWalk();
-        e.preventDefault();
-        return;
-      }
       if (s.tour) {
         if (['ArrowDown', 'ArrowRight', 'PageDown', ' '].includes(e.key)) spatial.tourStep(1, rooms);
         else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) spatial.tourStep(-1, rooms);
         else if (e.key === 'Escape') spatial.endTour('home');
-        else if (e.key === 'Home') spatial.set({ tourTarget: 0 });
-        else if (e.key === 'End') spatial.set({ tourTarget: rooms - 1 });
+        else if (e.key === 'Home') spatial.tourTo(0, rooms);
+        else if (e.key === 'End') spatial.tourTo(rooms - 1, rooms);
         else return;
         e.preventDefault();
         return;
@@ -137,7 +126,6 @@ export function SpatialPortfolio() {
       else if (e.key === 'ArrowLeft' || e.key === 'PageUp') spatial.prev();
       else if (e.key === 'Escape') {
         if (s.bubble) spatial.set({ bubble: false });
-        else if (s.look360) spatial.set({ look360: false });
         else if (s.homeView || s.control) spatial.set({ homeView: false, control: false });
         else if (s.windows.length) spatial.closeWindow(s.windows[s.windows.length - 1]!);
         else spatial.goChapter(0);
@@ -177,7 +165,7 @@ export function SpatialPortfolio() {
           });
         }
       }
-      if (!s.tour || s.walk || scrollsItself(e.target, e.deltaY)) return;
+      if (!s.tour || scrollsItself(e.target, e.deltaY)) return;
       const d = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY;
       nudge(Math.max(-0.6, Math.min(0.6, d / 700)));
     };
@@ -210,7 +198,7 @@ export function SpatialPortfolio() {
   return (
     // data-lenis-prevent: the site's smooth scroll would otherwise take every wheel event, so lists
     // inside the house (pinboard, activities, chat, the tour card) could not scroll with a mouse.
-    <div className={`sp ${phase === 'house' ? 'is-house' : 'is-intro'} env-${env} ${tour ? 'is-touring' : ''}`} data-lenis-prevent>
+    <div className={`sp ${phase === 'house' ? 'is-house' : 'is-intro'} env-${env} ${tour ? 'is-touring' : ''} ${low ? 'is-low' : ''}`} data-lenis-prevent>
       <div className="sp-house" aria-hidden={phase !== 'house'}>
         {houseGo && <HouseScene low={low} live={phase === 'house'} onProgress={onProgress} onReady={() => setReady(true)} />}
       </div>

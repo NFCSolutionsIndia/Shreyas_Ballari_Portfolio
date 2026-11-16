@@ -3,8 +3,8 @@ import { ChartLineUp, ChatsCircle, Dna, GameController, Guitar, SquaresFour, Tro
 
 /**
  * The apps of Shreyas's spatial home (the rail on the left, the Home View, voice and the guided
- * tour all use this list). Each app has a camera station in the house and what the narrator
- * says when you open it. Every fact comes from the family's brief (content/portfolio.ts).
+ * tour all use this list). Each app has the house station it belongs to (used by the story tour)
+ * and what the narrator says when you open it. Every fact comes from the family's brief (content/portfolio.ts).
  */
 
 export type StationId = 'entry' | 'living' | 'sofa' | 'bedroom' | 'study' | 'lab' | 'gallery' | 'kitchen' | 'music' | 'garden' | 'return';
@@ -40,7 +40,7 @@ export const CHAPTERS: Chapter[] = [
     station: 'lab',
     icon: Dna,
     tint: '#e0466e',
-    say: 'Welcome to his research and development room, and to his research concept, Oncure. The idea is to explore how nanobots guided by artificial intelligence could deliver cancer therapy straight to tumour cells, while sparing healthy tissue. It grew from real problems: treatment is expensive, side effects are hard, and the toll on patients is heavy. Oncure is a concept, not a tested treatment.',
+    say: 'This is his research concept, Oncure. The idea is to explore how nanobots guided by artificial intelligence could deliver cancer therapy straight to tumour cells, while sparing healthy tissue. It grew from real problems: treatment is expensive, side effects are hard, and the toll on patients is heavy. Oncure is a concept, not a tested treatment.',
     voice: ['oncure', 'research', 'lab', 'laboratory', 'oncology', 'cancer', 'nanobots'],
   },
   {
@@ -50,7 +50,7 @@ export const CHAPTERS: Chapter[] = [
     station: 'lab',
     icon: ChartLineUp,
     tint: '#22a06b',
-    say: 'In his research and development room, Shreyas is building an AI stock trading app. The idea is a beginner friendly website where an AI model uses real world data to suggest how much of a stock to buy, when to buy it, and when to sell. It is a project in progress, and its suggestions are hypothetical, not financial advice.',
+    say: 'Shreyas is building an AI stock trading app. The idea is a beginner friendly website where an AI model uses real world data to suggest how much of a stock to buy, when to buy it, and when to sell. It is a project in progress, and its suggestions are hypothetical, not financial advice.',
     voice: ['finance', 'finance app', 'fintech', 'trading', 'stock', 'stock app', 'trading app'],
   },
   {
@@ -60,7 +60,7 @@ export const CHAPTERS: Chapter[] = [
     station: 'gallery',
     icon: Trophy,
     tint: '#d4a43a',
-    say: "Welcome to the trophy gallery. He has been in Project Arrow in his school district since second grade, was named to the Principal's Honors List at Fulton Science Academy in 2025 and 2026, was in the top 99 percent on the PSAT in eighth and tenth grade and the top 98 percent in ninth, the top 98 and 99 percent on MAP, received the College Board National Recognition Program award, won the Young Authors Contest in 2023 and completed Mini Medical School in 2021.",
+    say: "These are his awards. He has been in Project Arrow in his school district since second grade, was named to the Principal's Honors List at Fulton Science Academy in 2025 and 2026, was in the top 99 percent on the PSAT in eighth and tenth grade and the top 98 percent in ninth, the top 98 and 99 percent on MAP, received the College Board National Recognition Program award, won the Young Authors Contest in 2023 and completed Mini Medical School in 2021.",
     voice: ['awards', 'award', 'achievements', 'achievement', 'trophies', 'trophy', 'gallery', 'honors', 'certificates', 'rewards'],
   },
   {

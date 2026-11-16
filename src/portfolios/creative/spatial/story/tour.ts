@@ -3,9 +3,9 @@ import { PHOTOS } from '@/content/photos';
 import type { StationName } from '../house/stations';
 
 /**
- * The house tour: scroll (or swipe, or use the arrow keys) and the camera walks from room to
- * room; in each room you can drag to look around and tap glowing points on things, and a card
- * explains one part of Shreyas's story. Every fact comes from content/portfolio.ts (his details,
+ * The story tour: scroll (or swipe, or use the arrow keys) to move from card to card while the
+ * living room stays still behind them; each card explains one part of Shreyas's story, and its
+ * topics open more details. Every fact comes from content/portfolio.ts (his details,
  * his Oncure proposal and his résumé).
  */
 
@@ -30,7 +30,7 @@ export const TOUR: TourStop[] = [
     station: 'entry',
     room: 'Welcome',
     title: `${profile.firstName}’s home`,
-    text: `${profile.name} is a ${profile.grade.toLowerCase()} at ${profile.school} (${profile.schoolShort}) in ${profile.schoolTown}. This house tells his story, one room at a time. Scroll to walk in, drag to look around, and tap the glowing points.`,
+    text: `${profile.name} is a ${profile.grade.toLowerCase()} at ${profile.school} (${profile.schoolShort}) in ${profile.schoolTown}. Here is his story, one part at a time. Scroll or use the arrows to move on, and tap any topic to read more.`,
     image: A('shreyas/portrait-studio.jpg'),
     focus: '50% 18%',
   },
@@ -47,7 +47,7 @@ export const TOUR: TourStop[] = [
     station: 'bedroom',
     room: 'His room',
     title: 'Code and guitar',
-    text: `On the desk: he writes code in ${and(languages)}. Beside it: his guitar, which he has played since 2021 at Atlanta Piano Fortissimo.`,
+    text: `He writes code in ${and(languages)}, and he has played guitar since 2021 at Atlanta Piano Fortissimo.`,
     items: [...languages, 'Guitar since 2021'],
     image: PHOTOS.code.src,
   },
@@ -55,7 +55,7 @@ export const TOUR: TourStop[] = [
     station: 'study',
     room: 'The study',
     title: 'School and courses',
-    text: `At ${profile.school} he has always taken advanced courses: all honours and AP, with mathematics through AP Pre-calculus. The board on the wall shows them all.`,
+    text: `At ${profile.school} he has always taken advanced courses: all honours and AP, with mathematics through AP Pre-calculus.`,
     items: courses,
     image: A('journey/academy.placeholder.jpg'),
   },
@@ -63,7 +63,7 @@ export const TOUR: TourStop[] = [
     station: 'lab',
     room: 'Research & Development',
     title: 'Oncure and the trading app',
-    text: `Two projects live here. Oncure: ${oncure.summary.charAt(0).toLowerCase()}${oncure.summary.slice(1)} His video plays on the wall screen. And his AI trading app: ${stockApp.summary.charAt(0).toLowerCase()}${stockApp.summary.slice(1)} Its screens are on the monitors.`,
+    text: `Two projects live here. Oncure: ${oncure.summary.charAt(0).toLowerCase()}${oncure.summary.slice(1)} And his AI trading app: ${stockApp.summary.charAt(0).toLowerCase()}${stockApp.summary.slice(1)}`,
     items: ['Oncure: 5 steps', 'Watch the video', 'AI trading app (concept)'],
     image: A('journey/oncure.placeholder.jpg'),
     app: 'oncure',
@@ -81,7 +81,7 @@ export const TOUR: TourStop[] = [
     station: 'kitchen',
     room: 'Volunteering & tutoring',
     title: 'Volunteering and tutoring',
-    text: 'The whiteboard shows how he tutors 7th and 8th graders in mathematics and science, step by step; the wall beside it shows where he volunteers.',
+    text: 'He tutors 7th and 8th graders in mathematics and science, step by step, and he volunteers in his community.',
     items: volunteering.map((v) => `${v.title} · ${v.role}`),
     image: A('journey/tutor.placeholder.jpg'),
   },
@@ -89,7 +89,7 @@ export const TOUR: TourStop[] = [
     station: 'music',
     room: 'Music & activities',
     title: 'Beyond class',
-    text: 'His guitars, and a wall of everything else he does: sport, martial arts, science competition and business.',
+    text: 'His guitar, and everything else he does: sport, martial arts, science competition and business.',
     items: activities.map((a) => `${a.title} · ${a.role}`),
     image: A('house/stills/music.jpg'),
     app: 'activities',
@@ -98,7 +98,7 @@ export const TOUR: TourStop[] = [
     station: 'garden',
     room: 'The garden',
     title: 'Looking ahead',
-    text: `The sign in the garden holds his goals: ${goals.education.replace(/^A /, 'a ').replace(/\.$/, '')}, then a career in AI, research and finance.`,
+    text: `His goals: ${goals.education.replace(/^A /, 'a ').replace(/\.$/, '')}, then a career in AI, research and finance.`,
     items: goals.career.map((g) => g.replace(/\.$/, '')),
     image: A('house/stills/garden.jpg'),
   },

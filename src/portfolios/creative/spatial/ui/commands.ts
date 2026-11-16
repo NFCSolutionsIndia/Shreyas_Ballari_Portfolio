@@ -121,11 +121,6 @@ export function runCommand(raw: string, actions: { replayIntro: () => void; soun
     window.dispatchEvent(new CustomEvent('os-awards', { detail: 'prev' }));
     return 'Previous award';
   }
-  if (has('360', '360 view', 'three sixty', 'look around', 'full view', 'panorama')) {
-    const on = !has('exit', 'stop', 'close') ;
-    spatial.set({ look360: on, homeView: false, control: false });
-    return on ? '360° view: drag to look around' : 'Left 360° view';
-  }
   if (has('auto light', 'real time', 'follow the time')) {
     spatial.set({ envAuto: true });
     return 'Light follows the time of day';
@@ -204,21 +199,16 @@ export function runCommand(raw: string, actions: { replayIntro: () => void; soun
   if (spatial.get().tour) {
     if (has('next room', 'next', 'continue', 'go on', 'walk')) {
       spatial.tourStep(1, 10);
-      return 'Next room';
+      return 'Next';
     }
     if (has('previous room', 'previous', 'back', 'go back')) {
       spatial.tourStep(-1, 10);
-      return 'Previous room';
+      return 'Previous';
     }
     if (has('skip', 'skip tour', 'dashboard', 'end tour', 'stop tour')) {
       spatial.endTour('home');
       return 'Opening the dashboard';
     }
-  }
-  if (has('walk', 'walk freely', 'free walk', 'explore')) {
-    if (has('stop walking', 'stop')) spatial.endWalk();
-    else spatial.startWalk();
-    return spatial.get().walk ? 'Walk mode: W A S D to move' : 'Stopped walking';
   }
   if (has('watch video', 'watch the video', 'play video', 'play the video', 'oncure video')) {
     spatial.set({ video: true });

@@ -6,7 +6,7 @@ import { envNow } from './os/localTime';
 /**
  * One small store for the spatial home: the story chapter you are on, the narrator (and its
  * captions), autoplay, and the optional modes (sound, voice, hands). React components subscribe;
- * the 3D camera reads it every frame without re-rendering.
+ * the 3D scene reads it without re-rendering.
  */
 
 export type Phase = 'intro' | 'house';
@@ -35,27 +35,23 @@ export interface SpatialState {
   env: 'day' | 'sunset' | 'night';
   /** Follow the real time of day in Georgia (on until the visitor picks a light). */
   envAuto: boolean;
-  /** 360 degree view: windows step aside and the camera turns all the way round. */
-  look360: boolean;
-  /** House tour: scrolling walks the camera from room to room (see story/tour.ts). */
+  /** Story tour: his story, one card at a time, in front of the living room (see story/tour.ts). */
   tour: boolean;
-  /** Where the scroll wants the tour to be (0 … rooms−1; the camera eases towards it). */
+  /** Where the scroll wants the tour to be (0 … stops−1). */
   tourTarget: number;
-  /** The room the tour is in now (set by the camera). */
+  /** The card the tour shows now. */
   tourIndex: number;
   /** The small AI chat in the corner is open. */
   bubble: boolean;
   /** His Oncure video in full view. */
   video: boolean;
-  /** Walk freely through the house and garden with the keyboard (or the on-screen pad). */
-  walk: boolean;
   /** Cards pinned on the dashboard's pinboard (ids). */
   pinned: string[];
   /** A question waiting for the AI chat (set by "Ask AI" buttons). */
   pendingAsk: string | null;
 }
 
-let state: SpatialState = { phase: 'intro', chapter: 0, dir: 1, room: 'living', narrate: false, auto: false, caption: null, sound: false, toast: null, dock: true, windows: [], homeView: false, control: false, env: envNow(), envAuto: true, look360: false, tour: false, tourTarget: 0, tourIndex: 0, bubble: false, video: false, walk: false, pinned: ['oncure', 'finance', 'awards', 'guitar'], pendingAsk: null };
+let state: SpatialState = { phase: 'intro', chapter: 0, dir: 1, room: 'living', narrate: false, auto: false, caption: null, sound: false, toast: null, dock: true, windows: [], homeView: false, control: false, env: envNow(), envAuto: true, tour: false, tourTarget: 0, tourIndex: 0, bubble: false, video: false, pinned: ['oncure', 'finance', 'awards', 'guitar'], pendingAsk: null };
 const subs = new Set<() => void>();
 let autoTimer = 0;
 
@@ -152,20 +148,17 @@ export const spatial = {
   unpin(id: string) {
     spatial.set({ pinned: state.pinned.filter((p) => p !== id) });
   },
-  /** Walk freely (apps step aside); Esc or the button brings them back. */
-  startWalk() {
-    window.clearTimeout(autoTimer);
-    stopSpeaking();
-    spatial.set({ walk: true, tour: false, look360: false, homeView: false, control: false, windows: [], caption: null, auto: false });
-  },
-  endWalk() {
-    spatial.set({ walk: false });
-  },
-  /** Start the house tour from the front door. */
+  /** Start the story tour from the first card. */
   startTour() {
     window.clearTimeout(autoTimer);
     stopSpeaking();
-    spatial.set({ tour: true, walk: false, tourTarget: 0, tourIndex: 0, look360: false, homeView: false, control: false, windows: [], caption: null, auto: false });
+    spatial.set({ tour: true, tourTarget: 0, tourIndex: 0, homeView: false, control: false, windows: [], caption: null, auto: false });
+  },
+  /** Show one card of the tour (the scroll may sit between two; the nearest one shows). */
+  tourTo(target: number, rooms: number) {
+    const t = Math.max(0, Math.min(rooms - 1, target));
+    const i = Math.round(t);
+    if (t !== state.tourTarget || i !== state.tourIndex) spatial.set({ tourTarget: t, tourIndex: i });
   },
   /** Leave the tour for the dashboard (or another app). */
   endTour(app: string = 'home') {
@@ -174,8 +167,7 @@ export const spatial = {
     spatial.goChapter(app);
   },
   tourStep(d: 1 | -1, rooms: number) {
-    const t = Math.max(0, Math.min(rooms - 1, Math.round(state.tourTarget) + d));
-    spatial.set({ tourTarget: t });
+    spatial.tourTo(Math.round(state.tourTarget) + d, rooms);
   },
   toast(text: string) {
     spatial.set({ toast: text });
