@@ -2054,3 +2054,51 @@
     display: none;
   }
 }
+
+/* Toolbar: every button says what it does (icon with a short label under it). On phones the bar
+   folds into the one "Controls" button, as before. */
+.sp-mode-label {
+  display: none;
+}
+@media (min-width: 761px) {
+  .sp-ui .sp-modes {
+    gap: 2px;
+    padding: 5px;
+    border-radius: 22px;
+  }
+  .sp-ui .sp-modes .sp-icon-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: auto;
+    min-width: 56px;
+    height: 50px;
+    padding: 0 8px;
+    border-radius: 16px;
+  }
+  .sp-ui .sp-modes .sp-icon-btn svg {
+    flex: none;
+    font-size: 18px;
+  }
+  .sp-mode-label,
+  .sp-ui .sp-modes .sp-cc-label {
+    display: block;
+    font-size: 11px;
+    line-height: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+}
+@media (min-width: 1201px) and (max-width: 1400px) {
+  .sp-ui .sp-modes .sp-icon-btn {
+    min-width: 50px;
+    padding: 0 5px;
+  }
+  .sp-mode-label,
+  .sp-ui .sp-modes .sp-cc-label {
+    font-size: 10.5px;
+  }
+}

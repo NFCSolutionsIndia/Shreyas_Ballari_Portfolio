@@ -89,7 +89,6 @@ export function Bedroom() {
         <B key={x} p={[x, 1.55, Z1 - 0.08]} s={[0.36, 3.0, 0.05]} m={bed.sheer} cast={false} />
       ))}
       <B p={[-10.7, 3.1, Z1 - 0.08]} s={[3.2, 0.03, 0.03]} m={m.black} cast={false} />
-      <pointLight position={[-10.6, 2.5, 2.4]} color="#ffc98f" intensity={5} distance={6} decay={2} />
     </group>
   );
 }

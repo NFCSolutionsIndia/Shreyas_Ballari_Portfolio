@@ -741,8 +741,6 @@ export function CommunityRoom() {
         <B key={i} p={[x!, 0.785, T.z + z!]} s={[0.26, 0.03, 0.2]} m={i % 2 ? m.white : m.walnut} cast={false} />
       ))}
       <Pendant position={[T.x, 3.2, T.z]} drop={1.15} />
-      <pointLight position={[T.x, 2.2, T.z]} color="#ffdcae" intensity={3.2} distance={6} decay={2} />
-      <pointLight position={[0.6, 2.4, -12.6]} color="#fff1dc" intensity={2.4} distance={5} decay={2} />
     </group>
   );
 }

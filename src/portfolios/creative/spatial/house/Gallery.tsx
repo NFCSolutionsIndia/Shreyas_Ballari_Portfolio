@@ -63,7 +63,8 @@ export function Gallery({ low }: { low?: boolean }) {
             <cylinderGeometry args={[0.035, 0.045, 0.14, 20]} />
             <meshStandardMaterial color="#141416" metalness={0.6} roughness={0.4} />
           </mesh>
-          <Spot at={p} h={h} />
+          {/* One spotlight (on the centre plinth) keeps the scene's light count, and so the shader cost, low. */}
+          {i === 1 && <Spot at={p} h={h} />}
         </group>
       ))}
       <GoldCup position={[PLINTHS[0]!.p[0], PLINTHS[0]!.h, PLINTHS[0]!.p[1]]} />
@@ -72,7 +73,6 @@ export function Gallery({ low }: { low?: boolean }) {
       <B p={[(X0 + X1) / 2, 3.12, Z0 + 0.06]} s={[X1 - X0 - 0.2, 0.02, 0.04]} m={m.warmGlow} cast={false} />
       <B p={[(X0 + X1) / 2, 3.12, Z1 - 0.06]} s={[X1 - X0 - 0.2, 0.02, 0.04]} m={m.warmGlow} cast={false} />
       <B p={[X0 + 0.06, 3.12, (Z0 + Z1) / 2]} s={[0.04, 0.02, Z1 - Z0 - 0.2]} m={m.warmGlow} cast={false} />
-      <pointLight position={[-10.1, 2.6, -11.55]} color="#ffe2bd" intensity={3} distance={6} decay={2} />
       <group position={[PLINTHS[2]!.p[0], PLINTHS[2]!.h, PLINTHS[2]!.p[1]]} rotation={[0, Math.PI / 2, 0]}>
         <Medal position={[0, 0, 0]} />
       </group>

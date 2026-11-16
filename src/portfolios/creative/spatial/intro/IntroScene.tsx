@@ -122,7 +122,7 @@ export function IntroScene({ ready, progress, onDone }: { ready: boolean; progre
   return (
     <div className={`sp-intro ${leaving ? 'is-leaving' : ''} is-${stage}`}>
       <Canvas
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
         camera={{ fov: 30, position: [0, 0, 0.56], near: 0.005, far: 10 }}
         gl={{ antialias: true }}
         onCreated={({ gl }) => {

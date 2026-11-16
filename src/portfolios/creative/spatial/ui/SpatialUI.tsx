@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowClockwise, Footprints, CaretLeft, CaretRight, CornersIn, CornersOut, Globe, HandWaving, MapTrifold, Microphone, MicrophoneSlash, SlidersHorizontal, SpeakerHigh, SpeakerSlash, SquaresFour, VirtualReality, X } from '@phosphor-icons/react';
+import { Footprints, CaretLeft, CaretRight, Globe, HandWaving, MapTrifold, Microphone, MicrophoneSlash, SlidersHorizontal, SpeakerHigh, SpeakerSlash, SquaresFour, VirtualReality, X } from '@phosphor-icons/react';
 import { useVoice } from '@/features/voice/useVoice';
 import { CHAPTERS } from '../story/chapters';
 import { playUi, spatial, useSpatial } from '../store';
@@ -15,7 +15,6 @@ import { ChatBubble } from '../os/ChatBubble';
 import { Tour } from '../os/Tour';
 import { VideoOverlay } from '../os/VideoOverlay';
 import { Walk } from '../os/Walk';
-import { stopSpeaking } from '../story/narrator';
 import { runCommand } from './commands';
 import { Hands } from './Hands';
 import { VoiceControl } from './VoiceControl';
@@ -128,7 +127,6 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
   const envAuto = useSpatial((s) => s.envAuto);
   const narrate = useSpatial((s) => s.narrate);
   const [hands, setHands] = useState(false);
-  const [full, setFull] = useState(false);
   /** The AI voice starts muted; ask once, after the splash. */
   const [asked, setAsked] = useState(false);
   /** The apps being drawn into the tour button, or coming back out of it. */
@@ -163,21 +161,6 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
       replayIntro();
       setGenie('idle');
     }, 760);
-  };
-  useEffect(() => {
-    const on = () => setFull(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', on);
-    return () => document.removeEventListener('fullscreenchange', on);
-  }, []);
-  const toggleFull = () => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void document.documentElement.requestFullscreen?.().catch(() => spatial.toast('Full view is not available in this browser'));
-  };
-  /** Refresh: a clean start (stops speech, closes everything, reloads the page on the same tab). */
-  const refresh = () => {
-    stopSpeaking();
-    spatial.toast('Refreshing…');
-    window.setTimeout(() => window.location.reload(), 150);
   };
   const ccRef = useRef<HTMLDivElement>(null);
   /** Voice mode (like hand mode): explained and agreed to first, then a live status panel. */
@@ -307,9 +290,11 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
           onClick={() => (spatial.setNarrate(!narrate), setAsked(true), spatial.toast(narrate ? 'AI voice muted' : 'AI voice on'))}
         >
           {narrate ? <SpeakerHigh weight="fill" /> : <SpeakerSlash weight="bold" />}
+          <span className="sp-mode-label">AI voice</span>
         </button>
         <button type="button" className={`sp-icon-btn ${homeView ? 'is-on' : ''}`} aria-pressed={homeView} aria-label="Home View" data-voice="home view" onClick={() => spatial.set({ homeView: !homeView, control: false })}>
           <SquaresFour weight={homeView ? 'fill' : 'bold'} />
+          <span className="sp-mode-label">All apps</span>
         </button>
         <button
           type="button"
@@ -320,21 +305,19 @@ export function SpatialUI({ replayIntro }: { replayIntro: () => void }) {
           onClick={() => setVoiceOn(!voiceOn)}
         >
           {voiceOn ? <Microphone weight="fill" /> : <MicrophoneSlash weight="bold" />}
+          <span className="sp-mode-label">Voice</span>
         </button>
         <button type="button" className={`sp-icon-btn ${hands ? 'is-on' : ''}`} aria-pressed={hands} aria-label="Hand gestures" onClick={() => setHands(!hands)}>
           <HandWaving weight={hands ? 'fill' : 'bold'} />
+          <span className="sp-mode-label">Hands</span>
         </button>
  <button type="button" className={`sp-icon-btn ${look360 ? 'is-on' : ''}`} aria-pressed={look360} aria-label="360 degree view" data-voice="360 view" onClick={() => spatial.set({ look360: !look360, control: false, homeView: false })}>
           <Globe weight={look360 ? 'fill' : 'bold'} />
+          <span className="sp-mode-label">360° view</span>
         </button>
         <button type="button" className={`sp-icon-btn ${walking ? 'is-on' : ''}`} aria-pressed={walking} aria-label={walking ? 'Stop walking' : 'Walk freely through the house'} title="Walk (W A S D)" data-voice="walk" onClick={() => (walking ? spatial.endWalk() : spatial.startWalk())}>
           <Footprints weight={walking ? 'fill' : 'bold'} />
-        </button>
-        <button type="button" className={`sp-icon-btn ${full ? 'is-on' : ''}`} aria-pressed={full} aria-label={full ? 'Exit full view' : 'Full view'} title="Full view" data-voice="full view" onClick={toggleFull}>
-          {full ? <CornersIn weight="bold" /> : <CornersOut weight="bold" />}
-        </button>
-        <button type="button" className="sp-icon-btn" aria-label="Refresh" title="Refresh" data-voice="refresh" onClick={refresh}>
-          <ArrowClockwise weight="bold" />
+          <span className="sp-mode-label">Walk</span>
         </button>
         <button type="button" data-cc-toggle="" className={`sp-icon-btn ${control ? 'is-on' : ''}`} aria-pressed={control} aria-label="Control Center" data-voice="control center" onClick={() => spatial.set({ control: !control, homeView: false })}>
           <SlidersHorizontal weight="bold" />

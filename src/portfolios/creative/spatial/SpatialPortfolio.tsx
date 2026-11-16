@@ -20,15 +20,52 @@ import './os/vision.css';
  * in the bottom left corner. Mouse, touch, keyboard, voice and hands all work.
  */
 
+/**
+ * True on a computer's built-in graphics chip (most laptops: Intel UHD / Iris, AMD Radeon
+ * integrated, and phone chips), where the full house with soft shadows is too heavy to stay
+ * smooth. Those get the light version: no shadows, normal resolution, lighter garden.
+ */
+function builtInGraphics() {
+  try {
+    const c = document.createElement('canvas');
+    const g = c.getContext('webgl');
+    if (!g) return true;
+    const info = g.getExtension('WEBGL_debug_renderer_info');
+    const name = info ? String(g.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+    g.getExtension('WEBGL_lose_context')?.loseContext();
+    return /Intel|UHD|Iris|Radeon\(TM\) Graphics|Radeon Graphics|Vega \d|Mali|Adreno|PowerVR|SwiftShader|Basic Render|llvmpipe|Apple GPU/i.test(name);
+  } catch {
+    return false;
+  }
+}
+
 export function SpatialPortfolio() {
   const env = useSpatial((s) => s.env);
   const tour = useSpatial((s) => s.tour);
   const phase = useSpatial((s) => s.phase);
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
+  /** The house (about 50 MB of furniture and textures) starts loading once the headset intro is on
+      screen, so the two do not compete for the connection; at the latest after 2.5 s. */
+  const [houseGo, setHouseGo] = useState(false);
+  useEffect(() => {
+    const go = () => setHouseGo(true);
+    window.addEventListener('sp-headset-ready', go);
+    const t = window.setTimeout(go, 2500);
+    return () => {
+      window.removeEventListener('sp-headset-ready', go);
+      window.clearTimeout(t);
+    };
+  }, []);
+  useEffect(() => {
+    if (phase === 'house') setHouseGo(true);
+  }, [phase]);
   const low = useMemo(() => {
     if (typeof window === 'undefined') return false;
-    return window.matchMedia('(max-width: 760px)').matches || (navigator.hardwareConcurrency ?? 8) <= 4;
+    const q = new URLSearchParams(window.location.search).get('quality');
+    if (q === 'high') return false;
+    if (q === 'low') return true;
+    return window.matchMedia('(max-width: 760px)').matches || (navigator.hardwareConcurrency ?? 8) <= 4 || builtInGraphics();
   }, []);
 
   // The splash every time; people who prefer less motion go straight in.
@@ -175,7 +212,7 @@ export function SpatialPortfolio() {
     // inside the house (pinboard, activities, chat, the tour card) could not scroll with a mouse.
     <div className={`sp ${phase === 'house' ? 'is-house' : 'is-intro'} env-${env} ${tour ? 'is-touring' : ''}`} data-lenis-prevent>
       <div className="sp-house" aria-hidden={phase !== 'house'}>
-        <HouseScene low={low} live={phase === 'house'} onProgress={onProgress} onReady={() => setReady(true)} />
+        {houseGo && <HouseScene low={low} live={phase === 'house'} onProgress={onProgress} onReady={() => setReady(true)} />}
       </div>
       <div className="sp-visor" aria-hidden="true" />
       {phase === 'intro' && <IntroScene ready={ready} progress={progress} onDone={enter} />}

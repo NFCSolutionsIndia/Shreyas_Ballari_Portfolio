@@ -200,7 +200,6 @@ export function Study() {
       {/* Reading corner */}
       <Model id="mid_century_lounge_chair" position={[-8.15, 0, Z0 + 0.75]} rotation={-0.9} />
       <Blob p={[-8.15, Z0 + 0.75]} s={[1.0, 1.0]} />
-      <pointLight position={[-10.3, 1.4, -2.5]} color="#ffd6a0" intensity={2.4} distance={4} decay={2} />
       <B p={[-10.1, 3.19, (Z0 + Z1) / 2]} s={[0.05, 0.02, 3.4]} m={m.warmGlow} cast={false} />
     </group>
   );

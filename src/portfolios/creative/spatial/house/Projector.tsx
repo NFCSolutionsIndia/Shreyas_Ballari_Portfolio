@@ -88,7 +88,6 @@ export function Projector() {
       <mesh position={[SCREEN.x + 0.026, SCREEN.y, SCREEN.z]} rotation={[0, Math.PI / 2, 0]} scale={[SCREEN.w, SCREEN.h, 1]} material={screen}>
         <planeGeometry />
       </mesh>
-      <rectAreaLight position={[SCREEN.x + 0.05, SCREEN.y, SCREEN.z]} rotation={[0, -Math.PI / 2, 0]} width={SCREEN.w} height={SCREEN.h} intensity={1.6} color="#b7c4ff" />
       {/* Ceiling projector on a short drop rod */}
       <B p={[LENS[0] + 0.14, 3.47, LENS[2]]} s={[0.025, 0.26, 0.025]} m={m.black} cast={false} />
       <B p={[LENS[0] + 0.14, 3.3, LENS[2]]} s={[0.3, 0.1, 0.3]} m={m.white} />

@@ -236,13 +236,12 @@ export function LivingRoom({ low = false }: { low?: boolean }) {
       <Model id="mid_century_lounge_chair" position={[-1.0, 0, 1.0]} rotation={Math.PI / 2 + 0.35} />
       <Model id="side_table_01" position={[2.95, 0, -1.75]} />
       <Model id="pachira_aquatica_01" pick={0} position={[4.0, 0, -2.85]} />
-      <Model id="potted_plant_01" pick={0} position={[-4.25, 0, -2.95]} />
+      <Model id="calathea_orbifolia_01" pick={0} position={[-4.25, 0, -2.95]} />
       <Model id="calathea_orbifolia_01" pick={0} position={[4.3, 0, 3.7]} />
       <Model id="wooden_display_shelves_01" position={[4.78, 0, 2.3]} rotation={Math.PI} />
       <Model id="modern_ceiling_lamp_01" position={[0.95, CEIL - 0.95, 0]} />
-      <pointLight position={[0.95, CEIL - 1.0, 0]} color="#ffe4c2" intensity={2.5} distance={5} decay={2} />
     </group>
   );
 }
 
-export const LIVING_MODELS = ['sofa_03', 'modern_coffee_table_01', 'ceramic_vase_01', 'modern_arm_chair_01', 'mid_century_lounge_chair', 'side_table_01', 'pachira_aquatica_01', 'potted_plant_01', 'calathea_orbifolia_01', 'wooden_display_shelves_01', 'modern_ceiling_lamp_01'];
+export const LIVING_MODELS = ['sofa_03', 'modern_coffee_table_01', 'ceramic_vase_01', 'modern_arm_chair_01', 'mid_century_lounge_chair', 'side_table_01', 'pachira_aquatica_01', 'calathea_orbifolia_01', 'wooden_display_shelves_01', 'modern_ceiling_lamp_01'];

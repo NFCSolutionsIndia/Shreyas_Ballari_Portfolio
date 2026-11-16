@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { AdaptiveDpr, PerformanceMonitor, useProgress } from '@react-three/drei';
-import { ACESFilmicToneMapping, Color, DirectionalLight, EquirectangularReflectionMapping, HemisphereLight, MathUtils, Object3D, RectAreaLight, SRGBColorSpace, TextureLoader, Vector3, PCFShadowMap, Box3, Mesh, Raycaster, type CatmullRomCurve3, type Object3D as O3 } from 'three';
+import { ACESFilmicToneMapping, Color, DirectionalLight, EquirectangularReflectionMapping, HemisphereLight, MathUtils, Object3D, RectAreaLight, SRGBColorSpace, TextureLoader, Vector3, PCFShadowMap, Box3, Mesh, Raycaster, type Material, type Texture, type CatmullRomCurve3, type Object3D as O3 } from 'three';
 import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { ENTRY } from '../rooms';
@@ -101,8 +101,6 @@ function Lights() {
       />
       {/* Sky light pouring in through the glass wall */}
       <rectAreaLight ref={sky} position={[0, 1.8, -3.5]} rotation={[0, 0, 0]} width={10} height={3.4} intensity={3.4} color="#f2f6ff" />
-      {/* Light bouncing up off the floor onto the ceiling */}
-      <rectAreaLight position={[0, 0.3, 0.9]} rotation={[-Math.PI / 2, 0, 0]} width={9} height={8} intensity={0.9} color="#fff6ea" />
       <hemisphereLight ref={hemi} args={['#f3f6ff', '#e6ddd0', 0.55]} />
     </>
   );
@@ -478,6 +476,51 @@ function Progress({ onProgress }: { onProgress: (p: number, done: boolean) => vo
   return null;
 }
 
+/**
+ * Prepares every material's shader in the background (the browser's parallel compile) before the
+ * house is drawn for the first time. Without this, the first frame compiles them all at once and
+ * the page freezes for many seconds on Windows (Chrome and Edge).
+ */
+function WarmUp({ onWarm }: { onWarm: () => void }) {
+  const get = useThree((st) => st.get);
+  useEffect(() => {
+    const { gl, scene, camera } = get();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      onWarm();
+    };
+    // Then the textures go to the graphics card a few per frame, instead of all in the first frame.
+    const upload = () => {
+      const all = new Set<Texture>();
+      scene.traverse((o) => {
+        const m = (o as Mesh).material as Material | Material[] | undefined;
+        if (!m) return;
+        (Array.isArray(m) ? m : [m]).forEach((mat) => {
+          Object.values(mat).forEach((v) => {
+            if (v && (v as Texture).isTexture) all.add(v as Texture);
+          });
+        });
+      });
+      const list = [...all];
+      const step = () => {
+        if (done) return;
+        list.splice(0, 6).forEach((t) => gl.initTexture(t));
+        if (list.length) requestAnimationFrame(step);
+        else finish();
+      };
+      requestAnimationFrame(step);
+    };
+    gl.compileAsync(scene, camera).then(upload, finish);
+    // Never wait forever.
+    const t = window.setTimeout(finish, 20000);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+
 function Ready({ onReady }: { onReady: () => void }) {
   useEffect(() => {
     onReady();
@@ -486,11 +529,59 @@ function Ready({ onReady }: { onReady: () => void }) {
   return null;
 }
 
+/**
+ * Draws the house only when it is worth it. Full speed while something moves (the tour, walking,
+ * the 360° view, and a few seconds after any change, pointer move, scroll or key), and a gentle
+ * 12 frames a second when the view is still, which keeps the fire and lights alive. Drawing
+ * less also keeps the glass panels (which blur the room behind them) cheap, so the page stays
+ * smooth on every browser.
+ */
+function RenderPacer({ low }: { low: boolean }) {
+  const get = useThree((st) => st.get);
+  useEffect(() => {
+    let burstUntil = performance.now() + 4000;
+    let last = 0;
+    let raf = 0;
+    const boost = (ms: number) => {
+      burstUntil = Math.max(burstUntil, performance.now() + ms);
+    };
+    const tick = (now: number) => {
+      raf = requestAnimationFrame(tick);
+      if (document.hidden) return;
+      const st = spatial.get();
+      const moving = st.tour || st.walk || st.look360 || now < burstUntil;
+      if (moving ? true : !low && now - last >= 1000 / 12) {
+        last = now;
+        get().invalidate();
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    const unsub = spatial.subscribe(() => boost(2600));
+    const input = () => boost(900);
+    // The pointer only nudges the view on capable graphics; elsewhere it is not worth a redraw.
+    if (!low) window.addEventListener('pointermove', input, { passive: true });
+    window.addEventListener('wheel', input, { passive: true });
+    window.addEventListener('keydown', input);
+    window.addEventListener('resize', input);
+    return () => {
+      cancelAnimationFrame(raf);
+      unsub();
+      window.removeEventListener('pointermove', input);
+      window.removeEventListener('wheel', input);
+      window.removeEventListener('keydown', input);
+      window.removeEventListener('resize', input);
+    };
+  }, [get, low]);
+  return null;
+}
+
 export function HouseScene({ low, live, onProgress, onReady }: { low: boolean; live: boolean; onProgress: (p: number, done: boolean) => void; onReady: () => void }) {
-  const [dprMax, setDprMax] = useState(1.5);
+  const [dprMax, setDprMax] = useState(1.25);
+  /** Nothing is drawn until the shaders are ready (see WarmUp). */
+  const [warm, setWarm] = useState(false);
   return (
     <Canvas
-      frameloop={live ? 'always' : 'demand'}
+      frameloop={warm ? 'demand' : 'never'}
       shadows={!low}
       dpr={low ? 1 : [1, dprMax]}
       camera={{ fov: 50, near: 0.05, far: 200, position: ENTRY.eye }}
@@ -500,18 +591,22 @@ export function HouseScene({ low, live, onProgress, onReady }: { low: boolean; l
         gl.toneMappingExposure = 1.22;
         gl.outputColorSpace = SRGBColorSpace;
         if (!low) gl.shadowMap.type = PCFShadowMap;
+        // ?perf in the address: expose the renderer for performance checks.
+        if (new URLSearchParams(window.location.search).has('perf')) (window as unknown as { __gl: unknown }).__gl = gl;
       }}
     >
       {/* Drops the resolution on slower computers, and while the camera is moving. */}
-      <PerformanceMonitor onDecline={() => setDprMax(1)} onIncline={() => setDprMax(1.5)} flipflops={3} onFallback={() => setDprMax(1)} />
+      <PerformanceMonitor onDecline={() => setDprMax(1)} onIncline={() => setDprMax(1.25)} flipflops={3} onFallback={() => setDprMax(1)} />
       <AdaptiveDpr pixelated={false} />
+      {live && warm && <RenderPacer low={low} />}
       <Progress onProgress={onProgress} />
       <Suspense fallback={null}>
         <Environment />
         <Lights />
         <LivingRoom low={low} />
         <House low={low} />
-        <Ready onReady={onReady} />
+        <WarmUp onWarm={() => setWarm(true)} />
+        {warm && <Ready onReady={onReady} />}
       </Suspense>
       <CameraRig />
       <HotspotProjector />

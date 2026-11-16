@@ -1,4 +1,5 @@
-import { Component, Suspense, useMemo, type ReactNode } from 'react';
+import { Component, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Box3, Group, Mesh, MeshStandardMaterial, Vector3, type Object3D } from 'three';
 import { Headset } from './Headset';
@@ -44,7 +45,24 @@ function Loaded() {
     wrap.scale.setScalar(s);
     return wrap;
   }, [gltf]);
-  return <primitive object={object} />;
+  // Its shaders are prepared in the background first (no freeze on the first frame), then it
+  // appears, and the house may start loading (see SpatialPortfolio).
+  const get = useThree((st) => st.get);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const { gl, camera, scene } = get();
+    let done = false;
+    const show = () => {
+      if (done) return;
+      done = true;
+      setShown(true);
+      window.dispatchEvent(new Event('sp-headset-ready'));
+    };
+    gl.compileAsync(object, camera, scene).then(show, show);
+    const t = window.setTimeout(show, 8000);
+    return () => window.clearTimeout(t);
+  }, [object, get]);
+  return <primitive object={object} visible={shown} />;
 }
 
 class Fallback extends Component<{ children: ReactNode }, { failed: boolean }> {

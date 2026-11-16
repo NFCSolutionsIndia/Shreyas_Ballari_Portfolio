@@ -83,7 +83,6 @@ export function Music() {
           <primitive object={m.shade} attach="material" />
         </mesh>
       </group>
-      <pointLight position={[4.7, 2.2, -11.6]} color="#ffbf7a" intensity={4.5} distance={5} decay={2} />
       <Model id="calathea_orbifolia_01" pick={0} position={[5.8, 0, -9.5]} />
     </group>
   );

@@ -12,7 +12,6 @@ required (credited here anyway). Downloaded 2026-11-11 at 1k resolution for web 
 | Model | modern_coffee_table_01 | https://polyhaven.com/a/modern_coffee_table_01 |
 | Model | side_table_01 | https://polyhaven.com/a/side_table_01 |
 | Model | throw_pillows_01 | https://polyhaven.com/a/throw_pillows_01 |
-| Model | potted_plant_01 | https://polyhaven.com/a/potted_plant_01 |
 | Model | pachira_aquatica_01 | https://polyhaven.com/a/pachira_aquatica_01 |
 | Model | calathea_orbifolia_01 | https://polyhaven.com/a/calathea_orbifolia_01 |
 | Model | ceramic_vase_01 | https://polyhaven.com/a/ceramic_vase_01 |
