@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HouseScene } from './house/HouseScene';
+import { prefetchHouse } from './house/prefetch';
 import { IntroScene } from './intro/IntroScene';
 import { CHAPTERS } from './story/chapters';
 import { TOUR } from './story/tour';
@@ -46,16 +47,27 @@ export function SpatialPortfolio() {
   const phase = useSpatial((s) => s.phase);
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
-  /** The house (about 50 MB of furniture and textures) starts loading once the headset intro is on
-      screen, so the two do not compete for the connection; at the latest after 2.5 s. */
+  /** The house's files download while the headset turns (network only, so the turn stays
+      smooth); the house itself is built after the turn, or at the latest after 15 s. */
   const [houseGo, setHouseGo] = useState(false);
   useEffect(() => {
     const go = () => setHouseGo(true);
-    window.addEventListener('sp-headset-ready', go);
-    const t = window.setTimeout(go, 2500);
+    // Fallback: if the headset never appears, build the house anyway after 15 s; once it has
+    // appeared, its turn always ends (and says so) within a few seconds.
+    let t2 = window.setTimeout(go, 15000);
+    const fetchFiles = () => {
+      prefetchHouse();
+      window.clearTimeout(t2);
+      t2 = window.setTimeout(go, 20000);
+    };
+    window.addEventListener('sp-headset-ready', fetchFiles);
+    window.addEventListener('sp-intro-revealed', go);
+    const t1 = window.setTimeout(prefetchHouse, 2500);
     return () => {
-      window.removeEventListener('sp-headset-ready', go);
-      window.clearTimeout(t);
+      window.removeEventListener('sp-headset-ready', fetchFiles);
+      window.removeEventListener('sp-intro-revealed', go);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
     };
   }, []);
   useEffect(() => {
@@ -81,11 +93,13 @@ export function SpatialPortfolio() {
     playUi('enter');
   }, []);
 
-  // Never leave anyone waiting: if a 3D file is slow, show the interface anyway.
+  // Never leave anyone waiting: if a 3D file is slow, show the interface anyway (counted from
+  // when the house starts being built, so the intro never zooms in while it is still building).
   useEffect(() => {
-    const t = window.setTimeout(() => setReady(true), 9000);
+    if (!houseGo) return;
+    const t = window.setTimeout(() => setReady(true), 12000);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [houseGo]);
 
   const startTour = useCallback(() => spatial.startTour(), []);
 
@@ -190,10 +204,8 @@ export function SpatialPortfolio() {
     };
   }, []);
 
-  const onProgress = useCallback((p: number, done: boolean) => {
-    setProgress(p);
-    if (done) setReady(true);
-  }, []);
+  // Downloaded is not ready: the house is ready once it is built and drawn (onReady).
+  const onProgress = useCallback((p: number) => setProgress(p), []);
 
   return (
     // data-lenis-prevent: the site's smooth scroll would otherwise take every wheel event, so lists
@@ -203,7 +215,7 @@ export function SpatialPortfolio() {
         {houseGo && <HouseScene low={low} live={phase === 'house'} onProgress={onProgress} onReady={() => setReady(true)} />}
       </div>
       <div className="sp-visor" aria-hidden="true" />
-      {phase === 'intro' && <IntroScene ready={ready} progress={progress} onDone={enter} />}
+      {phase === 'intro' && <IntroScene ready={ready} progress={progress} onDone={enter} low={low} />}
       {phase === 'house' && ready && <SpatialUI replayIntro={startTour} />}
       {phase === 'house' && !ready && (
         <div className="sp-loader" role="status">

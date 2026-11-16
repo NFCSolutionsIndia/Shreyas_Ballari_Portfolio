@@ -5,11 +5,19 @@ import { ACESFilmicToneMapping, Group, PMREMGenerator, SRGBColorSpace, SpotLight
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { HeadsetModel } from './HeadsetModel';
 
+// The intro keeps to real time: on a slow frame it moves on instead of slowing down (by default
+// the animation clock stretches after a slow frame, which made the turn crawl on slow computers).
+gsap.ticker.lagSmoothing(0);
+
 /**
  * The opening: a headset floats in a dark studio, turns slowly to show its form, then (once the
  * house has loaded) glides towards the camera until the visor fills the view, and a lens blur
  * dissolves into the home. Nothing here claims the visitor is wearing anything: it is a
  * cinematic illusion. Skip is always available.
+ *
+ * Smoothness: the turn starts only once the headset is fully prepared, and the house is built
+ * only after the turn (while the headset holds still, facing the visitor), so the two never
+ * compete. The house's files are already downloading during the turn.
  */
 
 interface Motion {
@@ -18,6 +26,8 @@ interface Motion {
   z: number;
   y: number;
   light: number;
+  /** How much the headset floats (1 = gently, 0 = held still while the house is built). */
+  float: number;
 }
 
 function StudioEnv() {
@@ -42,8 +52,8 @@ function Stage({ m }: { m: Motion }) {
   useFrame(({ clock, scene }) => {
     const t = clock.elapsedTime;
     if (g.current) {
-      g.current.rotation.set(m.rotX + Math.sin(t * 0.7) * 0.02, m.rotY, Math.sin(t * 0.5) * 0.015);
-      g.current.position.set(0, m.y + Math.sin(t * 0.9) * 0.004 * (1 - m.z * 2), m.z);
+      g.current.rotation.set(m.rotX + Math.sin(t * 0.7) * 0.02 * m.float, m.rotY, Math.sin(t * 0.5) * 0.015 * m.float);
+      g.current.position.set(0, m.y + Math.sin(t * 0.9) * 0.004 * (1 - m.z * 2) * m.float, m.z);
     }
     if (key.current) key.current.intensity = 2.2 * m.light;
     if (rimA.current) rimA.current.intensity = 6 * m.light;
@@ -62,8 +72,8 @@ function Stage({ m }: { m: Motion }) {
   );
 }
 
-export function IntroScene({ ready, progress, onDone }: { ready: boolean; progress: number; onDone: () => void }) {
-  const m = useMemo<Motion>(() => ({ rotY: 1.25, rotX: 0.16, z: -0.06, y: 0.012, light: 0 }), []);
+export function IntroScene({ ready, progress, onDone, low = false }: { ready: boolean; progress: number; onDone: () => void; low?: boolean }) {
+  const m = useMemo<Motion>(() => ({ rotY: 1.25, rotX: 0.16, z: -0.06, y: 0.012, light: 0, float: 1 }), []);
   const [stage, setStage] = useState<'reveal' | 'wait' | 'approach' | 'lens'>('reveal');
   const [title, setTitle] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -71,6 +81,7 @@ export function IntroScene({ ready, progress, onDone }: { ready: boolean; progre
   const finish = () => {
     if (done.current) return;
     done.current = true;
+    window.dispatchEvent(new Event('sp-intro-revealed'));
     setLeaving(true);
     window.setTimeout(onDone, 900);
   };
@@ -85,9 +96,38 @@ export function IntroScene({ ready, progress, onDone }: { ready: boolean; progre
     setTitle(preview === 'front');
   }, [preview, m]);
 
+  // The headset is prepared (shaders and pictures) before the turn begins.
+  const [model, setModel] = useState(false);
+  useEffect(() => {
+    const go = () => setModel(true);
+    window.addEventListener('sp-headset-ready', go);
+    const t = window.setTimeout(go, 7000);
+    return () => {
+      window.removeEventListener('sp-headset-ready', go);
+      window.clearTimeout(t);
+    };
+  }, []);
+
+  // After the turn the house is built; the headset holds still meanwhile, and this view stops
+  // redrawing (the picture stays), so the graphics chip is free for the house.
+  const [hold, setHold] = useState(false);
+  useEffect(() => {
+    if (stage !== 'wait') return;
+    window.dispatchEvent(new Event('sp-intro-revealed'));
+    if (ready) {
+      setHold(false);
+      return;
+    }
+    const tw = gsap.to(m, { float: 0, duration: 0.6, ease: 'sine.out', onComplete: () => setHold(true) });
+    return () => void tw.kill();
+  }, [stage, ready, m]);
+  useEffect(() => {
+    if (ready) setHold(false);
+  }, [ready]);
+
   // Reveal: out of the dark, a slow turn.
   useEffect(() => {
-    if (preview) return;
+    if (preview || !model) return;
     // Out of the dark at three-quarters, then a slow turn round to face the visitor.
     const tl = gsap.timeline({ onComplete: () => setStage('wait') });
     tl.to(m, { light: 1, duration: 1.6, ease: 'power2.out' }, 0);
@@ -96,7 +136,8 @@ export function IntroScene({ ready, progress, onDone }: { ready: boolean; progre
     tl.call(() => setTitle(true), [], 3.0);
     tl.to({}, { duration: 1.3 }, 3.8);
     return () => void tl.kill();
-  }, [m]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [m, model]);
 
   // Approach (once the house is ready): face the camera and come close; then the lens.
   // Started once and kept in a ref, so the stage change it causes does not cancel it.
@@ -122,12 +163,14 @@ export function IntroScene({ ready, progress, onDone }: { ready: boolean; progre
   return (
     <div className={`sp-intro ${leaving ? 'is-leaving' : ''} is-${stage}`}>
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={low ? 0.8 : [1, 1.5]}
+        frameloop={hold ? 'demand' : 'always'}
         camera={{ fov: 30, position: [0, 0, 0.56], near: 0.005, far: 10 }}
         gl={{ antialias: true }}
-        onCreated={({ gl }) => {
+        onCreated={({ gl, scene }) => {
           gl.toneMapping = ACESFilmicToneMapping;
           gl.outputColorSpace = SRGBColorSpace;
+          if (new URLSearchParams(window.location.search).has('perf')) Object.assign(window, { __introGl: gl, __introScene: scene });
         }}
       >
         <color attach="background" args={['#050507']} />

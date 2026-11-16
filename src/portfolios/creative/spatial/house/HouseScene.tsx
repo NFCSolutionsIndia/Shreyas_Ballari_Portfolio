@@ -169,6 +169,7 @@ function WarmUp({ onWarm, low }: { onWarm: () => void; low: boolean }) {
       // instead of every frame: about half the work per frame where shadows are on.
       gl.shadowMap.autoUpdate = false;
       gl.shadowMap.needsUpdate = true;
+      performance.mark('house-warm');
       onWarm();
     };
     // Then the textures go to the graphics card a few per frame, instead of all in the first frame.
@@ -186,7 +187,9 @@ function WarmUp({ onWarm, low }: { onWarm: () => void; low: boolean }) {
       const list = [...all];
       const step = () => {
         if (done) return;
-        list.splice(0, 6).forEach((t) => gl.initTexture(t));
+        // As many as fit in about 12 ms, then the next frame.
+        const t0 = performance.now();
+        while (list.length && performance.now() - t0 < 12) gl.initTexture(list.shift()!);
         if (list.length) requestAnimationFrame(step);
         else finish();
       };
@@ -194,12 +197,15 @@ function WarmUp({ onWarm, low }: { onWarm: () => void; low: boolean }) {
     };
     // First merge the still furniture into a few objects (far fewer draw requests per frame).
     try {
+      performance.mark('house-batch-start');
       batchStatic(scene);
+      performance.mark('house-batch-end');
       if (low) lighten(scene);
+      performance.mark('house-lighten-end');
     } catch {
       /* if merging fails, the house still works, just with more draw requests */
     }
-    gl.compileAsync(scene, camera).then(upload, finish);
+    gl.compileAsync(scene, camera).then(() => (performance.mark('house-compiled'), upload()), finish);
     // Never wait forever.
     const t = window.setTimeout(finish, 20000);
     return () => window.clearTimeout(t);
@@ -208,9 +214,13 @@ function WarmUp({ onWarm, low }: { onWarm: () => void; low: boolean }) {
   return null;
 }
 
+/** Reports the house ready once its first frame is on screen (that frame draws the shadows). */
 function Ready({ onReady }: { onReady: () => void }) {
+  const invalidate = useThree((st) => st.invalidate);
   useEffect(() => {
-    onReady();
+    invalidate();
+    let raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => onReady())));
+    return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;

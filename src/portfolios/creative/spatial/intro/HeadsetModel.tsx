@@ -1,7 +1,7 @@
 import { Component, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
-import { Box3, Group, Mesh, MeshStandardMaterial, Vector3, type Object3D } from 'three';
+import { Box3, Group, Mesh, MeshStandardMaterial, Vector3, type Material, type Object3D, type Texture } from 'three';
 import { Headset } from './Headset';
 
 /**
@@ -58,7 +58,32 @@ function Loaded() {
       setShown(true);
       window.dispatchEvent(new Event('sp-headset-ready'));
     };
-    gl.compileAsync(object, camera, scene).then(show, show);
+    // Then its pictures go to the graphics card a few per frame (all 86 at once froze the page).
+    const upload = () => {
+      const all = new Set<Texture>();
+      object.traverse((o) => {
+        const m = (o as Mesh).material as Material | Material[] | undefined;
+        if (!m) return;
+        (Array.isArray(m) ? m : [m]).forEach((mat) => {
+          Object.values(mat).forEach((v) => {
+            if (v && (v as Texture).isTexture) all.add(v as Texture);
+          });
+        });
+      });
+      const list = [...all];
+      const step = () => {
+        if (done) return;
+        list.splice(0, 4).forEach((t) => gl.initTexture(t));
+        if (list.length) requestAnimationFrame(step);
+        else show();
+      };
+      requestAnimationFrame(step);
+    };
+    // (Hidden objects are skipped when shaders are prepared, so it counts as visible for this call.)
+    object.visible = true;
+    const compiling = gl.compileAsync(object, camera, scene);
+    object.visible = false;
+    compiling.then(upload, show);
     const t = window.setTimeout(show, 8000);
     return () => window.clearTimeout(t);
   }, [object, get]);
@@ -69,6 +94,10 @@ class Fallback extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
+  }
+  componentDidCatch() {
+    // The code-built headset is ready at once.
+    window.dispatchEvent(new Event('sp-headset-ready'));
   }
   render() {
     return this.state.failed ? <Headset /> : this.props.children;

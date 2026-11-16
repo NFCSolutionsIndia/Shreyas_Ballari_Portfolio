@@ -37,6 +37,11 @@ html[data-portfolio='creative'] body {
     filter 1.8s var(--ease),
     transform 2.2s var(--ease);
 }
+/* Under the intro the house is not shown at all (an invisible layer with a blur still costs work
+   every frame). */
+.sp.is-intro .sp-house {
+  visibility: hidden;
+}
 .sp.is-house .sp-house {
   opacity: 1;
   filter: none;
