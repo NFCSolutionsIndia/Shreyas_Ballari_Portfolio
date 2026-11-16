@@ -12,3 +12,4 @@ test-results
 public/assets/Shreyas_Ballari_Resume.pdf
 # Local Claude Code permissions.
 .claude/settings.local.json
+.claude/settings.json
