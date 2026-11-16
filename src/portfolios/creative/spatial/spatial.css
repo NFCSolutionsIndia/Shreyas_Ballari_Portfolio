@@ -87,6 +87,35 @@ html[data-portfolio='creative'] body {
 .sp-intro.is-lens .sp-intro-lens {
   background: radial-gradient(ellipse at center, rgba(160, 130, 255, 0.08) 20%, rgba(0, 0, 0, 0.92) 85%);
 }
+/* While the headset loads: a thin line, no words. */
+.sp-intro-wait {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120px;
+  height: 2px;
+  margin-left: -60px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.sp-intro-wait::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.7);
+  animation: sp-intro-wait 1.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes sp-intro-wait {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
 .sp-intro-line {
   position: absolute;
   left: 50%;

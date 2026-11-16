@@ -101,7 +101,8 @@ export function IntroScene({ ready, progress, onDone, low = false }: { ready: bo
   useEffect(() => {
     const go = () => setModel(true);
     window.addEventListener('sp-headset-ready', go);
-    const t = window.setTimeout(go, 7000);
+    // Only if the headset never arrives (a very slow connection) does the intro go on without it.
+    const t = window.setTimeout(go, 30000);
     return () => {
       window.removeEventListener('sp-headset-ready', go);
       window.clearTimeout(t);
@@ -187,7 +188,9 @@ export function IntroScene({ ready, progress, onDone, low = false }: { ready: bo
         <h1>Step into Shreyas’s world</h1>
         <p>An immersive journey through his studies, research, projects and ambitions.</p>
       </div>
-      {!ready && (
+      {/* No words before the headset appears: only a thin line while it loads. */}
+      {!model && <span className="sp-intro-wait" role="status" aria-label="Loading" />}
+      {model && !ready && (
         <p className="sp-intro-line" aria-live="polite">
           Preparing Shreyas’s home · {Math.round(progress)}%
         </p>

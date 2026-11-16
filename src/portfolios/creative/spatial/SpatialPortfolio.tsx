@@ -62,11 +62,9 @@ export function SpatialPortfolio() {
     };
     window.addEventListener('sp-headset-ready', fetchFiles);
     window.addEventListener('sp-intro-revealed', go);
-    const t1 = window.setTimeout(prefetchHouse, 2500);
     return () => {
       window.removeEventListener('sp-headset-ready', fetchFiles);
       window.removeEventListener('sp-intro-revealed', go);
-      window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
   }, []);
