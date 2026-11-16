@@ -24,7 +24,9 @@ import './studio.css';
 
 const BASE = import.meta.env.BASE_URL;
 const asset = (p: string) => `${BASE}assets/${p}`;
-const J = (n: string) => asset(`journey/${n}.placeholder.jpg`);
+/** Real photographs of each topic (public/assets/photos, see CREDITS.md there). */
+const PHOTO: Record<string, string> = { oncure: 'microscope', trading: 'stock-charts', trophy: 'trophy', academy: 'classroom', arrow: 'archery-target', writing: 'writing', medical: 'stethoscope', tutor: 'chalkboard-math' };
+const J = (n: string) => asset(`photos/${PHOTO[n] ?? n}.jpg`);
 const PORTRAIT = asset('shreyas/portrait-studio.jpg');
 
 const RIMS = [

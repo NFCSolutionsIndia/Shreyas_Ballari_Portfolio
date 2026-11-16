@@ -55,7 +55,7 @@ changes are needed. Keep photos under about 500 KB (https://squoosh.app makes th
 | `public/assets/shreyas/` | His photos: `hero-cutout.png`, `hero-backdrop.jpg`, `portrait.png`, `portrait-studio.jpg` |
 | `public/assets/videos/oncure.mp4` | The Oncure film |
 | `public/assets/certificates/` | Real certificate scans (empty until you add them) |
-| `public/assets/journey/` | Placeholder pictures named `*.placeholder.jpg` |
+| `public/assets/photos/` | Real photographs of each topic (sources and licences in `CREDITS.md`) |
 | `public/assets/house/` | 3D furniture and textures (free, CC0; credits in `house/ASSETS.md`) |
 | `public/models/apple_vision_pro.glb` | The headset in the Creative intro |
 

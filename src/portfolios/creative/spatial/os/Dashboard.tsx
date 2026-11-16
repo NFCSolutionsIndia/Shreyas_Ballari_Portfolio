@@ -95,8 +95,8 @@ function OncureW() {
   return (
     <div className="w-split">
       <figure className="w-media">
-        <img src={img} alt="Illustration: a nanobot beside a cell" draggable={false} />
-        <span className="w-tag">Illustration</span>
+        <img src={img} alt="A microscope in a research laboratory" draggable={false} />
+        <span className="w-tag">Photo · lab</span>
         <span className="w-pulse" style={{ left: '62%', top: '44%' }} />
         <span className="w-pulse" style={{ left: '30%', top: '58%', animationDelay: '0.8s' }} />
       </figure>

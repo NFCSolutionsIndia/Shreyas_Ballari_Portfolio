@@ -134,7 +134,7 @@ export function FinanceApp() {
 
       <section className="os-pane is-side is-right fi-about" style={st(2)}>
         <figure className="fi-img">
-          <img src={img} alt="Illustration of a trading app on a phone" />
+          <img src={img} alt="Market charts on a trading screen" />
         </figure>
         <p className="os-label">Made for beginners</p>
         <p className="fi-text">People buying their first stock get clear, simple suggestions instead of a wall of numbers.</p>

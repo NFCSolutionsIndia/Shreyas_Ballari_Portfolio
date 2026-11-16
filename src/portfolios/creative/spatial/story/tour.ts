@@ -57,7 +57,7 @@ export const TOUR: TourStop[] = [
     title: 'School and courses',
     text: `At ${profile.school} he has always taken advanced courses: all honours and AP, with mathematics through AP Pre-calculus. The board on the wall shows them all.`,
     items: courses,
-    image: A('journey/academy.placeholder.jpg'),
+    image: A('photos/classroom.jpg'),
   },
   {
     station: 'lab',
@@ -65,7 +65,7 @@ export const TOUR: TourStop[] = [
     title: 'Oncure and the trading app',
     text: `Two projects live here. Oncure: ${oncure.summary.charAt(0).toLowerCase()}${oncure.summary.slice(1)} His video plays on the wall screen. And his AI trading app: ${stockApp.summary.charAt(0).toLowerCase()}${stockApp.summary.slice(1)} Its screens are on the monitors.`,
     items: ['Oncure: 5 steps', 'Watch the video', 'AI trading app (concept)'],
-    image: A('journey/oncure.placeholder.jpg'),
+    image: A('photos/microscope.jpg'),
     app: 'oncure',
   },
   {
@@ -83,7 +83,7 @@ export const TOUR: TourStop[] = [
     title: 'Volunteering and tutoring',
     text: 'The whiteboard shows how he tutors 7th and 8th graders in mathematics and science, step by step; the wall beside it shows where he volunteers.',
     items: volunteering.map((v) => `${v.title} · ${v.role}`),
-    image: A('journey/tutor.placeholder.jpg'),
+    image: A('photos/chalkboard-math.jpg'),
   },
   {
     station: 'music',

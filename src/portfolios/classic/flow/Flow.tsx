@@ -98,7 +98,7 @@ function HeroLayer({ reg }: { reg: Reg }) {
 // --- Ring of cards: the hero card, then his education -----------------------------------------------
 
 const EDU: { tag: string; title: string; lines: string[]; tone: 'violet' | 'night' | 'lime'; image?: string }[] = [
-  { tag: 'High school', title: profile.school, lines: [`${profile.grade} · ${profile.schoolTown}`, 'All Honors and AP coursework'], tone: 'violet', image: `${BASE}assets/journey/academy.placeholder.jpg` },
+  { tag: 'High school', title: profile.school, lines: [`${profile.grade} · ${profile.schoolTown}`, 'All Honors and AP coursework'], tone: 'violet', image: `${BASE}assets/photos/classroom.jpg` },
   { tag: 'AP & Honors', title: 'Courses', lines: ['AP Computer Science A', 'AP CS Principles', 'AP Precalculus', 'AP Biology · AP Chemistry', 'AP Physics C'], tone: 'night' },
   { tag: 'Code', title: 'Languages', lines: languages, tone: 'lime' },
   { tag: 'Interests', title: 'Subjects he loves', lines: subjects, tone: 'violet' },

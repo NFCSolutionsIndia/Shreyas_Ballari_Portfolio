@@ -40,7 +40,7 @@ SHREYAS_BALLARI_PORTFOLIO/
 │       ├── shreyas/          Photos of Shreyas
 │       ├── videos/           oncure.mp4
 │       ├── certificates/     Put real certificate scans here
-│       ├── journey/          Placeholder pictures (replace with real ones)
+│       ├── photos/           Real topic photos (sources in CREDITS.md)
 │       └── house/            Furniture and textures for the 3D house
 │
 ├── docs/                     The guide (start with docs/1-how-it-works.md)
