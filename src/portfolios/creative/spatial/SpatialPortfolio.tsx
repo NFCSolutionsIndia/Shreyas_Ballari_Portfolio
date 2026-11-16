@@ -42,6 +42,10 @@ function builtInGraphics() {
 }
 
 export function SpatialPortfolio() {
+  /** The page file is built ahead of time, but this tab's styles and 3D only arrive with its code,
+      so until it runs in the browser it is a plain black screen (no unstyled text flashes). */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const env = useSpatial((s) => s.env);
   const tour = useSpatial((s) => s.tour);
   const phase = useSpatial((s) => s.phase);
@@ -204,6 +208,8 @@ export function SpatialPortfolio() {
 
   // Downloaded is not ready: the house is ready once it is built and drawn (onReady).
   const onProgress = useCallback((p: number) => setProgress(p), []);
+
+  if (!mounted) return <div aria-hidden="true" style={{ position: 'fixed', inset: 0, background: '#050507' }} />;
 
   return (
     // data-lenis-prevent: the site's smooth scroll would otherwise take every wheel event, so lists
