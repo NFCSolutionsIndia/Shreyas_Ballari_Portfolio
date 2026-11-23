@@ -98,6 +98,7 @@ the site by itself in about 3 to 5 minutes.
 1. [How the website works](docs/1-how-it-works.md): the tools, and how each tab is built
 2. [Change words, pictures and videos](docs/2-change-content.md)
 3. [Publish online, and the privacy rules](docs/3-publish-and-privacy.md)
+4. [Deploy to the Hostinger VPS](docs/4-deploy-to-hostinger-vps.md): shreyasballari.com and .ai
 
 Tip: in VS Code, open any `.md` file and press **Ctrl + Shift + V** to read it formatted.
 
