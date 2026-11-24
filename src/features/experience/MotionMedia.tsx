@@ -15,28 +15,36 @@ function Clip({ item, controls, label }: { item: Experience; controls: boolean; 
   const [paused, setPaused] = useState(false);
   const [frac, setFrac] = useState(0);
   const src = item.videoMobile && isPhone() ? item.videoMobile : item.video!;
+  // Lazy: don't download anything until the clip is about to scroll into view.
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || near) return;
+    const io = new IntersectionObserver(([e]) => e?.isIntersecting && setNear(true), { rootMargin: '300px' });
+    io.observe(v);
+    return () => io.disconnect();
+  }, [near]);
   // Only play while on screen (and not paused by the visitor).
   useEffect(() => {
     const v = ref.current;
-    if (!v) return;
+    if (!v || !near) return;
     const io = new IntersectionObserver(([e]) => {
       if (e?.isIntersecting && !paused) void v.play().catch(() => undefined);
       else v.pause();
     });
     io.observe(v);
     return () => io.disconnect();
-  }, [paused, src]);
+  }, [paused, src, near]);
   return (
     <>
       <video
         ref={ref}
         key={src}
-        src={src}
+        src={near ? src : undefined}
         muted
         loop
         playsInline
-        autoPlay
-        preload="auto"
+        preload={near ? 'metadata' : 'none'}
         aria-label={`${item.title}: ${item.videoNote ?? 'video'}`}
         onTimeUpdate={(e) => {
           const v = e.currentTarget;

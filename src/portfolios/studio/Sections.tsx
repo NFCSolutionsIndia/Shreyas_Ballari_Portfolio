@@ -24,6 +24,7 @@ import { achievements, contact, goals, languages, profile, resume, schools, skil
 import type { DetailId } from '@/features/details/Details';
 import './sections.css';
 import { ExperienceGrid } from '@/features/experience/ExperienceGrid';
+import { GoalArt, type GoalKind } from './GoalArt';
 
 /**
  * Studio, from Education down, in a light gallery style: a soft grey page with white cards,
@@ -458,12 +459,32 @@ function TutoringSec({ live, onMore }: Props) {
 
 // --- Goals: numbered list + deck ----------------------------------------------------------------------------
 
-const GOALS: { name: string; badge: string; icon: Icon; line: string }[] = [
-  { name: 'University', badge: 'Next', icon: GraduationCap, line: goals.education },
-  { name: 'AI engineering', badge: 'Career', icon: Cpu, line: goals.career[0] ?? '' },
-  { name: 'Oncology lab', badge: 'Research', icon: Microscope, line: goals.career[1] ?? '' },
-  { name: 'Trading platform', badge: 'Build', icon: ChartLineUp, line: goals.career[2] ?? '' },
+/** Each goal: an animated scene, the family's line, and where he stands today on the way there. */
+const GOALS: { name: string; badge: string; icon: Icon; line: string; art: GoalKind; now: string }[] = [
+  { name: 'University', badge: 'Next', icon: GraduationCap, line: goals.education, art: 'university', now: 'Junior at FSA, taking AP courses' },
+  { name: 'AI engineering', badge: 'Career', icon: Cpu, line: goals.career[0] ?? '', art: 'ai', now: 'Codes in JavaScript, Python and Java' },
+  { name: 'Oncology lab', badge: 'Research', icon: Microscope, line: goals.career[1] ?? '', art: 'lab', now: 'Wrote the Oncure AI cancer-therapy proposal' },
+  { name: 'Trading platform', badge: 'Build', icon: ChartLineUp, line: goals.career[2] ?? '', art: 'trading', now: 'Building his stock trading app' },
 ];
+
+/** Today → goal, as two linked steps. */
+function GoalPath({ now, target }: { now: string; target: string }) {
+  return (
+    <ol className="sx-gpath">
+      <li>
+        <small>Today</small>
+        <span>{now}</span>
+      </li>
+      <li className="sx-gpath-arrow" aria-hidden="true">
+        <ArrowRight weight="bold" />
+      </li>
+      <li className="is-goal">
+        <small>Goal</small>
+        <span>{target}</span>
+      </li>
+    </ol>
+  );
+}
 
 function GoalsSec({ live }: Props) {
   const [k, setK] = useState(0);
@@ -476,13 +497,18 @@ function GoalsSec({ live }: Props) {
           {(i) => {
             const g = GOALS[i]!;
             return (
-              <div className="sx-dcard is-goal">
-                <div className="sx-dcard-top">
-                  <span className="sx-slash">/{pad(i + 1)}</span>
-                  <Badge icon={g.icon}>{g.badge}</Badge>
+              <div className="sx-gcard">
+                <figure className="sx-gart">
+                  <GoalArt kind={g.art} />
+                  <span className="sx-gart-num">/{pad(i + 1)}</span>
+                </figure>
+                <div className="sx-gtext">
+                  <div className="sx-gtitle">
+                    <h4>{g.name}</h4>
+                    <Badge icon={g.icon}>{g.badge}</Badge>
+                  </div>
+                  <GoalPath now={g.now} target={g.line} />
                 </div>
-                <h4>{g.name}</h4>
-                <p className="sx-dcard-big">{g.line}</p>
               </div>
             );
           }}
@@ -494,13 +520,18 @@ function GoalsSec({ live }: Props) {
             <span className="sx-tl-dot" aria-hidden="true">
               <g.icon weight="bold" />
             </span>
-            <div className="sx-mcard">
-              <div className="sx-dcard-top">
-                <span className="sx-slash">/{pad(i + 1)}</span>
-                <span className="sx-tl-tag">{g.badge}</span>
+            <div className="sx-mcard sx-gcard is-m">
+              <figure className="sx-gart">
+                <GoalArt kind={g.art} />
+                <span className="sx-gart-num">/{pad(i + 1)}</span>
+              </figure>
+              <div className="sx-gtext">
+                <div className="sx-gtitle">
+                  <h4>{g.name}</h4>
+                  <span className="sx-tl-tag">{g.badge}</span>
+                </div>
+                <GoalPath now={g.now} target={g.line} />
               </div>
-              <h4>{g.name}</h4>
-              <p>{g.line}</p>
             </div>
           </article>
         ))}

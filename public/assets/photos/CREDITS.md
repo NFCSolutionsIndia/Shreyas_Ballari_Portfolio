@@ -17,3 +17,6 @@ Openverse (openverse.org). Resized to at most 1400 px for the web.
 | chalkboard-math.jpg | Mathematics on a chalkboard | Public Domain Mark | https://www.flickr.com/photos/37996646802@N01/6289008 |
 | guitar.jpg | An acoustic guitar, close up | CC0 | https://stocksnap.io/photo/acoustic-guitar-4H8FT5VT7K |
 | game-controllers.jpg | Game controllers on a desk | CC0 | https://www.flickr.com/photos/49243838@N00/11241518385 |
+| guitar-playing.jpg | Hands playing an acoustic guitar (cropped) | CC0 | https://stocksnap.io/photo/playing-guitar-YIKOABFGJF |
+| science-olympiad.webp | Test tubes and flasks on a school lab bench | CC0 | https://www.rawpixel.com/image/5914454/image-public-domain-medicine-free |
+| deca-presenting.jpg | A presenter pitching ideas at a board to a group | CC0 | https://stocksnap.io/photo/business-presenting-XDAR6MIG75 |

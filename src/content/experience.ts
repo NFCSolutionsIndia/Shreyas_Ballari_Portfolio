@@ -1,18 +1,17 @@
-import { PHOTOS } from './photos';
-
 /**
  * "Activities and Experience": his volunteering and his other activities, in the family's own
  * words (2026-11-23), shared by all three designs. Each item has a picture and a motion preview
  * (an animated scene over that picture). When a real video of Shreyas arrives, put its path in
- * `video` (an MP4 under public/assets/videos) and it plays instead of the preview.
+ * `video` (a file in the R2 bucket, see media.ts) and it plays instead of the preview.
  *
  * Only confirmed facts: where the family has more details to send, `pending` says so on screen.
  */
 
+import { media as video } from './media';
+
 const BASE = import.meta.env.BASE_URL;
 const local = (n: string) => `${BASE}assets/photos/${n}.jpg`;
 const still = (n: string) => `${BASE}assets/house/stills/${n}`;
-const video = (n: string) => `${BASE}assets/videos/${n}`;
 const art = (n: string) => `${BASE}assets/illustrations/${n}`;
 
 export type Motion = 'pulse' | 'lamps' | 'chalk' | 'water' | 'rings' | 'notes' | 'atom' | 'chart' | 'snow' | 'speed';
@@ -62,7 +61,7 @@ export const EXPERIENCE: Experience[] = [
     image: still('pavilion-pool.jpg'),
     imageNote: '3D render',
     motion: 'water',
-    video: video('swimming.mp4'),
+    video: video('shreyas-swimming.mp4'),
     videoNote: 'Video of Shreyas',
     tint: '#4cc9f0',
   },
@@ -79,7 +78,7 @@ export const EXPERIENCE: Experience[] = [
     image: still('pavilion-muaythai.jpg'),
     imageNote: '3D render',
     motion: 'rings',
-    video: video('muay-thai-shreyas.mp4'),
+    video: video('shreyas-muay-thai-shreyas.mp4'),
     videoNote: 'Video of Shreyas training',
     tint: '#ff5a5f',
   },
@@ -143,7 +142,7 @@ export const EXPERIENCE: Experience[] = [
     org: 'Atlanta Piano Fortissimo',
     when: 'Since 2021',
     detail: 'He has played guitar since 2021, at Atlanta Piano Fortissimo.',
-    image: local('guitar'),
+    image: local('guitar-playing'),
     imageNote: 'Topic photo, not him',
     motion: 'notes',
     video: null,
@@ -159,7 +158,7 @@ export const EXPERIENCE: Experience[] = [
     org: 'Fulton Science Academy (FSA)',
     when: '2024, 2025',
     detail: 'He competed in Science Olympiad for Fulton Science Academy (FSA) in 2024 and 2025.',
-    image: PHOTOS.beaker.src,
+    image: `${BASE}assets/photos/science-olympiad.webp`,
     imageNote: 'Topic photo, not him',
     motion: 'atom',
     video: null,
@@ -175,7 +174,7 @@ export const EXPERIENCE: Experience[] = [
     org: 'Fulton Science Academy (FSA)',
     when: '2026',
     detail: 'He joined DECA at Fulton Science Academy (FSA) in 2026.',
-    image: local('stock-charts'),
+    image: local('deca-presenting'),
     imageNote: 'Topic photo, not him',
     motion: 'chart',
     video: null,
@@ -194,8 +193,8 @@ export const EXPERIENCE: Experience[] = [
     image: art('ice-skating.svg'),
     imageNote: 'Illustration',
     motion: 'snow',
-    video: video('ice-skating.mp4'),
-    videoMobile: video('ice-skating-mobile.mp4'),
+    video: video('shreyas-ice-skating.mp4'),
+    videoMobile: video('shreyas-ice-skating-mobile.mp4'),
     videoNote: 'Video of Shreyas',
     tint: '#7fd3ff',
     pending: true,
@@ -213,7 +212,7 @@ export const EXPERIENCE: Experience[] = [
     image: art('ice-hockey.svg'),
     imageNote: 'Illustration',
     motion: 'snow',
-    video: video('ice-hockey.mp4'),
+    video: video('shreyas-ice-hockey.mp4'),
     videoNote: 'Video of Shreyas',
     tint: '#5b8cff',
     pending: true,
@@ -231,7 +230,7 @@ export const EXPERIENCE: Experience[] = [
     image: art('roller-blades.svg'),
     imageNote: 'Illustration',
     motion: 'speed',
-    video: video('roller-blades-shreyas.mp4'),
+    video: video('shreyas-roller-blades-shreyas.mp4'),
     videoNote: 'Video of Shreyas',
     tint: '#ffb020',
     pending: true,

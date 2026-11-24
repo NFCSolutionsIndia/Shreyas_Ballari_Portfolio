@@ -1,0 +1,514 @@
+/* Animated scenes for the Studio's Goals cards (GoalArt.tsx). Each scene is a dark panel with a
+   soft gradient in the goal's colour; everything inside is SVG animated with CSS. */
+
+.ga {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 80% 0%, var(--ga-glow), transparent 60%), var(--ga-bg);
+  color: #fff;
+}
+.ga svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: 'Geist Variable', 'Geist', system-ui, sans-serif;
+}
+.ga svg * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ga text {
+  fill: rgba(255, 255, 255, 0.72);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.ga .ga-label {
+  fill: rgba(255, 255, 255, 0.55);
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.ga-university {
+  --ga-bg: linear-gradient(160deg, #18224d, #0c1230);
+  --ga-glow: rgba(120, 150, 255, 0.45);
+}
+.ga-ai {
+  --ga-bg: linear-gradient(160deg, #241a52, #0e0a26);
+  --ga-glow: rgba(170, 120, 255, 0.5);
+}
+.ga-lab {
+  --ga-bg: linear-gradient(160deg, #0d3a3a, #061c1e);
+  --ga-glow: rgba(80, 220, 200, 0.35);
+}
+.ga-trading {
+  --ga-bg: linear-gradient(160deg, #0b2d22, #04140f);
+  --ga-glow: rgba(60, 220, 140, 0.35);
+}
+
+/* --- university --- */
+.ga-star {
+  fill: #fff;
+  animation: ga-twinkle 2.6s ease-in-out infinite;
+}
+.ga-road {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.ga-road-flow {
+  fill: none;
+  stroke: #ffd36b;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 9;
+  animation: ga-flow 1.4s linear infinite;
+}
+.ga-step circle {
+  fill: #fff;
+  stroke: #18224d;
+  stroke-width: 2;
+}
+.ga-step.is-now circle:not(.ga-ring) {
+  fill: #ffd36b;
+}
+.ga-step.is-next circle {
+  fill: #18224d;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-dasharray: 2 2;
+}
+.ga-step.is-now text {
+  fill: #ffd36b;
+}
+.ga-step .ga-ring {
+  fill: none;
+  stroke: #ffd36b;
+  stroke-width: 1.5;
+  animation: ga-ping 1.8s ease-out infinite;
+}
+.ga .ga-here {
+  fill: #ffd36b;
+  font-size: 8px;
+  font-style: italic;
+}
+.ga-uni {
+  fill: rgba(255, 255, 255, 0.9);
+}
+.ga-uni rect:nth-child(n + 3):nth-child(-n + 7) {
+  fill: rgba(255, 255, 255, 0.78);
+}
+.ga-cap {
+  animation: ga-toss 3.2s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+}
+.ga-cap polygon,
+.ga-cap path:not(.ga-tassel) {
+  fill: #ffd36b;
+  stroke: #c79a2c;
+  stroke-width: 1;
+}
+.ga-tassel {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.4;
+}
+
+/* --- AI network --- */
+.ga-edge {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+}
+.ga-pulse {
+  stroke: #c9a8ff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 14;
+  animation: ga-signal 2.4s linear infinite;
+  filter: drop-shadow(0 0 3px #b18cff);
+}
+.ga-node {
+  fill: #2d2266;
+  stroke: #c9a8ff;
+  stroke-width: 1.5;
+  animation: ga-node 2.4s ease-in-out infinite;
+}
+.ga-out circle {
+  fill: #8b5cf6;
+  stroke: #e3d4ff;
+  stroke-width: 2;
+  animation: ga-glow 2.4s ease-in-out infinite;
+}
+.ga .ga-out text {
+  fill: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* --- oncology lab --- */
+.ga-lens {
+  fill: rgba(255, 255, 255, 0.06);
+}
+.ga-rim {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 3;
+}
+.ga-drift {
+  animation: ga-drift 9s ease-in-out infinite alternate;
+}
+.ga-cell circle {
+  fill: rgba(120, 230, 210, 0.28);
+  stroke: rgba(160, 255, 235, 0.6);
+  stroke-width: 1;
+}
+.ga-cell .ga-nuc {
+  fill: rgba(160, 255, 235, 0.55);
+  stroke: none;
+}
+.ga-bad {
+  fill: rgba(255, 92, 122, 0.55);
+  stroke: #ff8aa2;
+  stroke-width: 1.2;
+  animation: ga-bad 4.2s ease-in-out infinite;
+}
+.ga-bad.is-2 {
+  animation-delay: 0.6s;
+}
+.ga .ga-sweep {
+  fill: rgba(120, 255, 220, 0.16);
+  transform-box: view-box;
+  transform-origin: 164px 80px;
+  animation: ga-spin 4.2s linear infinite;
+}
+.ga-bot {
+  fill: #ffe27a;
+  filter: drop-shadow(0 0 3px #ffe27a);
+  animation: ga-bot1 4.2s ease-in-out infinite;
+}
+.ga-bot.is-2 {
+  animation-name: ga-bot2;
+}
+.ga-bot.is-3 {
+  animation-name: ga-bot3;
+}
+.ga-target {
+  fill: none;
+  stroke: #ffe27a;
+  stroke-width: 1.5;
+  animation: ga-target 4.2s ease-in-out infinite;
+}
+.ga-target.is-2 {
+  animation-delay: 0.3s;
+}
+.ga-chip rect {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: rgba(255, 255, 255, 0.25);
+}
+.ga-chip {
+  animation: ga-chip 4.2s ease-in-out infinite;
+}
+.ga-chip text {
+  fill: #fff;
+}
+
+/* --- trading --- */
+.ga-grid {
+  stroke: rgba(255, 255, 255, 0.07);
+}
+.ga .ga-candle {
+  transform-origin: center bottom;
+  animation: ga-candle 6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.ga-candle.is-up line,
+.ga-candle.is-up rect {
+  stroke: #3ee08f;
+  fill: #3ee08f;
+}
+.ga-candle.is-down line,
+.ga-candle.is-down rect {
+  stroke: #ff6b7a;
+  fill: #ff6b7a;
+}
+.ga-trend {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  animation: ga-draw 6s ease-in-out infinite;
+  opacity: 0.85;
+}
+.ga-signal rect {
+  stroke: none;
+}
+.ga-signal.is-buy rect {
+  fill: #3ee08f;
+}
+.ga-signal.is-sell rect {
+  fill: #ff6b7a;
+}
+.ga .ga-signal text {
+  fill: #04140f;
+  font-weight: 800;
+}
+.ga-signal.is-buy {
+  animation: ga-pop-buy 6s ease-out infinite;
+}
+.ga-signal.is-sell {
+  animation: ga-pop-sell 6s ease-out infinite;
+}
+.ga-ai rect {
+  fill: rgba(255, 255, 255, 0.12);
+  stroke: rgba(255, 255, 255, 0.3);
+}
+.ga .ga-ai text {
+  fill: #fff;
+}
+
+/* --- keyframes --- */
+@keyframes ga-twinkle {
+  50% {
+    opacity: 0.2;
+  }
+}
+@keyframes ga-flow {
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+@keyframes ga-ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+@keyframes ga-toss {
+  0%,
+  100% {
+    transform: translateY(6px) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(8deg);
+  }
+}
+@keyframes ga-signal {
+  0% {
+    stroke-dashoffset: 14;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -100;
+    opacity: 0;
+  }
+}
+@keyframes ga-node {
+  0%,
+  100% {
+    fill: #2d2266;
+  }
+  40% {
+    fill: #a78bfa;
+  }
+}
+@keyframes ga-glow {
+  0%,
+  60%,
+  100% {
+    transform: scale(1);
+  }
+  80% {
+    transform: scale(1.12);
+  }
+}
+@keyframes ga-drift {
+  to {
+    transform: translate(-8px, 5px);
+  }
+}
+@keyframes ga-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes ga-bad {
+  0%,
+  30% {
+    fill: rgba(255, 92, 122, 0.55);
+  }
+  60%,
+  80% {
+    fill: rgba(255, 92, 122, 0.95);
+  }
+  100% {
+    fill: rgba(255, 92, 122, 0.55);
+  }
+}
+@keyframes ga-target {
+  0%,
+  35% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+  50%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@keyframes ga-bot1 {
+  0%,
+  45% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  85% {
+    transform: translate(92px, 44px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(92px, 44px);
+    opacity: 0;
+  }
+}
+@keyframes ga-bot2 {
+  0%,
+  45% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  85% {
+    transform: translate(-48px, -42px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-48px, -42px);
+    opacity: 0;
+  }
+}
+@keyframes ga-bot3 {
+  0%,
+  45% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  85% {
+    transform: translate(34px, -52px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(34px, -52px);
+    opacity: 0;
+  }
+}
+@keyframes ga-chip {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  15%,
+  30% {
+    opacity: 1;
+  }
+}
+@keyframes ga-candle {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  12%,
+  88% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+@keyframes ga-draw {
+  0%,
+  20% {
+    stroke-dashoffset: 100;
+  }
+  60%,
+  88% {
+    stroke-dashoffset: 0;
+    opacity: 0.85;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes ga-pop-buy {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+  38%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ga-pop-sell {
+  0%,
+  55% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.8);
+  }
+  63%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ga *,
+  .ga svg * {
+    animation: none !important;
+  }
+  .ga-target,
+  .ga-signal {
+    opacity: 1;
+  }
+  .ga-bot {
+    opacity: 0;
+  }
+}
