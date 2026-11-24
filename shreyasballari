@@ -1,0 +1,58 @@
+# Every http:// address ? https://shreyasballari.com
+server {
+    listen 80;
+    server_name shreyasballari.com www.shreyasballari.com shreyasballari.ai www.shreyasballari.ai;
+
+    location ^~ /.well-known/acme-challenge/ { root /var/www/letsencrypt; }
+    location / { return 301 https://shreyasballari.com$request_uri; }
+}
+
+# https://www.shreyasballari.com, https://shreyasballari.ai, https://www.shreyasballari.ai ? main site
+server {
+    listen 443 ssl http2;
+    server_name www.shreyasballari.com shreyasballari.ai www.shreyasballari.ai;
+
+    ssl_certificate     /etc/letsencrypt/live/shreyasballari.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/shreyasballari.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    return 301 https://shreyasballari.com$request_uri;
+}
+
+# The site
+server {
+    listen 443 ssl http2;
+    server_name shreyasballari.com;
+
+    ssl_certificate     /etc/letsencrypt/live/shreyasballari.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/shreyasballari.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    root  /var/www/shreyasballari/dist;
+    index index.html;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml application/wasm model/gltf-binary;
+
+    # Pages: always check for a new version, so updates show up immediately.
+    location / {
+        add_header Cache-Control "no-cache";
+        add_header X-Content-Type-Options nosniff always;
+        try_files $uri $uri.html $uri/ /index.html;
+    }
+
+    # Hand-gesture engine (MediaPipe) needs the correct type for .wasm files.
+    location ~* \.wasm$ {
+        types { } default_type application/wasm;
+        expires 7d;
+    }
+
+    # Scripts, styles, fonts, pictures, 3D models, video: cache for a week.
+    location ~* \.(?:js|mjs|css|woff2?|ttf|glb|gltf|bin|hdr|ktx2|png|jpe?g|webp|avif|gif|svg|ico|mp4|webm|json|webmanifest)$ {
+        expires 7d;
+        try_files $uri =404;
+    }
+}

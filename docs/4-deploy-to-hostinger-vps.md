@@ -1,8 +1,8 @@
 # 4. Deploy to the Hostinger VPS
 
-This puts the site live at **https://shreyasballari.com**. The other three addresses
-(`www.shreyasballari.com`, `shreyasballari.ai`, `www.shreyasballari.ai`) permanently redirect to it,
-so search engines see one site instead of four copies.
+This puts the site live at **https://shreyasballari.com**. All four domain names serve the same
+site, and visitors stay on the address they opened. The page metadata uses `shreyasballari.com` as
+the canonical URL for search engines and link previews; that does not change the browser address.
 
 The site is fully static: `pnpm build` produces a `dist/` folder of HTML, JS, images and video.
 nginx serves that folder. There is **no Node process, no port and no PM2** to run on the server, and
@@ -10,7 +10,7 @@ nothing here touches the other sites already on the VPS.
 
 ```
 Browser ──► nginx (port 80/443, shared with the other sites)
-              └─ server_name shreyasballari.com ──► /var/www/shreyasballari/site   (copy of dist/)
+              └─ server_name shreyasballari.com ──► /var/www/shreyasballari/dist   (copy of dist/)
                                                     /var/www/shreyasballari/repo   (git clone, build happens here)
 ```
 
@@ -59,7 +59,7 @@ ss -tlnp | grep -E ':(80|443)\s'
 - If it says `apache2`, `httpd`, `litespeed`, `caddy`, or `docker-proxy` (Coolify, Dokploy,
   Nginx Proxy Manager, Traefik …), or the VPS uses a panel such as CloudPanel, aaPanel or
   CyberPanel, **stop here**. Those need a different Step 6. Add the site through that tool instead,
-  pointing it at `/var/www/shreyasballari/site`.
+  pointing it at `/var/www/shreyasballari/dist`.
 
 Also check that nothing else already claims these domains:
 
@@ -117,7 +117,7 @@ ssh -T git@github-shreyasballari
 ## Step 5. Clone and build
 
 ```sh
-mkdir -p /var/www/shreyasballari/site /var/www/letsencrypt
+mkdir -p /var/www/shreyasballari/dist /var/www/letsencrypt
 cd /var/www/shreyasballari
 
 # Private repo (deploy key from Step 4):
@@ -129,8 +129,8 @@ cd repo
 pnpm install --frozen-lockfile
 VITE_SITE_URL=https://shreyasballari.com pnpm build
 
-rsync -a --delete dist/ /var/www/shreyasballari/site/
-ls /var/www/shreyasballari/site    # should show index.html, assets/, …
+rsync -a --delete dist/ /var/www/shreyasballari/dist/
+ls /var/www/shreyasballari/dist    # should show index.html, assets/, …
 ```
 
 `VITE_SITE_URL` must be set at build time. Without it, link previews (WhatsApp, LinkedIn, Google)
@@ -155,7 +155,7 @@ server {
     server_name shreyasballari.com www.shreyasballari.com shreyasballari.ai www.shreyasballari.ai;
 
     location ^~ /.well-known/acme-challenge/ { root /var/www/letsencrypt; }
-    location / { root /var/www/shreyasballari/site; try_files $uri $uri.html $uri/ /index.html; }
+    location / { root /var/www/shreyasballari/dist; try_files $uri $uri.html $uri/ /index.html; }
 }
 EOF
 
@@ -189,43 +189,31 @@ Renewal is automatic (certbot's timer). `--deploy-hook` reloads nginx after ever
 If it fails with "unauthorized" or "connection" errors: one of the four names doesn't resolve to the
 VPS yet, or an `AAAA` record still exists. Go back to Step 1.
 
-## Step 8. nginx, final config (HTTPS + redirects)
+## Step 8. nginx, final config (HTTPS on all domains)
 
 Replace the file from Step 6 with the full version:
 
 ```sh
 cat > /etc/nginx/sites-available/shreyasballari.conf <<'EOF'
-# Every http:// address → https://shreyasballari.com
+# Upgrade HTTP to HTTPS while keeping the hostname the visitor opened.
 server {
     listen 80;
     server_name shreyasballari.com www.shreyasballari.com shreyasballari.ai www.shreyasballari.ai;
 
     location ^~ /.well-known/acme-challenge/ { root /var/www/letsencrypt; }
-    location / { return 301 https://shreyasballari.com$request_uri; }
+    location / { return 301 https://$host$request_uri; }
 }
 
-# https://www.shreyasballari.com, https://shreyasballari.ai, https://www.shreyasballari.ai → main site
+# Serve the same site for all four HTTPS hostnames without changing the address.
 server {
     listen 443 ssl http2;
-    server_name www.shreyasballari.com shreyasballari.ai www.shreyasballari.ai;
+    server_name shreyasballari.com www.shreyasballari.com shreyasballari.ai www.shreyasballari.ai;
 
     ssl_certificate     /etc/letsencrypt/live/shreyasballari.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/shreyasballari.com/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
 
-    return 301 https://shreyasballari.com$request_uri;
-}
-
-# The site
-server {
-    listen 443 ssl http2;
-    server_name shreyasballari.com;
-
-    ssl_certificate     /etc/letsencrypt/live/shreyasballari.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/shreyasballari.com/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-
-    root  /var/www/shreyasballari/site;
+    root  /var/www/shreyasballari/dist;
     index index.html;
 
     add_header X-Content-Type-Options nosniff always;
@@ -264,15 +252,16 @@ nginx -t && systemctl reload nginx
 ## Step 9. Check it
 
 ```sh
-curl -sI http://shreyasballari.ai        | grep -iE 'HTTP/|location'   # 301 → https://shreyasballari.com/
-curl -sI https://www.shreyasballari.ai   | grep -iE 'HTTP/|location'   # 301 → https://shreyasballari.com/
-curl -sI https://www.shreyasballari.com  | grep -iE 'HTTP/|location'   # 301 → https://shreyasballari.com/
+curl -sI http://shreyasballari.ai        | grep -iE 'HTTP/|location'   # 301 → https://shreyasballari.ai/
+curl -sI https://shreyasballari.ai       | grep -iE 'HTTP/'            # 200
+curl -sI https://www.shreyasballari.ai   | grep -iE 'HTTP/'            # 200
+curl -sI https://www.shreyasballari.com  | grep -iE 'HTTP/'            # 200
 curl -sI https://shreyasballari.com      | grep -iE 'HTTP/'            # 200
 ```
 
 Then in a browser (and on a phone):
 
-- [ ] https://shreyasballari.com loads, with a padlock.
+- [ ] Each of the four HTTPS domains loads with a padlock and stays in the address bar.
 - [ ] All three tabs at the bottom (Creative, Studio, Classic) work.
 - [ ] The Oncure video plays.
 - [ ] Reloading the page on a sub-page (not just the home page) still works and doesn't show an nginx 404.
@@ -298,7 +287,7 @@ pnpm install --frozen-lockfile
 VITE_SITE_URL=https://shreyasballari.com pnpm build
 
 # Only replace the live files once the build has succeeded.
-rsync -a --delete dist/ /var/www/shreyasballari/site/
+rsync -a --delete dist/ /var/www/shreyasballari/dist/
 echo "Deployed $(git log -1 --format='%h %s')"
 EOF
 chmod +x /usr/local/bin/deploy-shreyasballari
