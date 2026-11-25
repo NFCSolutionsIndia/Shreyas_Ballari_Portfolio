@@ -52,7 +52,7 @@ changes are needed. Keep photos under about 500 KB (https://squoosh.app makes th
 
 | Folder | Contents |
 | --- | --- |
-| `public/assets/shreyas/` | His photos: `hero-cutout.png`, `hero-backdrop.jpg`, `portrait.png`, `portrait-studio.jpg` |
+| `public/assets/shreyas/` | His photos: `hero-cutout.webp`, `hero-backdrop.jpg`, `portrait.webp`, `portrait-studio.jpg` |
 | `public/assets/videos/oncure.mp4` | The Oncure film |
 | `public/assets/certificates/` | Real certificate scans (empty until you add them) |
 | `public/assets/photos/` | Real photographs of each topic (sources and licences in `CREDITS.md`) |

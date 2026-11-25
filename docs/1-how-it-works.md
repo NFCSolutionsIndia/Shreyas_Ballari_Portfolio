@@ -123,7 +123,7 @@ The live site lives in a sub folder (`…github.io/Shreyas_Ballari_Portfolio/`).
 there too, code never writes `/assets/...`. It writes:
 
 ```ts
-`${import.meta.env.BASE_URL}assets/shreyas/hero-cutout.png`
+`${import.meta.env.BASE_URL}assets/shreyas/hero-cutout.webp`
 ```
 
 Next: [Change words, pictures and videos](2-change-content.md)

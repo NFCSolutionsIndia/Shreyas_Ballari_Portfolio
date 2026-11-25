@@ -33,7 +33,7 @@ export const profile = {
   schoolTown: 'Alpharetta, Georgia',
   state: 'Georgia',
   /** Photo supplied by the family (transparent background). */
-  portrait: `${import.meta.env.BASE_URL}assets/shreyas/portrait.png`,
+  portrait: `${import.meta.env.BASE_URL}assets/shreyas/portrait.webp`,
   /** Approved public email: none. Contact goes through the form to a family inbox. */
   socials: [] as { label: string; url: string }[],
 };
@@ -479,7 +479,7 @@ export const oncure = {
     'A proposed cancer treatment system that combines artificial intelligence, nanorobotics and targeted antibody therapy to detect and destroy cancer cells while reducing treatment time, cost and side effects. Microscopic robots in the bloodstream would find cancer cells, report to an AI system, and deliver synthetic antibodies that trigger programmed cell death (apoptosis).',
   vision: 'An affordable, rapid, minimally invasive cancer treatment accessible worldwide.',
   disclaimer: 'Oncure is a conceptual research proposal, not an existing or clinically validated cancer treatment.',
-  video: media('oncure-film-cinematic-finalvideo-v2_new.mp4'),
+  video: media('oncure.mp4'),
   features: [
     { title: 'AI-powered detection', line: 'AI analyses what the nanobots collect to find possible cancer cells.' },
     { title: 'Nanobot technology', line: 'Microscopic robots would travel through the bloodstream to locate cancer.' },

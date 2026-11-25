@@ -375,9 +375,9 @@ Paths are inside `public/`. In the browser each one is at `<site address>/<path>
 | File | Type | Size | Used in |
 | --- | --- | --- | --- |
 | `hero-backdrop.jpg` | Image | 137 KB | `portfolios/classic/hero/StageHero.tsx` |
-| `hero-cutout.png` | Image | 1.8 MB | `portfolios/classic/hero/StageHero.tsx` |
+| `hero-cutout.webp` | Image | 177 KB | `portfolios/classic/hero/StageHero.tsx` |
 | `portrait-studio.jpg` | Image | 192 KB | `features/details/Contact.tsx`, `portfolios/classic/flow/Flow.tsx`, `portfolios/creative/spatial/os/media.ts`, `portfolios/creative/spatial/story/tour.ts`, `portfolios/studio/StudioPortfolio.tsx` |
-| `portrait.png` | Image | 992 KB | `content/portfolio.ts` |
+| `portrait.webp` | Image | 68 KB | `content/portfolio.ts` |
 
 ## assets/videos
 
@@ -395,4 +395,4 @@ Paths are inside `public/`. In the browser each one is at `<site address>/<path>
 
 | File | Type | Size | Used in |
 | --- | --- | --- | --- |
-| `apple_vision_pro.glb` | 3D model | 11.3 MB | `portfolios/creative/spatial/intro/HeadsetModel.tsx` |
+| `apple_vision_pro.glb` | 3D model | 2.4 MB | `portfolios/creative/spatial/intro/HeadsetModel.tsx` |

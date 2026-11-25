@@ -96,7 +96,7 @@ export function StageHero({ mini = false }: { mini?: boolean }) {
     <section ref={root} id={mini ? undefined : 'home'} className={`sh ${mini ? 'is-mini' : ''}`} aria-labelledby={mini ? undefined : 'sh-name'} aria-hidden={mini || undefined}>
       <img className="sh-bg" src={`${BASE}assets/shreyas/hero-backdrop.jpg`} alt="" aria-hidden="true" />
       <div className="sh-person" ref={person}>
-        <img src={`${BASE}assets/shreyas/hero-cutout.png`} alt={mini ? '' : `${profile.name}, in a dark suit, light blue shirt and blue tie`} fetchPriority={mini ? 'low' : 'high'} />
+        <img src={`${BASE}assets/shreyas/hero-cutout.webp`} alt={mini ? '' : `${profile.name}, in a dark suit, light blue shirt and blue tie`} fetchPriority={mini ? 'low' : 'high'} />
       </div>
       <aside ref={card} className="sh-card">
         <p className="sh-hey">Hey, I’m {profile.firstName}</p>

@@ -49,6 +49,17 @@ export default defineConfig({
     ],
     exclude: ['@react-three/drei'],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // The 3D engine in its own file: it rarely changes, so after a redeploy returning
+        // visitors keep their cached copy and only download the site's own (small) code.
+        manualChunks(id) {
+          if (/[\\/]node_modules[\\/](three|three-stdlib|@react-three[\\/][^\\/]+|troika-[^\\/]+)[\\/]/.test(id)) return 'three';
+        },
+      },
+    },
+  },
   ssgOptions: {
     // Admin and preview routes stay client-only; never pre-render or index them.
     includedRoutes: (paths) =>
